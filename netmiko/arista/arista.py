@@ -13,6 +13,7 @@ class AristaBase(CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
         self._test_channel_read(pattern=self.prompt_pattern)
         cmd = "terminal width 511"
         self.set_terminal_width(command=cmd, pattern=r"Width set to")

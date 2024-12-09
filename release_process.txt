@@ -1,5 +1,5 @@
 
-# Use pydev2 machine
+# Use pydev3 machine
 # Use virtual environment = .venv
 
 # Run the following command to update docs: 
