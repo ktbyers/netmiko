@@ -25,6 +25,7 @@ import importlib.resources as pkg_resources
 from textfsm import clitable
 from textfsm.clitable import CliTableError
 from netmiko import log
+from netmiko.exceptions import NetmikoParsingException
 
 # For decorators
 F = TypeVar("F", bound=Callable[..., Any])
@@ -115,6 +116,20 @@ def load_yaml_file(yaml_file: Union[str, bytes, "PathLike[Any]"]) -> Any:
         sys.exit("Unable to open YAML file")
 
 
+def load_netmiko_yml(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> Any:
+    """
+    Load and parse the .netmiko.yml as determined by 'find_cfg_file'.
+
+    Parsing:
+        Retrieve and extract 'config' parameters: __meta__ field
+        Determine if encryption is being used and decrypt any encrypted fields
+    """
+    yaml_devices_file = find_cfg_file(file_name)
+    netmiko_yaml_data = load_yaml_file(yaml_devices_file)
+    config_params = netmiko_yaml_data.pop("__meta__", {})
+    return config_params, netmiko_yaml_data
+
+
 def load_devices(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> Any:
     """Find and load .netmiko.yml file."""
     yaml_devices_file = find_cfg_file(file_name)
@@ -145,13 +160,14 @@ def find_cfg_file(
         if files:
             return files[0]
     raise IOError(
-        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,"
+        ".netmiko.yml file not found in NETMIKO_TOOLS_CFG environment variable directory,"
         " current directory, or home directory."
     )
 
 
 def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -> None:
     """Print out inventory devices and groups."""
+    config_params = my_devices.pop("__meta__", {})  # noqa
     inventory_groups = ["all"]
     inventory_devices = []
     for k, v in my_devices.items():
@@ -295,15 +311,23 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
     else:
         # Try 'pip installed' ntc-templates
         try:
-            with pkg_resources.path(
-                package="ntc_templates", resource="parse.py"
-            ) as posix_path:
-                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
-                template_dir = str(posix_path.parent.joinpath("templates"))
-                # This is for Netmiko automated testing
-                if _skip_ntc_package:
-                    raise ModuleNotFoundError()
-
+            # New API for Python 3.13+
+            if sys.version_info >= (3, 13):
+                with pkg_resources.path("ntc_templates", "parse.py") as posix_path:
+                    # Example: /venv/netmiko/lib/python3.13/site-packages/ntc_templates/templates
+                    template_dir = str(posix_path.parent.joinpath("templates"))
+                    # This is for Netmiko automated testing
+                    if _skip_ntc_package:
+                        raise ModuleNotFoundError()
+            else:
+                with pkg_resources.path(
+                    package="ntc_templates", resource="parse.py"
+                ) as posix_path:
+                    # Example: /opt/venv/netmiko/lib/python3.9/site-packages/ntc_templates/templates
+                    template_dir = str(posix_path.parent.joinpath("templates"))
+                    # This is for Netmiko automated testing
+                    if _skip_ntc_package:
+                        raise ModuleNotFoundError()
         except ModuleNotFoundError:
             # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser("~")
@@ -333,6 +357,7 @@ def _textfsm_parse(
     raw_output: str,
     attrs: Dict[str, str],
     template_file: Optional[str] = None,
+    raise_parsing_error: bool = False,
 ) -> Union[str, List[Dict[str, str]]]:
     """Perform the actual TextFSM parsing using the CliTable object."""
     tfsm_parse: Callable[..., Any] = textfsm_obj.ParseCmd
@@ -345,10 +370,19 @@ def _textfsm_parse(
 
         structured_data = clitable_to_dict(textfsm_obj)
         if structured_data == []:
+            if raise_parsing_error:
+                msg = """Failed to parse CLI output using TextFSM
+(template found, but unexpected data?)"""
+                raise NetmikoParsingException(msg)
             return raw_output
         else:
             return structured_data
-    except (FileNotFoundError, CliTableError):
+    except (FileNotFoundError, CliTableError) as error:
+        if raise_parsing_error:
+            msg = f"""Failed to parse CLI output using TextFSM
+(template not found for command and device_type/platform?)
+{error}"""
+            raise NetmikoParsingException(msg)
         return raw_output
 
 
@@ -357,6 +391,7 @@ def get_structured_data_textfsm(
     platform: Optional[str] = None,
     command: Optional[str] = None,
     template: Optional[str] = None,
+    raise_parsing_error: bool = False,
 ) -> Union[str, List[Dict[str, str]]]:
     """
     Convert raw CLI output to structured data using TextFSM template.
@@ -377,7 +412,12 @@ def get_structured_data_textfsm(
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, "index")
         textfsm_obj = clitable.CliTable(index_file, template_dir)
-        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
+        output = _textfsm_parse(
+            textfsm_obj,
+            raw_output,
+            attrs,
+            raise_parsing_error=raise_parsing_error,
+        )
 
         # Retry the output if "cisco_xe" and not structured data
         if platform and "cisco_xe" in platform:
@@ -392,7 +432,11 @@ def get_structured_data_textfsm(
         # CliTable with no index will fall-back to a TextFSM parsing behavior
         textfsm_obj = clitable.CliTable(template_dir=template_dir_alt)
         return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=template_file
+            textfsm_obj,
+            raw_output,
+            attrs,
+            template_file=template_file,
+            raise_parsing_error=raise_parsing_error,
         )
 
 
@@ -400,7 +444,9 @@ def get_structured_data_textfsm(
 get_structured_data = get_structured_data_textfsm
 
 
-def get_structured_data_ttp(raw_output: str, template: str) -> Union[str, List[Any]]:
+def get_structured_data_ttp(
+    raw_output: str, template: str, raise_parsing_error: bool = False
+) -> Union[str, List[Any]]:
     """
     Convert raw CLI output to structured data using TTP template.
 
@@ -414,8 +460,17 @@ def get_structured_data_ttp(raw_output: str, template: str) -> Union[str, List[A
         ttp_parser = ttp(data=raw_output, template=template)
         ttp_parser.parse(one=True)
         result: List[Any] = ttp_parser.result(format="raw")
+        # TTP will treat a string as a directly passed template so try to catch this
+        if raise_parsing_error and result == [[{}]]:
+            msg = """Failed to parse CLI output using TTP
+Empty results returned (TTP template could not be found?)"""
+            raise NetmikoParsingException(msg)
         return result
-    except Exception:
+    except Exception as exception:
+        if raise_parsing_error:
+            raise NetmikoParsingException(
+                f"Failed to parse CLI output using TTP\n{exception}"
+            )
         return raw_output
 
 
@@ -488,7 +543,7 @@ def run_ttp_template(
 
 
 def get_structured_data_genie(
-    raw_output: str, platform: str, command: str
+    raw_output: str, platform: str, command: str, raise_parsing_error: bool = False
 ) -> Union[str, Dict[str, Any]]:
     if not sys.version_info >= (3, 4):
         raise ValueError("Genie requires Python >= 3.4")
@@ -536,7 +591,11 @@ def get_structured_data_genie(
         get_parser(command, device)
         parsed_output: Dict[str, Any] = device.parse(command, output=raw_output)
         return parsed_output
-    except Exception:
+    except Exception as exception:
+        if raise_parsing_error:
+            raise NetmikoParsingException(
+                f"Failed to parse CLI output using Genie\n{exception}"
+            )
         return raw_output
 
 
@@ -549,16 +608,22 @@ def structured_data_converter(
     use_genie: bool = False,
     textfsm_template: Optional[str] = None,
     ttp_template: Optional[str] = None,
+    raise_parsing_error: bool = False,
 ) -> Union[str, List[Any], Dict[str, Any]]:
     """
     Try structured data converters in the following order: TextFSM, TTP, Genie.
 
-    Return the first structured data found, else return the raw_data as-is.
+    Return the first structured data found, else return the raw_data as-is unless
+    `raise_parsing_error` is True, then bubble up the exception to the caller.
     """
     command = command.strip()
     if use_textfsm:
         structured_output_tfsm = get_structured_data_textfsm(
-            raw_data, platform=platform, command=command, template=textfsm_template
+            raw_data,
+            platform=platform,
+            command=command,
+            template=textfsm_template,
+            raise_parsing_error=raise_parsing_error,
         )
         if not isinstance(structured_output_tfsm, str):
             return structured_output_tfsm
@@ -571,7 +636,9 @@ The argument 'ttp_template=/path/to/template.ttp' must be set when use_ttp=True
             raise ValueError(msg)
         else:
             structured_output_ttp = get_structured_data_ttp(
-                raw_data, template=ttp_template
+                raw_data,
+                template=ttp_template,
+                raise_parsing_error=raise_parsing_error,
             )
 
         if not isinstance(structured_output_ttp, str):
@@ -579,7 +646,10 @@ The argument 'ttp_template=/path/to/template.ttp' must be set when use_ttp=True
 
     if use_genie:
         structured_output_genie = get_structured_data_genie(
-            raw_data, platform=platform, command=command
+            raw_data,
+            platform=platform,
+            command=command,
+            raise_parsing_error=raise_parsing_error,
         )
         if not isinstance(structured_output_genie, str):
             return structured_output_genie

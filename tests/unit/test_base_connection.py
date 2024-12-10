@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-
+import pytest
 import time
 from os.path import dirname, join
 from threading import Lock
 
-from netmiko import NetmikoTimeoutException, log
+import paramiko
+from netmiko import NetmikoTimeoutException, log, ConnectHandler
 from netmiko.base_connection import BaseConnection
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
@@ -469,6 +470,8 @@ def test_strip_ansi_codes():
         "\x1b[0m",  # code_attrs_off
         "\x1b[7m",  # code_reverse
         "\x1b[c",  # code_query_device
+        "\x1b[?2004h",  # code_enable_bracketed_paste_mode
+        "\x1b[?2004l",  # code_disable_bracketed_paste_mode
     ]
     for ansi_code in ansi_codes_to_strip:
         assert connection.strip_ansi_escape_codes(ansi_code) == ""
@@ -491,3 +494,130 @@ def test_remove_SecretsFilter_after_disconnection():
     connection.disconnect()
 
     assert not log.filters
+
+
+def test_fortinet_kex_values():
+    """Verify KEX override in Fortinet driver works properly"""
+    connection = ConnectHandler(
+        host="testhost",
+        device_type="fortinet",
+        auto_connect=False,  # No need to connect for the test purposes
+    )
+    paramiko_transport = getattr(paramiko, "Transport")
+    paramiko_default_kex = set(paramiko_transport._preferred_kex)
+
+    allowed_fortinet_kex = set(connection.preferred_kex)
+    disabled_kex = list(paramiko_default_kex - allowed_fortinet_kex)
+    allowed_kex = paramiko_default_kex & allowed_fortinet_kex
+
+    # Ensure disabled_kex matches expectations
+    assert disabled_kex == connection.disabled_algorithms.get("kex", [])
+    # Ensure allowed_kex is not an empty set
+    assert allowed_kex
+
+    connection.disconnect()
+
+
+def test_disable_sha2_fix():
+    """
+    Verify SHA2 fix works properly; test with fortinet device_type as it is more of an edge
+    case.
+    """
+    connection = ConnectHandler(
+        host="testhost",
+        device_type="fortinet",
+        disable_sha2_fix=True,
+        auto_connect=False,  # No need to connect for the test purposes
+    )
+    paramiko_transport = getattr(paramiko, "Transport")
+
+    # Verify fortinet kex fix and disable_sha2_fix work properly together
+    paramiko_default_kex = set(paramiko_transport._preferred_kex)
+    allowed_fortinet_kex = set(connection.preferred_kex)
+    disabled_kex = list(paramiko_default_kex - allowed_fortinet_kex)
+    allowed_kex = paramiko_default_kex & allowed_fortinet_kex
+
+    # Ensure disabled_kex matches expectations
+    assert disabled_kex == connection.disabled_algorithms.get("kex", [])
+    # Ensure allowed_kex is not an empty set
+    assert allowed_kex
+
+    # Verify 'sha2' algorithms have been disabled
+    paramiko_default_pubkeys = set(paramiko_transport._preferred_keys)
+    disabled_pubkey_algos = set(connection.disabled_algorithms.get("pubkeys", []))
+
+    allowed_pubkeys = paramiko_default_pubkeys - disabled_pubkey_algos
+    # Check allowed_pubkeys is not an empty set
+    assert allowed_pubkeys
+    # Check both 'sha2' pubkeys are not in allowed_pubkeys
+    assert {"rsa-sha2-512", "rsa-sha2-256"} & allowed_pubkeys == set()
+
+    connection.disconnect()
+
+
+TEST_CASES = [
+    ("some important data\n--{ running }--[  ]--\nA:srl1#", "some important data"),
+    (
+        "more data\nsome important data\n--{ running }--[  ]--\nA:srl1#",
+        "more data\nsome important data",
+    ),
+    (
+        "more data\nsome important data\n--{ candidate private private-admin }--[  ]--\nA:srl1#",
+        "more data\nsome important data",
+    ),
+    (
+        "more data\nsome important data\n--{ candidate private private-admin }--[  ]--\nA:srl1#",
+        "more data\nsome important data",
+    ),
+    (
+        """
+{
+  "basic system info": {
+    "Hostname": "srl1",
+    "Chassis Type": "7220 IXR-D2L",
+    "Part Number": "Sim Part No.",
+    "Serial Number": "Sim Serial No.",
+    "System HW MAC Address": "1A:03:00:FF:00:00",
+    "OS": "SR Linux",
+    "Software Version": "v24.7.2",
+    "Build Number": "319-g64b71941f7",
+    "Architecture": "<Unknown>",
+    "Last Booted": "2024-11-01T17:21:00.164Z",
+    "Total Memory": "<Unknown>",
+    "Free Memory": "<Unknown>"
+  }
+}
+
+--{ running }--[  ]--
+A:srl1#""",
+        """
+{
+  "basic system info": {
+    "Hostname": "srl1",
+    "Chassis Type": "7220 IXR-D2L",
+    "Part Number": "Sim Part No.",
+    "Serial Number": "Sim Serial No.",
+    "System HW MAC Address": "1A:03:00:FF:00:00",
+    "OS": "SR Linux",
+    "Software Version": "v24.7.2",
+    "Build Number": "319-g64b71941f7",
+    "Architecture": "<Unknown>",
+    "Last Booted": "2024-11-01T17:21:00.164Z",
+    "Total Memory": "<Unknown>",
+    "Free Memory": "<Unknown>"
+  }
+}
+""",
+    ),
+]
+
+
+@pytest.mark.parametrize("test_string,expected", TEST_CASES)
+def test_nokiasrl_prompt_stripping(test_string, expected):
+    conn = ConnectHandler(
+        host="testhost",
+        device_type="nokia_srl",
+        auto_connect=False,  # No need to connect for the test purposes
+    )
+    result = conn.strip_prompt(a_string=test_string)
+    assert result == expected

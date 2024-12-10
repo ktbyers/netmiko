@@ -29,7 +29,7 @@ def progress_bar(
 
     # Percentage done
     percent_complete = sent / size
-    percent_str = f"{percent_complete*100:.2f}%"
+    percent_str = f"{percent_complete * 100:.2f}%"
     hash_count = int(percent_complete * max_width)
     progress = hash_count * ">"
 
