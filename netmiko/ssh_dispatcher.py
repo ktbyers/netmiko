@@ -110,6 +110,7 @@ from netmiko.nokia import (
     NokiaSrlSSH,
 )
 from netmiko.netgear import NetgearProSafeSSH
+from netmiko.nec import NecIxSSH, NecIxTelnet
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
@@ -259,6 +260,7 @@ CLASS_MAPPER_BASE = {
     "mellanox_mlnxos": MellanoxMlnxosSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
+    "nec_ix": NecIxSSH,
     "netapp_cdot": NetAppcDotSSH,
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
@@ -356,6 +358,7 @@ CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
+CLASS_MAPPER["nec_ix_telnet"] = NecIxTelnet
 CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
