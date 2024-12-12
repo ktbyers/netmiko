@@ -1,6 +1,19 @@
 import time
 import re
-from netmiko._telnetlib.telnetlib import Telnet
+from socket import socket
+from netmiko._telnetlib.telnetlib import (
+    IAC,
+    DO,
+    DONT,
+    WILL,
+    WONT,
+    SB,
+    SE,
+    ECHO,
+    SGA,
+    NAWS,
+    Telnet,
+)
 from typing import Any, Optional
 
 from netmiko.base_connection import BaseConnection
@@ -144,8 +157,24 @@ class NecIxTelnet(NecIxBase):
         kwargs["default_enter"] = "\r" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
 
-    def ignore_option_negotiation(self, sock: Any, cmd: Any, opt: Any) -> None:
-        pass
+    def _process_option(self, telnet_sock: socket, cmd: bytes, opt: bytes) -> None:
+        """
+        enable ECHO, SGA, set window size to [500, 50]
+        """
+        if cmd == WILL:
+            if opt in [ECHO, SGA]:
+                # reply DO ECHO / DO SGA
+                telnet_sock.sendall(IAC + DO + opt)
+            else:
+                telnet_sock.sendall(IAC + DONT + opt)
+        elif cmd == DO:
+            if opt == NAWS:
+                # negotiate about window size
+                telnet_sock.sendall(IAC + WILL + opt)
+                # Width:500, Weight:50
+                telnet_sock.sendall(IAC + SB + NAWS + b"\x01\xf4\x00\x32" + IAC + SE)
+            else:
+                telnet_sock.sendall(IAC + WONT + opt)
 
     def telnet_login(
         self,
@@ -156,10 +185,8 @@ class NecIxTelnet(NecIxBase):
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
-        if isinstance(self.remote_conn, Telnet):
-            self.remote_conn.set_option_negotiation_callback(
-                self.ignore_option_negotiation
-            )
+        assert isinstance(self.remote_conn, Telnet)
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         return super().telnet_login(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
