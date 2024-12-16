@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.1">
 <title>netmiko API documentation</title>
-<meta name="description" content="" />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
 </head>
 <body>
 <main>
@@ -22,107 +25,6 @@
 <h1 class="title">Package <code>netmiko</code></h1>
 </header>
 <section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">import sys
-
-__version__ = &#34;4.3.0&#34;
-PY_MAJ_VER = 3
-PY_MIN_VER = 8
-MIN_PYTHON_VER = &#34;3.8&#34;
-
-
-# Make sure user is using a valid Python version (for Netmiko)
-def check_python_version():  # type: ignore
-    python_snake = &#34;\U0001F40D&#34;
-
-    # Use old-school .format() method in case someone tries to use Netmiko with very old Python
-    msg = &#34;&#34;&#34;
-
-Netmiko Version {net_ver} requires Python Version {py_ver} or higher.
-
-&#34;&#34;&#34;.format(
-        net_ver=__version__, py_ver=MIN_PYTHON_VER
-    )
-    if sys.version_info.major != PY_MAJ_VER:
-        raise ValueError(msg)
-    elif sys.version_info.minor &lt; PY_MIN_VER:
-        # Why not :-)
-        msg = msg.rstrip() + &#34; {snake}\n\n&#34;.format(snake=python_snake)
-        raise ValueError(msg)
-
-
-check_python_version()  # type: ignore
-
-
-import logging  # noqa
-
-
-# Logging configuration
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
-
-
-from netmiko.ssh_dispatcher import ConnectHandler  # noqa
-from netmiko.ssh_dispatcher import TelnetFallback  # noqa
-from netmiko.ssh_dispatcher import ConnLogOnly  # noqa
-from netmiko.ssh_dispatcher import ConnUnify  # noqa
-from netmiko.ssh_dispatcher import ssh_dispatcher  # noqa
-from netmiko.ssh_dispatcher import redispatch  # noqa
-from netmiko.ssh_dispatcher import platforms  # noqa
-from netmiko.ssh_dispatcher import FileTransfer  # noqa
-from netmiko.scp_handler import SCPConn  # noqa
-from netmiko.cisco.cisco_ios import InLineTransfer  # noqa
-from netmiko.exceptions import (  # noqa
-    NetmikoTimeoutException,
-    NetMikoTimeoutException,
-)
-from netmiko.exceptions import (  # noqa
-    NetmikoAuthenticationException,
-    NetMikoAuthenticationException,
-)
-from netmiko.exceptions import ConfigInvalidException  # noqa
-from netmiko.exceptions import ReadException, ReadTimeout  # noqa
-from netmiko.exceptions import NetmikoBaseException, ConnectionException  # noqa
-from netmiko.ssh_autodetect import SSHDetect  # noqa
-from netmiko.base_connection import BaseConnection  # noqa
-from netmiko.scp_functions import file_transfer, progress_bar  # noqa
-
-# Alternate naming
-Netmiko = ConnectHandler
-
-__all__ = (
-    &#34;ConnectHandler&#34;,
-    &#34;AgnosticHandler&#34;,
-    &#34;ConnLogOnly&#34;,
-    &#34;ConnUnify&#34;,
-    &#34;ssh_dispatcher&#34;,
-    &#34;platforms&#34;,
-    &#34;SCPConn&#34;,
-    &#34;FileTransfer&#34;,
-    &#34;NetmikoBaseException&#34;,
-    &#34;ConnectionException&#34;,
-    &#34;NetmikoTimeoutException&#34;,
-    &#34;NetMikoTimeoutException&#34;,
-    &#34;ConfigInvalidException&#34;,
-    &#34;ReadException&#34;,
-    &#34;ReadTimeout&#34;,
-    &#34;NetmikoAuthenticationException&#34;,
-    &#34;NetMikoAuthenticationException&#34;,
-    &#34;InLineTransfer&#34;,
-    &#34;redispatch&#34;,
-    &#34;SSHDetect&#34;,
-    &#34;BaseConnection&#34;,
-    &#34;Netmiko&#34;,
-    &#34;file_transfer&#34;,
-    &#34;progress_bar&#34;,
-)
-
-# Cisco cntl-shift-six sequence
-CNTL_SHIFT_6 = chr(30)</code></pre>
-</details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
@@ -142,6 +44,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dt><code class="name"><a title="netmiko.adva" href="adva/index.html">netmiko.adva</a></code></dt>
 <dd>
 <div class="desc"><p>Adva Device Drivers</p></div>
+</dd>
+<dt><code class="name"><a title="netmiko.alaxala" href="alaxala/index.html">netmiko.alaxala</a></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="netmiko.alcatel" href="alcatel/index.html">netmiko.alcatel</a></code></dt>
 <dd>
@@ -251,6 +157,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="netmiko.encryption_handling" href="encryption_handling.html">netmiko.encryption_handling</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="netmiko.endace" href="endace/index.html">netmiko.endace</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -284,6 +194,10 @@ CNTL_SHIFT_6 = chr(30)</code></pre>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="netmiko.fortinet" href="fortinet/index.html">netmiko.fortinet</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="netmiko.garderos" href="garderos/index.html">netmiko.garderos</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -453,6 +367,10 @@ a new SSH connection with a remote host. This …</p></div>
 <dd>
 <div class="desc"><p>Miscellaneous utility functions.</p></div>
 </dd>
+<dt><code class="name"><a title="netmiko.vertiv" href="vertiv/index.html">netmiko.vertiv</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="netmiko.vyos" href="vyos/index.html">netmiko.vyos</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -480,208 +398,40 @@ a new SSH connection with a remote host. This …</p></div>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="netmiko.AgnosticHandler"><code class="name flex">
-<span>def <span class="ident">AgnosticHandler</span></span>(<span>*args: Any, **kwargs: Any) ‑> <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Factory function selects the proper class and creates object based on device_type.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ConnectHandler(*args: Any, **kwargs: Any) -&gt; &#34;BaseConnection&#34;:
-    &#34;&#34;&#34;Factory function selects the proper class and creates object based on device_type.&#34;&#34;&#34;
-    device_type = kwargs[&#34;device_type&#34;]
-    if device_type not in platforms:
-        if device_type is None:
-            msg_str = platforms_str
-        else:
-            msg_str = telnet_platforms_str if &#34;telnet&#34; in device_type else platforms_str
-        raise ValueError(
-            &#34;Unsupported &#39;device_type&#39; &#34;
-            &#34;currently supported platforms are: {}&#34;.format(msg_str)
-        )
-    ConnectionClass = ssh_dispatcher(device_type)
-    return ConnectionClass(*args, **kwargs)</code></pre>
-</details>
-</dd>
 <dt id="netmiko.ConnLogOnly"><code class="name flex">
-<span>def <span class="ident">ConnLogOnly</span></span>(<span>log_file: str = 'netmiko.log', log_level: Optional[int] = None, log_format: Optional[str] = None, **kwargs: Any) ‑> Optional[<a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a>]</span>
+<span>def <span class="ident">ConnLogOnly</span></span>(<span>log_file: str = 'netmiko.log', log_level: Optional[int] = None, log_format: Optional[str] = None, **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dispatcher function that will return either: netmiko_object or None</p>
 <p>Excluding errors in logging configuration should never generate an exception
 all errors should be logged.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ConnLogOnly(
-    log_file: str = &#34;netmiko.log&#34;,
-    log_level: Optional[int] = None,
-    log_format: Optional[str] = None,
-    **kwargs: Any,
-) -&gt; Optional[&#34;BaseConnection&#34;]:
-    &#34;&#34;&#34;
-    Dispatcher function that will return either: netmiko_object or None
-
-    Excluding errors in logging configuration should never generate an exception
-    all errors should be logged.
-    &#34;&#34;&#34;
-
-    import logging
-
-    if log_level is None:
-        log_level = logging.ERROR
-    if log_format is None:
-        log_format = &#34;%(asctime)s %(levelname)s %(name)s %(message)s&#34;
-
-    logging.basicConfig(filename=log_file, level=log_level, format=log_format)
-    logger = logging.getLogger(__name__)
-
-    try:
-        kwargs[&#34;auto_connect&#34;] = False
-        net_connect = ConnectHandler(**kwargs)
-        hostname = net_connect.host
-        port = net_connect.port
-        device_type = net_connect.device_type
-
-        net_connect._open()
-        msg = f&#34;Netmiko connection succesful to {hostname}:{port}&#34;
-        logger.info(msg)
-        return net_connect
-    except NetmikoAuthenticationException as e:
-        msg = (
-            f&#34;Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}&#34;
-        )
-        logger.error(msg)
-        return None
-    except NetmikoTimeoutException as e:
-        if &#34;DNS failure&#34; in str(e):
-            msg = f&#34;Device failed due to a DNS failure, hostname {hostname}&#34;
-        elif &#34;TCP connection to device failed&#34; in str(e):
-            msg = f&#34;Netmiko was unable to reach the provided host and port: {hostname}:{port}&#34;
-            msg += f&#34;\n\n{str(e)}&#34;
-        else:
-            msg = f&#34;An unknown NetmikoTimeoutException occurred:\n\n{str(e)}&#34;
-        logger.error(msg)
-        return None
-    except Exception as e:
-        msg = f&#34;An unknown exception occurred during connection:\n\n{str(e)}&#34;
-        logger.error(msg)
-        return None</code></pre>
-</details>
 </dd>
 <dt id="netmiko.ConnUnify"><code class="name flex">
-<span>def <span class="ident">ConnUnify</span></span>(<span>**kwargs: Any) ‑> <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a></span>
+<span>def <span class="ident">ConnUnify</span></span>(<span>**kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ConnUnify(
-    **kwargs: Any,
-) -&gt; &#34;BaseConnection&#34;:
-    try:
-        kwargs[&#34;auto_connect&#34;] = False
-        net_connect = ConnectHandler(**kwargs)
-        hostname = net_connect.host
-        port = net_connect.port
-        device_type = net_connect.device_type
-        general_msg = f&#34;Connection failure to {hostname}:{port} ({device_type})\n\n&#34;
-
-        net_connect._open()
-        return net_connect
-    except NetmikoAuthenticationException as e:
-        msg = general_msg + str(e)
-        raise ConnectionException(msg)
-    except NetmikoTimeoutException as e:
-        msg = general_msg + str(e)
-        raise ConnectionException(msg)
-    except Exception as e:
-        msg = f&#34;An unknown exception occurred during connection:\n\n{str(e)}&#34;
-        raise ConnectionException(msg)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.ConnectHandler"><code class="name flex">
-<span>def <span class="ident">ConnectHandler</span></span>(<span>*args: Any, **kwargs: Any) ‑> <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a></span>
+<span>def <span class="ident">ConnectHandler</span></span>(<span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Factory function selects the proper class and creates object based on device_type.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ConnectHandler(*args: Any, **kwargs: Any) -&gt; &#34;BaseConnection&#34;:
-    &#34;&#34;&#34;Factory function selects the proper class and creates object based on device_type.&#34;&#34;&#34;
-    device_type = kwargs[&#34;device_type&#34;]
-    if device_type not in platforms:
-        if device_type is None:
-            msg_str = platforms_str
-        else:
-            msg_str = telnet_platforms_str if &#34;telnet&#34; in device_type else platforms_str
-        raise ValueError(
-            &#34;Unsupported &#39;device_type&#39; &#34;
-            &#34;currently supported platforms are: {}&#34;.format(msg_str)
-        )
-    ConnectionClass = ssh_dispatcher(device_type)
-    return ConnectionClass(*args, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.FileTransfer"><code class="name flex">
-<span>def <span class="ident">FileTransfer</span></span>(<span>*args: Any, **kwargs: Any) ‑> BaseFileTransfer</span>
+<span>def <span class="ident">FileTransfer</span></span>(<span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Factory function selects the proper SCP class and creates object based on device_type.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def FileTransfer(*args: Any, **kwargs: Any) -&gt; &#34;BaseFileTransfer&#34;:
-    &#34;&#34;&#34;Factory function selects the proper SCP class and creates object based on device_type.&#34;&#34;&#34;
-    if len(args) &gt;= 1:
-        device_type = args[0].device_type
-    else:
-        device_type = kwargs[&#34;ssh_conn&#34;].device_type
-    if device_type not in scp_platforms:
-        raise ValueError(
-            &#34;Unsupported SCP device_type: &#34;
-            &#34;currently supported platforms are: {}&#34;.format(scp_platforms_str)
-        )
-    FileTransferClass: Type[&#34;BaseFileTransfer&#34;]
-    FileTransferClass = FILE_TRANSFER_MAP[device_type]
-    return FileTransferClass(*args, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.Netmiko"><code class="name flex">
-<span>def <span class="ident">Netmiko</span></span>(<span>*args: Any, **kwargs: Any) ‑> <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a></span>
+<span>def <span class="ident">Netmiko</span></span>(<span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Factory function selects the proper class and creates object based on device_type.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ConnectHandler(*args: Any, **kwargs: Any) -&gt; &#34;BaseConnection&#34;:
-    &#34;&#34;&#34;Factory function selects the proper class and creates object based on device_type.&#34;&#34;&#34;
-    device_type = kwargs[&#34;device_type&#34;]
-    if device_type not in platforms:
-        if device_type is None:
-            msg_str = platforms_str
-        else:
-            msg_str = telnet_platforms_str if &#34;telnet&#34; in device_type else platforms_str
-        raise ValueError(
-            &#34;Unsupported &#39;device_type&#39; &#34;
-            &#34;currently supported platforms are: {}&#34;.format(msg_str)
-        )
-    ConnectionClass = ssh_dispatcher(device_type)
-    return ConnectionClass(*args, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.file_transfer"><code class="name flex">
-<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn: <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a>, source_file: str, dest_file: str, file_system: Optional[str] = None, direction: str = 'put', disable_md5: bool = False, inline_transfer: bool = False, overwrite_file: bool = False, socket_timeout: float = 10.0, progress: Optional[Callable[..., Any]] = None, progress4: Optional[Callable[..., Any]] = None, verify_file: Optional[bool] = None) ‑> Dict[str, bool]</span>
+<span>def <span class="ident">file_transfer</span></span>(<span>ssh_conn: <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a>, source_file: str, dest_file: str, file_system: Optional[str] = None, direction: str = 'put', disable_md5: bool = False, inline_transfer: bool = False, overwrite_file: bool = False, socket_timeout: float = 10.0, progress: Optional[Callable[..., Any]] = None, progress4: Optional[Callable[..., Any]] = None, verify_file: Optional[bool] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.</p>
@@ -691,153 +441,12 @@ all errors should be logged.</p></div>
 'file_transferred': boolean,
 'file_verified': boolean,
 }</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def file_transfer(
-    ssh_conn: &#34;BaseConnection&#34;,
-    source_file: str,
-    dest_file: str,
-    file_system: Optional[str] = None,
-    direction: str = &#34;put&#34;,
-    disable_md5: bool = False,
-    inline_transfer: bool = False,
-    overwrite_file: bool = False,
-    socket_timeout: float = 10.0,
-    progress: Optional[Callable[..., Any]] = None,
-    progress4: Optional[Callable[..., Any]] = None,
-    verify_file: Optional[bool] = None,
-) -&gt; Dict[str, bool]:
-    &#34;&#34;&#34;Use Secure Copy or Inline (IOS-only) to transfer files to/from network devices.
-
-    inline_transfer ONLY SUPPORTS TEXT FILES and will not support binary file transfers.
-
-    return {
-        &#39;file_exists&#39;: boolean,
-        &#39;file_transferred&#39;: boolean,
-        &#39;file_verified&#39;: boolean,
-    }
-    &#34;&#34;&#34;
-    transferred_and_verified = {
-        &#34;file_exists&#34;: True,
-        &#34;file_transferred&#34;: True,
-        &#34;file_verified&#34;: True,
-    }
-    transferred_and_notverified = {
-        &#34;file_exists&#34;: True,
-        &#34;file_transferred&#34;: True,
-        &#34;file_verified&#34;: False,
-    }
-    nottransferred_but_verified = {
-        &#34;file_exists&#34;: True,
-        &#34;file_transferred&#34;: False,
-        &#34;file_verified&#34;: True,
-    }
-
-    if &#34;cisco_ios&#34; in ssh_conn.device_type or &#34;cisco_xe&#34; in ssh_conn.device_type:
-        cisco_ios = True
-    else:
-        cisco_ios = False
-    if not cisco_ios and inline_transfer:
-        raise ValueError(&#34;Inline Transfer only supported for Cisco IOS/Cisco IOS-XE&#34;)
-
-    # Replace disable_md5 argument with verify_file argument across time
-    if verify_file is None:
-        verify_file = not disable_md5
-
-    scp_args = {
-        &#34;ssh_conn&#34;: ssh_conn,
-        &#34;source_file&#34;: source_file,
-        &#34;dest_file&#34;: dest_file,
-        &#34;direction&#34;: direction,
-        &#34;socket_timeout&#34;: socket_timeout,
-        &#34;progress&#34;: progress,
-        &#34;progress4&#34;: progress4,
-    }
-    if file_system is not None:
-        scp_args[&#34;file_system&#34;] = file_system
-
-    TransferClass: Callable[..., BaseFileTransfer]
-    if inline_transfer:
-        TransferClass = InLineTransfer
-    else:
-        TransferClass = FileTransfer
-
-    with TransferClass(**scp_args) as scp_transfer:
-        if scp_transfer.check_file_exists():
-            if overwrite_file:
-                if verify_file:
-                    if scp_transfer.verify_file():
-                        return nottransferred_but_verified
-                    else:
-                        # File exists, you can overwrite it, MD5 is wrong (transfer file)
-                        verifyspace_and_transferfile(scp_transfer)
-                        if scp_transfer.verify_file():
-                            return transferred_and_verified
-                        else:
-                            raise ValueError(
-                                &#34;MD5 failure between source and destination files&#34;
-                            )
-                else:
-                    # File exists, you can overwrite it, but MD5 not allowed (transfer file)
-                    verifyspace_and_transferfile(scp_transfer)
-                    return transferred_and_notverified
-            else:
-                # File exists, but you can&#39;t overwrite it.
-                if verify_file:
-                    if scp_transfer.verify_file():
-                        return nottransferred_but_verified
-                msg = &#34;File already exists and overwrite_file is disabled&#34;
-                raise ValueError(msg)
-        else:
-            verifyspace_and_transferfile(scp_transfer)
-            # File doesn&#39;t exist
-            if verify_file:
-                if scp_transfer.verify_file():
-                    return transferred_and_verified
-                else:
-                    raise ValueError(&#34;MD5 failure between source and destination files&#34;)
-            else:
-                return transferred_and_notverified</code></pre>
-</details>
 </dd>
 <dt id="netmiko.progress_bar"><code class="name flex">
 <span>def <span class="ident">progress_bar</span></span>(<span>filename: ~AnyStr, size: int, sent: int, peername: Optional[str] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def progress_bar(
-    filename: AnyStr, size: int, sent: int, peername: Optional[str] = None
-) -&gt; None:
-    max_width = 50
-    if isinstance(filename, bytes):
-        filename_str = filename.decode()
-    else:
-        filename_str = filename
-    clear_screen = chr(27) + &#34;[2J&#34;
-    terminating_char = &#34;|&#34;
-
-    # Percentage done
-    percent_complete = sent / size
-    percent_str = f&#34;{percent_complete*100:.2f}%&#34;
-    hash_count = int(percent_complete * max_width)
-    progress = hash_count * &#34;&gt;&#34;
-
-    if peername is None:
-        header_msg = f&#34;Transferring file: {filename_str}\n&#34;
-    else:
-        header_msg = f&#34;Transferring file to {peername}: {filename_str}\n&#34;
-
-    msg = f&#34;{progress:&lt;50}{terminating_char:1} ({percent_str})&#34;
-    print(clear_screen)
-    print(header_msg)
-    print(msg)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.redispatch"><code class="name flex">
 <span>def <span class="ident">redispatch</span></span>(<span>obj: <a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a>, device_type: str, session_prep: bool = True)</span>
@@ -846,37 +455,12 @@ all errors should be logged.</p></div>
 <div class="desc"><p>Dynamically change Netmiko object's class to proper class.
 Generally used with terminal_server device_type when you need to redispatch after interacting
 with terminal server.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def redispatch(
-    obj: &#34;BaseConnection&#34;, device_type: str, session_prep: bool = True
-) -&gt; None:
-    &#34;&#34;&#34;Dynamically change Netmiko object&#39;s class to proper class.
-    Generally used with terminal_server device_type when you need to redispatch after interacting
-    with terminal server.
-    &#34;&#34;&#34;
-    new_class = ssh_dispatcher(device_type)
-    obj.device_type = device_type
-    obj.__class__ = new_class
-    if session_prep:
-        obj._try_session_preparation()</code></pre>
-</details>
 </dd>
 <dt id="netmiko.ssh_dispatcher"><code class="name flex">
-<span>def <span class="ident">ssh_dispatcher</span></span>(<span>device_type: str) ‑> Type[<a title="netmiko.BaseConnection" href="#netmiko.BaseConnection">BaseConnection</a>]</span>
+<span>def <span class="ident">ssh_dispatcher</span></span>(<span>device_type: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Select the class to be instantiated based on vendor/platform.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ssh_dispatcher(device_type: str) -&gt; Type[&#34;BaseConnection&#34;]:
-    &#34;&#34;&#34;Select the class to be instantiated based on vendor/platform.&#34;&#34;&#34;
-    return CLASS_MAPPER[device_type]</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -1344,15 +928,18 @@ with terminal server.</p></div>
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
+            self.disabled_algorithms = disabled_algorithms
 
-            if disabled_algorithms:
-                self.disabled_algorithms = disabled_algorithms
-            else:
-                self.disabled_algorithms = (
-                    {&#34;pubkeys&#34;: [&#34;rsa-sha2-256&#34;, &#34;rsa-sha2-512&#34;]}
-                    if disable_sha2_fix
-                    else {}
-                )
+            if disable_sha2_fix:
+                sha2_pubkeys = [&#34;rsa-sha2-256&#34;, &#34;rsa-sha2-512&#34;]
+                if self.disabled_algorithms is None:
+                    self.disabled_algorithms = {&#34;pubkeys&#34;: sha2_pubkeys}
+                else:
+                    # Merge sha2_pubkeys into pubkeys and prevent duplicates
+                    current_pubkeys = self.disabled_algorithms.get(&#34;pubkeys&#34;, [])
+                    self.disabled_algorithms[&#34;pubkeys&#34;] = list(
+                        set(current_pubkeys + sha2_pubkeys)
+                    )
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -2388,6 +1975,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = False,
+        raise_parsing_error: bool = False,
     ) -&gt; Union[str, List[Any], Dict[str, Any]]:
         &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -2425,6 +2013,8 @@ A paramiko SSHException occurred during connection creation:
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
+
+        :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         &#34;&#34;&#34;
         if delay_factor is not None or max_loops is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
@@ -2458,6 +2048,7 @@ A paramiko SSHException occurred during connection creation:
             use_genie=use_genie,
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
+            raise_parsing_error=raise_parsing_error,
         )
         return return_data
 
@@ -2538,6 +2129,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
+        raise_parsing_error: bool = False,
     ) -&gt; Union[str, List[Any], Dict[str, Any]]:
         &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -2577,6 +2169,8 @@ A paramiko SSHException occurred during connection creation:
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
 
         :param cmd_verify: Verify command echo before proceeding (default: True).
+
+        :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         &#34;&#34;&#34;
 
         # Time to delay in each read loop
@@ -2712,6 +2306,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             use_genie=use_genie,
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
+            raise_parsing_error=raise_parsing_error,
         )
         return return_val
 
@@ -3216,7 +2811,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         http://en.wikipedia.org/wiki/ANSI_escape_code
 
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
-        I have encountered
+        that have been encountered
 
         Current codes that are filtered:
         ESC = &#39;\x1b&#39; or chr(27)
@@ -3234,9 +2829,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
-                     very bottom of the screen).
-
-        HP ProCurve and Cisco SG300 require this (possible others).
+                     very bottom of the screen)
+        ESC[c        Query Device (used by MikroTik in &#39;Safe-Mode&#39;)
+        ESC[2004h    Enable bracketed paste mode
+        ESC[2004l    Disable bracketed paste mode
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
@@ -3270,7 +2866,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_up = chr(27) + r&#34;\[\d*A&#34;
         code_cursor_down = chr(27) + r&#34;\[\d*B&#34;
         code_wrap_around = chr(27) + r&#34;\[\?7h&#34;
-        code_bracketed_paste_mode = chr(27) + r&#34;\[\?2004h&#34;
+        code_enable_bracketed_paste_mode = chr(27) + r&#34;\[\?2004h&#34;
+        code_disable_bracketed_paste_mode = chr(27) + r&#34;\[\?2004l&#34;
+        code_underline = chr(27) + r&#34;\[4m&#34;
+        code_query_device = chr(27) + r&#34;\[c&#34;
 
         code_set = [
             code_position_cursor,
@@ -3300,7 +2899,10 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_down,
             code_cursor_forward,
             code_wrap_around,
-            code_bracketed_paste_mode,
+            code_enable_bracketed_paste_mode,
+            code_disable_bracketed_paste_mode,
+            code_underline,
+            code_query_device,
         ]
 
         output = string_buffer
@@ -3438,20 +3040,6 @@ You can also look at the Netmiko session_log or debug log for more information.
 <div class="desc"><p>Strip any backspace characters out of the output.</p>
 <p>:param output: Output obtained from a remote network device.
 :type output: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def strip_backspaces(output: str) -&gt; str:
-    &#34;&#34;&#34;Strip any backspace characters out of the output.
-
-    :param output: Output obtained from a remote network device.
-    :type output: str
-    &#34;&#34;&#34;
-    backspace_char = &#34;\x08&#34;
-    return output.replace(backspace_char, &#34;&#34;)</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -3467,37 +3055,6 @@ def strip_backspaces(output: str) -&gt; str:
 :type pattern: str</p>
 <p>:param force_regex: Use regular expression pattern to find check_string in output
 :type force_regex: bool</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_config_mode(
-    self, check_string: str = &#34;&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-) -&gt; bool:
-    &#34;&#34;&#34;Checks if the device is in configuration mode or not.
-
-    :param check_string: Identification of configuration mode from the device
-    :type check_string: str
-
-    :param pattern: Pattern to terminate reading of channel
-    :type pattern: str
-
-    :param force_regex: Use regular expression pattern to find check_string in output
-    :type force_regex: bool
-
-    &#34;&#34;&#34;
-    self.write_channel(self.RETURN)
-    # You can encounter an issue here (on router name changes) prefer delay-based solution
-    if not pattern:
-        output = self.read_channel_timing(read_timeout=10.0)
-    else:
-        output = self.read_until_pattern(pattern=pattern)
-
-    if force_regex:
-        return bool(re.search(check_string, output))
-    else:
-        return check_string in output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.check_enable_mode"><code class="name flex">
 <span>def <span class="ident">check_enable_mode</span></span>(<span>self, check_string: str = '') ‑> bool</span>
@@ -3506,112 +3063,30 @@ def strip_backspaces(output: str) -&gt; str:
 <div class="desc"><p>Check if in enable mode. Return boolean.</p>
 <p>:param check_string: Identification of privilege mode from device
 :type check_string: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_enable_mode(self, check_string: str = &#34;&#34;) -&gt; bool:
-    &#34;&#34;&#34;Check if in enable mode. Return boolean.
-
-    :param check_string: Identification of privilege mode from device
-    :type check_string: str
-    &#34;&#34;&#34;
-    self.write_channel(self.RETURN)
-    output = self.read_until_prompt(read_entire_line=True)
-    return check_string in output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.cleanup"><code class="name flex">
 <span>def <span class="ident">cleanup</span></span>(<span>self, command: str = '') ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Logout of the session on the network device plus any additional cleanup.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cleanup(self, command: str = &#34;&#34;) -&gt; None:
-    &#34;&#34;&#34;Logout of the session on the network device plus any additional cleanup.&#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.clear_buffer"><code class="name flex">
 <span>def <span class="ident">clear_buffer</span></span>(<span>self, backoff: bool = True, backoff_max: float = 3.0, delay_factor: Optional[float] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Read any data available in the channel.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def clear_buffer(
-    self,
-    backoff: bool = True,
-    backoff_max: float = 3.0,
-    delay_factor: Optional[float] = None,
-) -&gt; str:
-    &#34;&#34;&#34;Read any data available in the channel.&#34;&#34;&#34;
-
-    if delay_factor is None:
-        delay_factor = self.global_delay_factor
-    sleep_time = 0.1 * delay_factor
-
-    output = &#34;&#34;
-    for _ in range(10):
-        time.sleep(sleep_time)
-        data = self.read_channel()
-        data = self.strip_ansi_escape_codes(data)
-        output += data
-        if not data:
-            break
-        # Double sleep time each time we detect data
-        log.debug(&#34;Clear buffer detects data in the channel&#34;)
-        if backoff:
-            sleep_time *= 2
-            sleep_time = backoff_max if sleep_time &gt;= backoff_max else sleep_time
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.command_echo_read"><code class="name flex">
 <span>def <span class="ident">command_echo_read</span></span>(<span>self, cmd: str, read_timeout: float) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    new_data = self.read_until_pattern(
-        pattern=re.escape(cmd), read_timeout=read_timeout
-    )
-
-    # There can be echoed prompts that haven&#39;t been cleared before the cmd echo
-    # this can later mess up the trailing prompt pattern detection. Clear this out.
-    lines = new_data.split(cmd)
-    if len(lines) == 2:
-        # lines[-1] should realistically just be the null string
-        new_data = f&#34;{cmd}{lines[-1]}&#34;
-    else:
-        # cmd exists in the output multiple times? Just retain the original output
-        pass
-    return new_data</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.commit"><code class="name flex">
 <span>def <span class="ident">commit</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Commit method for platforms that support this.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def commit(self) -&gt; str:
-    &#34;&#34;&#34;Commit method for platforms that support this.&#34;&#34;&#34;
-    raise AttributeError(&#34;Network device does not support &#39;commit()&#39; method&#34;)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.config_mode"><code class="name flex">
 <span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = '', pattern: str = '', re_flags: int = 0) ‑> str</span>
@@ -3624,40 +3099,6 @@ def strip_backspaces(output: str) -&gt; str:
 :type pattern: str</p>
 <p>:param re_flags: Regular expression flags
 :type re_flags: RegexFlag</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def config_mode(
-    self, config_command: str = &#34;&#34;, pattern: str = &#34;&#34;, re_flags: int = 0
-) -&gt; str:
-    &#34;&#34;&#34;Enter into config_mode.
-
-    :param config_command: Configuration command to send to the device
-    :type config_command: str
-
-    :param pattern: Pattern to terminate reading of channel
-    :type pattern: str
-
-    :param re_flags: Regular expression flags
-    :type re_flags: RegexFlag
-    &#34;&#34;&#34;
-    output = &#34;&#34;
-    if not self.check_config_mode():
-        self.write_channel(self.normalize_cmd(config_command))
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output += self.read_until_pattern(
-                pattern=re.escape(config_command.strip())
-            )
-        if pattern:
-            output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
-        else:
-            output += self.read_until_prompt(read_entire_line=True)
-        if not self.check_config_mode():
-            raise ValueError(&#34;Failed to enter configuration mode.&#34;)
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.disable_paging"><code class="name flex">
 <span>def <span class="ident">disable_paging</span></span>(<span>self, command: str = 'terminal length 0', delay_factor: Optional[float] = None, cmd_verify: bool = True, pattern: Optional[str] = None) ‑> str</span>
@@ -3668,84 +3109,12 @@ def strip_backspaces(output: str) -&gt; str:
 <p>:param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.</p>
 <p>:param cmd_verify: Verify command echo before proceeding (default: True).</p>
 <p>:param pattern: Pattern to terminate reading of channel</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def disable_paging(
-    self,
-    command: str = &#34;terminal length 0&#34;,
-    delay_factor: Optional[float] = None,
-    cmd_verify: bool = True,
-    pattern: Optional[str] = None,
-) -&gt; str:
-    &#34;&#34;&#34;Disable paging default to a Cisco CLI method.
-
-    :param command: Device command to disable pagination of output
-
-    :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-    :param cmd_verify: Verify command echo before proceeding (default: True).
-
-    :param pattern: Pattern to terminate reading of channel
-    &#34;&#34;&#34;
-    if delay_factor is not None:
-        warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
-
-    command = self.normalize_cmd(command)
-    log.debug(&#34;In disable_paging&#34;)
-    log.debug(f&#34;Command: {command}&#34;)
-    self.write_channel(command)
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    if cmd_verify and self.global_cmd_verify is not False:
-        output = self.read_until_pattern(
-            pattern=re.escape(command.strip()), read_timeout=20
-        )
-    elif pattern:
-        output = self.read_until_pattern(pattern=pattern, read_timeout=20)
-    else:
-        output = self.read_until_prompt()
-    log.debug(f&#34;{output}&#34;)
-    log.debug(&#34;Exiting disable_paging&#34;)
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.disconnect"><code class="name flex">
 <span>def <span class="ident">disconnect</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Try to gracefully close the session.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def disconnect(self) -&gt; None:
-    &#34;&#34;&#34;Try to gracefully close the session.&#34;&#34;&#34;
-    try:
-        self.cleanup()
-    except Exception:
-        # Keep going on cleanup process even if exceptions
-        pass
-
-    try:
-        if self.protocol == &#34;ssh&#34;:
-            self.paramiko_cleanup()
-        elif self.protocol == &#34;telnet&#34;:
-            assert isinstance(self.remote_conn, telnetlib.Telnet)
-            self.remote_conn.close()  # type: ignore
-        elif self.protocol == &#34;serial&#34;:
-            assert isinstance(self.remote_conn, serial.Serial)
-            self.remote_conn.close()
-    except Exception:
-        # There have been race conditions observed on disconnect.
-        pass
-    finally:
-        self.remote_conn_pre = None
-        self.remote_conn = None
-        if self.session_log:
-            self.session_log.close()
-        log.removeFilter(self._secrets_filter)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.enable"><code class="name flex">
 <span>def <span class="ident">enable</span></span>(<span>self, cmd: str = '', pattern: str = 'ssword', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
@@ -3758,70 +3127,6 @@ def strip_backspaces(output: str) -&gt; str:
 <p>:param check_state: Determine whether we are already in enable_mode using
 check_enable_mode() before trying to elevate privileges (default: True)</p>
 <p>:param re_flags: Regular expression flags used in conjunction with pattern</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def enable(
-    self,
-    cmd: str = &#34;&#34;,
-    pattern: str = &#34;ssword&#34;,
-    enable_pattern: Optional[str] = None,
-    check_state: bool = True,
-    re_flags: int = re.IGNORECASE,
-) -&gt; str:
-    &#34;&#34;&#34;Enter enable mode.
-
-    :param cmd: Device command to enter enable mode
-
-    :param pattern: pattern to search for indicating device is waiting for password
-
-    :param enable_pattern: pattern indicating you have entered enable mode
-
-    :param check_state: Determine whether we are already in enable_mode using
-            check_enable_mode() before trying to elevate privileges (default: True)
-
-    :param re_flags: Regular expression flags used in conjunction with pattern
-    &#34;&#34;&#34;
-    output = &#34;&#34;
-    msg = (
-        &#34;Failed to enter enable mode. Please ensure you pass &#34;
-        &#34;the &#39;secret&#39; argument to ConnectHandler.&#34;
-    )
-
-    # Check if in enable mode already.
-    if check_state and self.check_enable_mode():
-        return output
-
-    # Send &#34;enable&#34; mode command
-    self.write_channel(self.normalize_cmd(cmd))
-    try:
-        # Read the command echo
-        if self.global_cmd_verify is not False:
-            output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-
-        # Search for trailing prompt or password pattern
-        output += self.read_until_prompt_or_pattern(
-            pattern=pattern, re_flags=re_flags
-        )
-
-        # Send the &#34;secret&#34; in response to password pattern
-        if re.search(pattern, output):
-            self.write_channel(self.normalize_cmd(self.secret))
-            output += self.read_until_prompt()
-
-        # Search for terminating pattern if defined
-        if enable_pattern and not re.search(enable_pattern, output):
-            output += self.read_until_pattern(pattern=enable_pattern)
-        else:
-            if not self.check_enable_mode():
-                raise ValueError(msg)
-
-    except NetmikoTimeoutException:
-        raise ValueError(msg)
-
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.establish_connection"><code class="name flex">
 <span>def <span class="ident">establish_connection</span></span>(<span>self, width: int = 511, height: int = 1000) ‑> None</span>
@@ -3834,126 +3139,6 @@ Authentication failure will generate a NetmikoAuthenticationException</p>
 :type width: int</p>
 <p>:param height: Specified height of the VT100 terminal window (default: 1000)
 :type height: int</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">    def establish_connection(self, width: int = 511, height: int = 1000) -&gt; None:
-        &#34;&#34;&#34;Establish SSH connection to the network device
-
-        Timeout will generate a NetmikoTimeoutException
-        Authentication failure will generate a NetmikoAuthenticationException
-
-        :param width: Specified width of the VT100 terminal window (default: 511)
-        :type width: int
-
-        :param height: Specified height of the VT100 terminal window (default: 1000)
-        :type height: int
-        &#34;&#34;&#34;
-        self.channel: Channel
-        if self.protocol == &#34;telnet&#34;:
-            if self.sock_telnet:
-                self.remote_conn = telnet_proxy.Telnet(
-                    self.host,
-                    port=self.port,
-                    timeout=self.timeout,
-                    proxy_dict=self.sock_telnet,
-                )
-            else:
-                self.remote_conn = telnetlib.Telnet(  # type: ignore
-                    self.host, port=self.port, timeout=self.timeout
-                )
-            # Migrating communication to channel class
-            self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
-            self.telnet_login()
-        elif self.protocol == &#34;serial&#34;:
-            self.remote_conn = serial.Serial(**self.serial_settings)
-            self.channel = SerialChannel(conn=self.remote_conn, encoding=self.encoding)
-            self.serial_login()
-        elif self.protocol == &#34;ssh&#34;:
-            ssh_connect_params = self._connect_params_dict()
-            self.remote_conn_pre: Optional[paramiko.SSHClient]
-            self.remote_conn_pre = self._build_ssh_client()
-
-            # initiate SSH connection
-            try:
-                self.remote_conn_pre.connect(**ssh_connect_params)
-            except socket.error as conn_error:
-                self.paramiko_cleanup()
-                msg = f&#34;&#34;&#34;TCP connection to device failed.
-
-Common causes of this problem are:
-1. Incorrect hostname or IP address.
-2. Wrong TCP port.
-3. Intermediate firewall blocking access.
-
-Device settings: {self.device_type} {self.host}:{self.port}
-
-&#34;&#34;&#34;
-
-                # Handle DNS failures separately
-                if &#34;Name or service not known&#34; in str(conn_error):
-                    msg = (
-                        f&#34;DNS failure--the hostname you provided was not resolvable &#34;
-                        f&#34;in DNS: {self.host}:{self.port}&#34;
-                    )
-
-                msg = msg.lstrip()
-                raise NetmikoTimeoutException(msg)
-            except paramiko.ssh_exception.AuthenticationException as auth_err:
-                self.paramiko_cleanup()
-                msg = f&#34;&#34;&#34;Authentication to device failed.
-
-Common causes of this problem are:
-1. Invalid username and password
-2. Incorrect SSH-key file
-3. Connecting to the wrong device
-
-Device settings: {self.device_type} {self.host}:{self.port}
-
-&#34;&#34;&#34;
-
-                msg += self.RETURN + str(auth_err)
-                raise NetmikoAuthenticationException(msg)
-            except paramiko.ssh_exception.SSHException as e:
-                self.paramiko_cleanup()
-                if &#34;No existing session&#34; in str(e):
-                    msg = (
-                        &#34;Paramiko: &#39;No existing session&#39; error: &#34;
-                        &#34;try increasing &#39;conn_timeout&#39; to 15 seconds or larger.&#34;
-                    )
-                    raise NetmikoTimeoutException(msg)
-                else:
-                    msg = f&#34;&#34;&#34;
-A paramiko SSHException occurred during connection creation:
-
-{str(e)}
-
-&#34;&#34;&#34;
-                    raise NetmikoTimeoutException(msg)
-
-            if self.verbose:
-                print(f&#34;SSH connection established to {self.host}:{self.port}&#34;)
-
-            # Use invoke_shell to establish an &#39;interactive session&#39;
-            self.remote_conn = self.remote_conn_pre.invoke_shell(
-                term=&#34;vt100&#34;, width=width, height=height
-            )
-
-            self.remote_conn.settimeout(self.blocking_timeout)
-            if self.keepalive:
-                assert isinstance(self.remote_conn.transport, paramiko.Transport)
-                self.remote_conn.transport.set_keepalive(self.keepalive)
-
-            # Migrating communication to channel class
-            self.channel = SSHChannel(conn=self.remote_conn, encoding=self.encoding)
-
-            self.special_login_handler()
-            if self.verbose:
-                print(&#34;Interactive SSH session established&#34;)
-
-        return None</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.exit_config_mode"><code class="name flex">
 <span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = '', pattern: str = '') ‑> str</span>
@@ -3964,36 +3149,6 @@ A paramiko SSHException occurred during connection creation:
 :type exit_config: str</p>
 <p>:param pattern: Pattern to terminate reading of channel
 :type pattern: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;&#34;, pattern: str = &#34;&#34;) -&gt; str:
-    &#34;&#34;&#34;Exit from configuration mode.
-
-    :param exit_config: Command to exit configuration mode
-    :type exit_config: str
-
-    :param pattern: Pattern to terminate reading of channel
-    :type pattern: str
-    &#34;&#34;&#34;
-    output = &#34;&#34;
-    if self.check_config_mode():
-        self.write_channel(self.normalize_cmd(exit_config))
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output += self.read_until_pattern(
-                pattern=re.escape(exit_config.strip())
-            )
-        if pattern:
-            output += self.read_until_pattern(pattern=pattern)
-        else:
-            output += self.read_until_prompt(read_entire_line=True)
-        if self.check_config_mode():
-            raise ValueError(&#34;Failed to exit configuration mode&#34;)
-    log.debug(f&#34;exit_config_mode: {output}&#34;)
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.exit_enable_mode"><code class="name flex">
 <span>def <span class="ident">exit_enable_mode</span></span>(<span>self, exit_command: str = '') ‑> str</span>
@@ -4002,24 +3157,6 @@ A paramiko SSHException occurred during connection creation:
 <div class="desc"><p>Exit enable mode.</p>
 <p>:param exit_command: Command that exits the session from privileged mode
 :type exit_command: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def exit_enable_mode(self, exit_command: str = &#34;&#34;) -&gt; str:
-    &#34;&#34;&#34;Exit enable mode.
-
-    :param exit_command: Command that exits the session from privileged mode
-    :type exit_command: str
-    &#34;&#34;&#34;
-    output = &#34;&#34;
-    if self.check_enable_mode():
-        self.write_channel(self.normalize_cmd(exit_command))
-        output += self.read_until_prompt()
-        if self.check_enable_mode():
-            raise ValueError(&#34;Failed to exit enable mode.&#34;)
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.find_prompt"><code class="name flex">
 <span>def <span class="ident">find_prompt</span></span>(<span>self, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
@@ -4029,101 +3166,12 @@ A paramiko SSHException occurred during connection creation:
 <p>:param delay_factor: See <strong>init</strong>: global_delay_factor
 :type delay_factor: int</p>
 <p>:param pattern: Regular expression pattern to determine whether prompt is valid</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def find_prompt(
-    self, delay_factor: float = 1.0, pattern: Optional[str] = None
-) -&gt; str:
-    &#34;&#34;&#34;Finds the current network device prompt, last line only.
-
-    :param delay_factor: See __init__: global_delay_factor
-    :type delay_factor: int
-
-    :param pattern: Regular expression pattern to determine whether prompt is valid
-    &#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor)
-    sleep_time = delay_factor * 0.25
-    self.clear_buffer()
-    self.write_channel(self.RETURN)
-
-    if pattern:
-        prompt = self.read_until_pattern(pattern=pattern)
-    else:
-        # Initial read
-        time.sleep(sleep_time)
-        prompt = self.read_channel().strip()
-
-        count = 0
-        while count &lt;= 12 and not prompt:
-            if not prompt:
-                self.write_channel(self.RETURN)
-                time.sleep(sleep_time)
-                prompt = self.read_channel().strip()
-                if sleep_time &lt;= 3:
-                    # Double the sleep_time when it is small
-                    sleep_time *= 2
-                else:
-                    sleep_time += 1
-            count += 1
-
-    # If multiple lines in the output take the last line
-    prompt = prompt.split(self.RESPONSE_RETURN)[-1]
-    prompt = prompt.strip()
-    self.clear_buffer()
-    if not prompt:
-        raise ValueError(f&#34;Unable to find prompt: {prompt}&#34;)
-    log.debug(f&#34;[find_prompt()]: prompt is {prompt}&#34;)
-    return prompt</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.is_alive"><code class="name flex">
 <span>def <span class="ident">is_alive</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a boolean flag with the state of the connection.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_alive(self) -&gt; bool:
-    &#34;&#34;&#34;Returns a boolean flag with the state of the connection.&#34;&#34;&#34;
-    null = chr(0)
-    if self.remote_conn is None:
-        log.error(&#34;Connection is not initialised, is_alive returns False&#34;)
-        return False
-    if self.protocol == &#34;telnet&#34;:
-        try:
-            # Try sending IAC + NOP (IAC is telnet way of sending command)
-            # IAC = Interpret as Command; it comes before the NOP.
-            log.debug(&#34;Sending IAC + NOP&#34;)
-            # Need to send multiple times to test connection
-            assert isinstance(self.remote_conn, telnetlib.Telnet)
-            telnet_socket = self.remote_conn.get_socket()  # type: ignore
-            telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
-            telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
-            telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
-            return True
-        except AttributeError:
-            return False
-    else:
-        # SSH
-        try:
-            # Try sending ASCII null byte to maintain the connection alive
-            log.debug(&#34;Sending the NULL byte&#34;)
-            self.write_channel(null)
-            assert isinstance(self.remote_conn, paramiko.Channel)
-            assert self.remote_conn.transport is not None
-            result = self.remote_conn.transport.is_active()
-            assert isinstance(result, bool)
-            return result
-        except (socket.error, EOFError):
-            log.error(&#34;Unable to send&#34;, exc_info=True)
-            # If unable to send, we can tell for sure that the connection is unusable
-            return False
-    return False</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.normalize_cmd"><code class="name flex">
 <span>def <span class="ident">normalize_cmd</span></span>(<span>self, command: str) ‑> str</span>
@@ -4132,20 +3180,6 @@ A paramiko SSHException occurred during connection creation:
 <div class="desc"><p>Normalize CLI commands to have a single trailing newline.</p>
 <p>:param command: Command that may require line feed to be normalized
 :type command: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def normalize_cmd(self, command: str) -&gt; str:
-    &#34;&#34;&#34;Normalize CLI commands to have a single trailing newline.
-
-    :param command: Command that may require line feed to be normalized
-    :type command: str
-    &#34;&#34;&#34;
-    command = command.rstrip()
-    command += self.RETURN
-    return command</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.normalize_linefeeds"><code class="name flex">
 <span>def <span class="ident">normalize_linefeeds</span></span>(<span>self, a_string: str) ‑> str</span>
@@ -4160,84 +3194,18 @@ A paramiko SSHException occurred during connection creation:
         i.e. output returned from device, or a device prompt
     :type a_string: str
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def normalize_linefeeds(self, a_string: str) -&gt; str:
-    &#34;&#34;&#34;Convert `\r\r\n`,`\r\n`, `\n\r` to `\n.`
-
-    :param a_string: A string that may have non-normalized line feeds
-        i.e. output returned from device, or a device prompt
-    :type a_string: str
-    &#34;&#34;&#34;
-    newline = re.compile(&#34;(\r\r\r\n|\r\r\n|\r\n|\n\r)&#34;)
-    a_string = newline.sub(self.RESPONSE_RETURN, a_string)
-    if self.RESPONSE_RETURN == &#34;\n&#34;:
-        # Convert any remaining \r to \n
-        return re.sub(&#34;\r&#34;, self.RESPONSE_RETURN, a_string)
-    else:
-        return a_string</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.paramiko_cleanup"><code class="name flex">
 <span>def <span class="ident">paramiko_cleanup</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cleanup Paramiko to try to gracefully handle SSH session ending.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def paramiko_cleanup(self) -&gt; None:
-    &#34;&#34;&#34;Cleanup Paramiko to try to gracefully handle SSH session ending.&#34;&#34;&#34;
-    if self.remote_conn_pre is not None:
-        self.remote_conn_pre.close()
-    del self.remote_conn_pre</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.read_channel"><code class="name flex">
 <span>def <span class="ident">read_channel</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generic handler that will read all the data from given channel.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@lock_channel
-def read_channel(self) -&gt; str:
-    &#34;&#34;&#34;Generic handler that will read all the data from given channel.&#34;&#34;&#34;
-    new_data = self.channel.read_channel()
-
-    if self.disable_lf_normalization is False:
-        start = time.time()
-        # Data blocks shouldn&#39;t end in &#39;\r&#39; (can cause problems with normalize_linefeeds)
-        # Only do the extra read if &#39;\n&#39; exists in the output
-        # this avoids devices that only use \r.
-        while (&#34;\n&#34; in new_data) and (time.time() - start &lt; 1.0):
-            if new_data[-1] == &#34;\r&#34;:
-                time.sleep(0.01)
-                new_data += self.channel.read_channel()
-            else:
-                break
-        new_data = self.normalize_linefeeds(new_data)
-
-    if self.ansi_escape_codes:
-        new_data = self.strip_ansi_escape_codes(new_data)
-    log.debug(f&#34;read_channel: {new_data}&#34;)
-    if self.session_log:
-        self.session_log.write(new_data)
-
-    # If data had been previously saved to the buffer, the prepend it to output
-    # do post read_channel so session_log/log doesn&#39;t record buffered data twice
-    if self._read_buffer:
-        output = self._read_buffer + new_data
-        self._read_buffer = &#34;&#34;
-    else:
-        output = new_data
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.read_channel_timing"><code class="name flex">
 <span>def <span class="ident">read_channel_timing</span></span>(<span>self, last_read: float = 2.0, read_timeout: float = 120.0, delay_factor: Optional[float] = None, max_loops: Optional[int] = None) ‑> str</span>
@@ -4260,88 +3228,6 @@ timeout expires. A read_timeout value of 0 will cause the read-loop to never tim
 passes).</p>
 <p>:param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.</p>
 <p>:param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">    def read_channel_timing(
-        self,
-        last_read: float = 2.0,
-        read_timeout: float = 120.0,
-        delay_factor: Optional[float] = None,
-        max_loops: Optional[int] = None,
-    ) -&gt; str:
-        &#34;&#34;&#34;Read data on the channel based on timing delays.
-
-        General pattern is keep reading until no new data is read.
-
-        Once no new data is read wait `last_read` amount of time (one last read).
-        As long as no new data, then return data.
-
-        Setting `read_timeout` to zero will cause read_channel_timing to never expire based
-        on an absolute timeout. It will only complete based on timeout based on there being
-        no new data.
-
-        :param last_read: Amount of time to wait before performing one last read (under the
-            idea that we should be done reading at this point and there should be no new
-            data).
-
-        :param read_timeout: Absolute timer for how long Netmiko should keep reading data on
-            the channel (waiting for there to be no new data). Will raise ReadTimeout if this
-            timeout expires. A read_timeout value of 0 will cause the read-loop to never timeout
-            (i.e. Netmiko will keep reading indefinitely until there is no new data and last_read
-            passes).
-
-        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-        &#34;&#34;&#34;
-
-        if delay_factor is not None or max_loops is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
-
-        if self.read_timeout_override:
-            read_timeout = self.read_timeout_override
-
-        # Time to delay in each read loop
-        loop_delay = 0.1
-        channel_data = &#34;&#34;
-        start_time = time.time()
-
-        # Set read_timeout to 0 to never timeout
-        while (time.time() - start_time &lt; read_timeout) or (not read_timeout):
-            time.sleep(loop_delay)
-            new_data = self.read_channel()
-            # gather new output
-            if new_data:
-                channel_data += new_data
-            # if we have some output, but nothing new, then do the last read
-            elif channel_data != &#34;&#34;:
-                # Make sure really done (i.e. no new data)
-                time.sleep(last_read)
-                new_data = self.read_channel()
-                if not new_data:
-                    break
-                else:
-                    channel_data += new_data
-        else:
-            msg = f&#34;&#34;&#34;\n
-read_channel_timing&#39;s absolute timer expired.
-
-The network device was continually outputting data for longer than {read_timeout}
-seconds.
-
-If this is expected i.e. the command you are executing is continually emitting
-data for a long period of time, then you can set &#39;read_timeout=x&#39; seconds. If
-you want Netmiko to keep reading indefinitely (i.e. to only stop when there is
-no new data), then you can set &#39;read_timeout=0&#39;.
-
-You can look at the Netmiko session_log or debug log for more information.
-
-&#34;&#34;&#34;
-            raise ReadTimeout(msg)
-        return channel_data</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.read_until_pattern"><code class="name flex">
 <span>def <span class="ident">read_until_pattern</span></span>(<span>self, pattern: str = '', read_timeout: float = 10.0, re_flags: int = 0, max_loops: Optional[int] = None) ‑> str</span>
@@ -4356,164 +3242,21 @@ A read_timeout value of 0 will cause the loop to never timeout (i.e. it will kee
 reading indefinitely until pattern is detected.</p>
 <p>:param re_flags: regex flags used in conjunction with pattern (defaults to no flags).</p>
 <p>:param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">    def read_until_pattern(
-        self,
-        pattern: str = &#34;&#34;,
-        read_timeout: float = 10.0,
-        re_flags: int = 0,
-        max_loops: Optional[int] = None,
-    ) -&gt; str:
-        &#34;&#34;&#34;Read channel until pattern is detected.
-
-        Will return string up to and including pattern.
-
-        Returns ReadTimeout if pattern not detected in read_timeout seconds.
-
-        :param pattern: Regular expression pattern used to identify that reading is done.
-
-        :param read_timeout: maximum time to wait looking for pattern. Will raise ReadTimeout.
-            A read_timeout value of 0 will cause the loop to never timeout (i.e. it will keep
-            reading indefinitely until pattern is detected.
-
-        :param re_flags: regex flags used in conjunction with pattern (defaults to no flags).
-
-        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-        &#34;&#34;&#34;
-        if max_loops is not None:
-            msg = &#34;&#34;&#34;\n
-Netmiko 4.x has deprecated the use of max_loops with read_until_pattern.
-You should convert all uses of max_loops over to read_timeout=x
-where x is the total number of seconds to wait before timing out.\n&#34;&#34;&#34;
-            warnings.warn(msg, DeprecationWarning)
-
-        if self.read_timeout_override:
-            read_timeout = self.read_timeout_override
-
-        output = &#34;&#34;
-        loop_delay = 0.01
-        start_time = time.time()
-        # if read_timeout == 0 or 0.0 keep reading indefinitely
-        while (time.time() - start_time &lt; read_timeout) or (not read_timeout):
-            output += self.read_channel()
-
-            if re.search(pattern, output, flags=re_flags):
-                if &#34;(&#34; in pattern and &#34;(?:&#34; not in pattern:
-                    msg = f&#34;&#34;&#34;
-Parenthesis found in pattern.
-
-pattern: {pattern}\n
-
-This can be problemtic when used in read_until_pattern().
-
-You should ensure that you use either non-capture groups i.e. &#39;(?:&#39; or that the
-parenthesis completely wrap the pattern &#39;(pattern)&#39;&#34;&#34;&#34;
-                    log.debug(msg)
-                results = re.split(pattern, output, maxsplit=1, flags=re_flags)
-
-                # The string matched by pattern must be retained in the output string.
-                # re.split will do this if capturing parenthesis are used.
-                if len(results) == 2:
-                    # no capturing parenthesis, convert and try again.
-                    pattern = f&#34;({pattern})&#34;
-                    results = re.split(pattern, output, maxsplit=1, flags=re_flags)
-
-                if len(results) != 3:
-                    # well, we tried
-                    msg = f&#34;&#34;&#34;Unable to successfully split output based on pattern:
-pattern={pattern}
-output={repr(output)}
-results={results}
-&#34;&#34;&#34;
-                    raise ReadException(msg)
-
-                # Process such that everything before and including pattern is return.
-                # Everything else is retained in the _read_buffer
-                output, match_str, buffer = results
-                output = output + match_str
-                if buffer:
-                    self._read_buffer += buffer
-                log.debug(f&#34;Pattern found: {pattern} {output}&#34;)
-                return output
-            time.sleep(loop_delay)
-
-        msg = f&#34;&#34;&#34;\n\nPattern not detected: {repr(pattern)} in output.
-
-Things you might try to fix this:
-1. Adjust the regex pattern to better identify the terminating string. Note, in
-many situations the pattern is automatically based on the network device&#39;s prompt.
-2. Increase the read_timeout to a larger value.
-
-You can also look at the Netmiko session_log or debug log for more information.\n\n&#34;&#34;&#34;
-        raise ReadTimeout(msg)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.read_until_prompt"><code class="name flex">
 <span>def <span class="ident">read_until_prompt</span></span>(<span>self, read_timeout: float = 10.0, read_entire_line: bool = False, re_flags: int = 0, max_loops: Optional[int] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Read channel up to and including self.base_prompt.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def read_until_prompt(
-    self,
-    read_timeout: float = 10.0,
-    read_entire_line: bool = False,
-    re_flags: int = 0,
-    max_loops: Optional[int] = None,
-) -&gt; str:
-    &#34;&#34;&#34;Read channel up to and including self.base_prompt.&#34;&#34;&#34;
-    pattern = re.escape(self.base_prompt)
-    if read_entire_line:
-        pattern = f&#34;{pattern}.*&#34;
-    return self.read_until_pattern(
-        pattern=pattern,
-        re_flags=re_flags,
-        max_loops=max_loops,
-        read_timeout=read_timeout,
-    )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.read_until_prompt_or_pattern"><code class="name flex">
 <span>def <span class="ident">read_until_prompt_or_pattern</span></span>(<span>self, pattern: str = '', read_timeout: float = 10.0, read_entire_line: bool = False, re_flags: int = 0, max_loops: Optional[int] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Read until either self.base_prompt or pattern is detected.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def read_until_prompt_or_pattern(
-    self,
-    pattern: str = &#34;&#34;,
-    read_timeout: float = 10.0,
-    read_entire_line: bool = False,
-    re_flags: int = 0,
-    max_loops: Optional[int] = None,
-) -&gt; str:
-    &#34;&#34;&#34;Read until either self.base_prompt or pattern is detected.&#34;&#34;&#34;
-    prompt_pattern = re.escape(self.base_prompt)
-    if read_entire_line:
-        prompt_pattern = f&#34;{prompt_pattern}.*&#34;
-    if pattern:
-        combined_pattern = r&#34;(?:{}|{})&#34;.format(prompt_pattern, pattern)
-    else:
-        combined_pattern = prompt_pattern
-    return self.read_until_pattern(
-        pattern=combined_pattern,
-        re_flags=re_flags,
-        max_loops=max_loops,
-        read_timeout=read_timeout,
-    )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.run_ttp"><code class="name flex">
-<span>def <span class="ident">run_ttp</span></span>(<span>self, template: Union[str, bytes, ForwardRef('PathLike[Any]')], res_kwargs: Optional[Dict[str, Any]] = None, **kwargs: Any) ‑> Any</span>
+<span>def <span class="ident">run_ttp</span></span>(<span>self, template: Union[str, bytes, ForwardRef('PathLike[Any]')], res_kwargs: Optional[Dict[str, Any]] = None, **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run TTP template parsing by using input parameters to collect
@@ -4530,62 +3273,12 @@ ttp://path/to/template.txt format</p>
 <p>Inputs' load could be of one of the supported formats and controlled by input's <code>load</code>
 attribute, supported values - python, yaml or json. For each input output collected
 from device and parsed accordingly.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def run_ttp(
-    self,
-    template: Union[str, bytes, &#34;PathLike[Any]&#34;],
-    res_kwargs: Optional[Dict[str, Any]] = None,
-    **kwargs: Any,
-) -&gt; Any:
-    &#34;&#34;&#34;
-    Run TTP template parsing by using input parameters to collect
-    devices output.
-
-    :param template: template content, OS path to template or reference
-        to template within TTP templates collection in
-        ttp://path/to/template.txt format
-
-    :param res_kwargs: ``**res_kwargs`` arguments to pass to TTP result method
-
-    :param kwargs: any other ``**kwargs`` to use for TTP object instantiation
-
-    TTP template must have inputs defined together with below parameters.
-
-    :param method: name of Netmiko connection object method to call, default ``send_command``
-
-    :param kwargs: Netmiko connection object method arguments
-
-    :param commands: list of commands to collect
-
-    Inputs&#39; load could be of one of the supported formats and controlled by input&#39;s ``load``
-    attribute, supported values - python, yaml or json. For each input output collected
-    from device and parsed accordingly.
-    &#34;&#34;&#34;
-    if res_kwargs is None:
-        res_kwargs = {}
-    return run_ttp_template(
-        connection=self, template=template, res_kwargs=res_kwargs, **kwargs
-    )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = '', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Not Implemented</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def save_config(
-    self, cmd: str = &#34;&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
-) -&gt; str:
-    &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
-    raise NotImplementedError</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.select_delay_factor"><code class="name flex">
 <span>def <span class="ident">select_delay_factor</span></span>(<span>self, delay_factor: float) ‑> float</span>
@@ -4595,32 +3288,9 @@ from device and parsed accordingly.</p></div>
 In fast_cli choose the lesser of delay_factor of self.global_delay_factor.</p>
 <p>:param delay_factor: See <strong>init</strong>: global_delay_factor
 :type delay_factor: int</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def select_delay_factor(self, delay_factor: float) -&gt; float:
-    &#34;&#34;&#34;
-    Choose the greater of delay_factor or self.global_delay_factor (default).
-    In fast_cli choose the lesser of delay_factor of self.global_delay_factor.
-
-    :param delay_factor: See __init__: global_delay_factor
-    :type delay_factor: int
-    &#34;&#34;&#34;
-    if self.fast_cli:
-        if delay_factor and delay_factor &lt;= self.global_delay_factor:
-            return delay_factor
-        else:
-            return self.global_delay_factor
-    else:
-        if delay_factor &gt;= self.global_delay_factor:
-            return delay_factor
-        else:
-            return self.global_delay_factor</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.send_command"><code class="name flex">
-<span>def <span class="ident">send_command</span></span>(<span>self, command_string: str, expect_string: Optional[str] = None, read_timeout: float = 10.0, delay_factor: Optional[float] = None, max_loops: Optional[int] = None, auto_find_prompt: bool = True, strip_prompt: bool = True, strip_command: bool = True, normalize: bool = True, use_textfsm: bool = False, textfsm_template: Optional[str] = None, use_ttp: bool = False, ttp_template: Optional[str] = None, use_genie: bool = False, cmd_verify: bool = True) ‑> Union[str, List[Any], Dict[str, Any]]</span>
+<span>def <span class="ident">send_command</span></span>(<span>self, command_string: str, expect_string: Optional[str] = None, read_timeout: float = 10.0, delay_factor: Optional[float] = None, max_loops: Optional[int] = None, auto_find_prompt: bool = True, strip_prompt: bool = True, strip_command: bool = True, normalize: bool = True, use_textfsm: bool = False, textfsm_template: Optional[str] = None, use_ttp: bool = False, ttp_template: Optional[str] = None, use_genie: bool = False, cmd_verify: bool = True, raise_parsing_error: bool = False) ‑> Union[str, List[Any], Dict[str, Any]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -4645,226 +3315,17 @@ path, relative path, or name of file in current directory. (default: None).</p>
 <p>:param ttp_template: Name of template to parse output with; can be fully qualified
 path, relative path, or name of file in current directory. (default: None).</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).</p>
-<p>:param cmd_verify: Verify command echo before proceeding (default: True).</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">    @flush_session_log
-    @select_cmd_verify
-    def send_command(
-        self,
-        command_string: str,
-        expect_string: Optional[str] = None,
-        read_timeout: float = 10.0,
-        delay_factor: Optional[float] = None,
-        max_loops: Optional[int] = None,
-        auto_find_prompt: bool = True,
-        strip_prompt: bool = True,
-        strip_command: bool = True,
-        normalize: bool = True,
-        use_textfsm: bool = False,
-        textfsm_template: Optional[str] = None,
-        use_ttp: bool = False,
-        ttp_template: Optional[str] = None,
-        use_genie: bool = False,
-        cmd_verify: bool = True,
-    ) -&gt; Union[str, List[Any], Dict[str, Any]]:
-        &#34;&#34;&#34;Execute command_string on the SSH channel using a pattern-based mechanism. Generally
-        used for show commands. By default this method will keep waiting to receive data until the
-        network device prompt is detected. The current network device prompt will be determined
-        automatically.
-
-        :param command_string: The command to be executed on the remote device.
-
-        :param expect_string: Regular expression pattern to use for determining end of output.
-            If left blank will default to being based on router prompt.
-
-        :param read_timeout: Maximum time to wait looking for pattern. Will raise ReadTimeout
-            if timeout is exceeded.
-
-        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        :param auto_find_prompt: Use find_prompt() to override base prompt
-
-        :param strip_prompt: Remove the trailing router prompt from the output (default: True).
-
-        :param strip_command: Remove the echo of the command from the output (default: True).
-
-        :param normalize: Ensure the proper enter is sent at end of command (default: True).
-
-        :param use_textfsm: Process command output through TextFSM template (default: False).
-
-        :param textfsm_template: Name of template to parse output with; can be fully qualified
-            path, relative path, or name of file in current directory. (default: None).
-
-        :param use_ttp: Process command output through TTP template (default: False).
-
-        :param ttp_template: Name of template to parse output with; can be fully qualified
-            path, relative path, or name of file in current directory. (default: None).
-
-        :param use_genie: Process command output through PyATS/Genie parser (default: False).
-
-        :param cmd_verify: Verify command echo before proceeding (default: True).
-        &#34;&#34;&#34;
-
-        # Time to delay in each read loop
-        loop_delay = 0.025
-
-        if self.read_timeout_override:
-            read_timeout = self.read_timeout_override
-
-        if self.delay_factor_compat:
-            # For compatibility calculate the old equivalent read_timeout
-            # i.e. what it would have been in Netmiko 3.x
-            if delay_factor is None:
-                tmp_delay_factor = self.global_delay_factor
-            else:
-                tmp_delay_factor = self.select_delay_factor(delay_factor)
-            compat_timeout = calc_old_timeout(
-                max_loops=max_loops,
-                delay_factor=tmp_delay_factor,
-                loop_delay=0.2,
-                old_timeout=self.timeout,
-            )
-            msg = f&#34;&#34;&#34;\n
-You have chosen to use Netmiko&#39;s delay_factor compatibility mode for
-send_command. This will revert Netmiko to behave similarly to how it
-did in Netmiko 3.x (i.e. to use delay_factor/global_delay_factor and
-max_loops).
-
-Using these parameters Netmiko has calculated an effective read_timeout
-of {compat_timeout} and will set the read_timeout to this value.
-
-Please convert your code to that new format i.e.:
-
-    net_connect.send_command(cmd, read_timeout={compat_timeout})
-
-And then disable delay_factor_compat.
-
-delay_factor_compat will be removed in Netmiko 5.x.\n&#34;&#34;&#34;
-            warnings.warn(msg, DeprecationWarning)
-
-            # Override the read_timeout with Netmiko 3.x way :-(
-            read_timeout = compat_timeout
-
-        else:
-            # No need for two deprecation messages so only display this if not using
-            # delay_factor_compat
-            if delay_factor is not None or max_loops is not None:
-                msg = &#34;&#34;&#34;\n
-Netmiko 4.x has deprecated the use of delay_factor/max_loops with
-send_command. You should convert all uses of delay_factor and max_loops
-over to read_timeout=x where x is the total number of seconds to wait
-before timing out.\n&#34;&#34;&#34;
-                warnings.warn(msg, DeprecationWarning)
-
-        if expect_string is not None:
-            search_pattern = expect_string
-        else:
-            search_pattern = self._prompt_handler(auto_find_prompt)
-
-        if normalize:
-            command_string = self.normalize_cmd(command_string)
-
-        # Start the clock
-        start_time = time.time()
-        self.write_channel(command_string)
-        new_data = &#34;&#34;
-
-        cmd = command_string.strip()
-        if cmd and cmd_verify:
-            new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
-
-        MAX_CHARS = 2_000_000
-        DEQUE_SIZE = 20
-        output = &#34;&#34;
-        # Check only the past N-reads. This is for the case where the output is
-        # very large (i.e. searching a very large string for a pattern a whole bunch of times)
-        past_n_reads: Deque[str] = deque(maxlen=DEQUE_SIZE)
-        first_line_processed = False
-
-        # Keep reading data until search_pattern is found or until read_timeout
-        while time.time() - start_time &lt; read_timeout:
-            if new_data:
-                output += new_data
-                past_n_reads.append(new_data)
-
-                # Case where we haven&#39;t processed the first_line yet (there is a potential issue
-                # in the first line (in cases where the line is repainted).
-                if not first_line_processed:
-                    output, first_line_processed = self._first_line_handler(
-                        output, search_pattern
-                    )
-                    # Check if we have already found our pattern
-                    if re.search(search_pattern, output):
-                        break
-
-                else:
-                    if len(output) &lt;= MAX_CHARS:
-                        if re.search(search_pattern, output):
-                            break
-                    else:
-                        # Switch to deque mode if output is greater than MAX_CHARS
-                        # Check if pattern is in the past n reads
-                        if re.search(search_pattern, &#34;&#34;.join(past_n_reads)):
-                            break
-
-            time.sleep(loop_delay)
-            new_data = self.read_channel()
-
-        else:  # nobreak
-            msg = f&#34;&#34;&#34;
-Pattern not detected: {repr(search_pattern)} in output.
-
-Things you might try to fix this:
-1. Explicitly set your pattern using the expect_string argument.
-2. Increase the read_timeout to a larger value.
-
-You can also look at the Netmiko session_log or debug log for more information.
-
-&#34;&#34;&#34;
-            raise ReadTimeout(msg)
-
-        output = self._sanitize_output(
-            output,
-            strip_command=strip_command,
-            command_string=command_string,
-            strip_prompt=strip_prompt,
-        )
-        return_val = structured_data_converter(
-            command=command_string,
-            raw_data=output,
-            platform=self.device_type,
-            use_textfsm=use_textfsm,
-            use_ttp=use_ttp,
-            use_genie=use_genie,
-            textfsm_template=textfsm_template,
-            ttp_template=ttp_template,
-        )
-        return return_val</code></pre>
-</details>
+<p>:param cmd_verify: Verify command echo before proceeding (default: True).</p>
+<p>:param raise_parsing_error: Raise exception when parsing output to structured data fails.</p></div>
 </dd>
 <dt id="netmiko.BaseConnection.send_command_expect"><code class="name flex">
 <span>def <span class="ident">send_command_expect</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> Union[str, List[Any], Dict[str, Any]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Support previous name of send_command method.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def send_command_expect(
-    self, *args: Any, **kwargs: Any
-) -&gt; Union[str, List[Any], Dict[str, Any]]:
-    &#34;&#34;&#34;Support previous name of send_command method.&#34;&#34;&#34;
-    return self.send_command(*args, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string: str, last_read: float = 2.0, read_timeout: float = 120.0, delay_factor: Optional[float] = None, max_loops: Optional[int] = None, strip_prompt: bool = True, strip_command: bool = True, normalize: bool = True, use_textfsm: bool = False, textfsm_template: Optional[str] = None, use_ttp: bool = False, ttp_template: Optional[str] = None, use_genie: bool = False, cmd_verify: bool = False) ‑> Union[str, List[Any], Dict[str, Any]]</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string: str, last_read: float = 2.0, read_timeout: float = 120.0, delay_factor: Optional[float] = None, max_loops: Optional[int] = None, strip_prompt: bool = True, strip_command: bool = True, normalize: bool = True, use_textfsm: bool = False, textfsm_template: Optional[str] = None, use_ttp: bool = False, ttp_template: Optional[str] = None, use_genie: bool = False, cmd_verify: bool = False, raise_parsing_error: bool = False) ‑> Union[str, List[Any], Dict[str, Any]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -4888,105 +3349,11 @@ path, relative path, or name of file in current directory. (default: None).</p>
 <p>:param ttp_template: Name of template to parse output with; can be fully qualified
 path, relative path, or name of file in current directory. (default: None).</p>
 <p>:param use_genie: Process command output through PyATS/Genie parser (default: False).</p>
-<p>:param cmd_verify: Verify command echo before proceeding (default: False).</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@flush_session_log
-@select_cmd_verify
-def send_command_timing(
-    self,
-    command_string: str,
-    last_read: float = 2.0,
-    read_timeout: float = 120.0,
-    delay_factor: Optional[float] = None,
-    max_loops: Optional[int] = None,
-    strip_prompt: bool = True,
-    strip_command: bool = True,
-    normalize: bool = True,
-    use_textfsm: bool = False,
-    textfsm_template: Optional[str] = None,
-    use_ttp: bool = False,
-    ttp_template: Optional[str] = None,
-    use_genie: bool = False,
-    cmd_verify: bool = False,
-) -&gt; Union[str, List[Any], Dict[str, Any]]:
-    &#34;&#34;&#34;Execute command_string on the SSH channel using a delay-based mechanism. Generally
-    used for show commands.
-
-    :param command_string: The command to be executed on the remote device.
-
-    :param last_read: Time waited after end of data
-
-    :param read_timeout: Absolute timer for how long Netmiko should keep reading data on
-        the channel (waiting for there to be no new data). Will raise ReadTimeout if this
-        timeout expires. A read_timeout value of 0 will cause the read-loop to never timeout
-        (i.e. Netmiko will keep reading indefinitely until there is no new data and last_read
-        passes).
-
-    :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-    :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-    :param strip_prompt: Remove the trailing router prompt from the output (default: True).
-
-    :param strip_command: Remove the echo of the command from the output (default: True).
-
-    :param normalize: Ensure the proper enter is sent at end of command (default: True).
-
-    :param use_textfsm: Process command output through TextFSM template (default: False).
-
-    :param textfsm_template: Name of template to parse output with; can be fully qualified
-        path, relative path, or name of file in current directory. (default: None).
-
-    :param use_ttp: Process command output through TTP template (default: False).
-
-    :param ttp_template: Name of template to parse output with; can be fully qualified
-        path, relative path, or name of file in current directory. (default: None).
-
-    :param use_genie: Process command output through PyATS/Genie parser (default: False).
-
-    :param cmd_verify: Verify command echo before proceeding (default: False).
-    &#34;&#34;&#34;
-    if delay_factor is not None or max_loops is not None:
-        warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
-
-    output = &#34;&#34;
-    new_data = &#34;&#34;
-    if normalize:
-        command_string = self.normalize_cmd(command_string)
-    self.write_channel(command_string)
-
-    cmd = command_string.strip()
-    if cmd and cmd_verify:
-        new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
-    output += new_data
-    output += self.read_channel_timing(
-        last_read=last_read, read_timeout=read_timeout
-    )
-
-    output = self._sanitize_output(
-        output,
-        strip_command=strip_command,
-        command_string=command_string,
-        strip_prompt=strip_prompt,
-    )
-    return_data = structured_data_converter(
-        command=command_string,
-        raw_data=output,
-        platform=self.device_type,
-        use_textfsm=use_textfsm,
-        use_ttp=use_ttp,
-        use_genie=use_genie,
-        textfsm_template=textfsm_template,
-        ttp_template=ttp_template,
-    )
-    return return_data</code></pre>
-</details>
+<p>:param cmd_verify: Verify command echo before proceeding (default: False).</p>
+<p>:param raise_parsing_error: Raise exception when parsing output to structured data fails.</p></div>
 </dd>
 <dt id="netmiko.BaseConnection.send_config_from_file"><code class="name flex">
-<span>def <span class="ident">send_config_from_file</span></span>(<span>self, config_file: Union[str, bytes, ForwardRef('PathLike[Any]')], **kwargs: Any) ‑> str</span>
+<span>def <span class="ident">send_config_from_file</span></span>(<span>self, config_file: Union[str, bytes, ForwardRef('PathLike[Any]')], **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Send configuration commands down the SSH channel from a file.</p>
@@ -4995,29 +3362,6 @@ SSH channel.</p>
 <p>**kwargs are passed to send_config_set method.</p>
 <p>:param config_file: Path to configuration file to be sent to the device</p>
 <p>:param kwargs: params to be sent to send_config_set method</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def send_config_from_file(
-    self, config_file: Union[str, bytes, &#34;PathLike[Any]&#34;], **kwargs: Any
-) -&gt; str:
-    &#34;&#34;&#34;
-    Send configuration commands down the SSH channel from a file.
-
-    The file is processed line-by-line and each command is sent down the
-    SSH channel.
-
-    **kwargs are passed to send_config_set method.
-
-    :param config_file: Path to configuration file to be sent to the device
-
-    :param kwargs: params to be sent to send_config_set method
-    &#34;&#34;&#34;
-    with io.open(config_file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as cfg_file:
-        commands = cfg_file.readlines()
-    return self.send_config_set(commands, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.send_config_set"><code class="name flex">
 <span>def <span class="ident">send_config_set</span></span>(<span>self, config_commands: Union[str, Sequence[str], Iterator[str], TextIO, ForwardRef(None)] = None, *, exit_config_mode: bool = True, read_timeout: Optional[float] = None, delay_factor: Optional[float] = None, max_loops: Optional[int] = None, strip_prompt: bool = False, strip_command: bool = False, config_mode_command: Optional[str] = None, cmd_verify: bool = True, enter_config_mode: bool = True, error_pattern: str = '', terminator: str = '#', bypass_commands: Optional[str] = None) ‑> str</span>
@@ -5044,176 +3388,6 @@ output.</p>
 situations.</p>
 <p>:param bypass_commands: Regular expression pattern indicating configuration commands
 where cmd_verify is automatically disabled.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@flush_session_log
-def send_config_set(
-    self,
-    config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
-    *,
-    exit_config_mode: bool = True,
-    read_timeout: Optional[float] = None,
-    delay_factor: Optional[float] = None,
-    max_loops: Optional[int] = None,
-    strip_prompt: bool = False,
-    strip_command: bool = False,
-    config_mode_command: Optional[str] = None,
-    cmd_verify: bool = True,
-    enter_config_mode: bool = True,
-    error_pattern: str = &#34;&#34;,
-    terminator: str = r&#34;#&#34;,
-    bypass_commands: Optional[str] = None,
-) -&gt; str:
-    &#34;&#34;&#34;
-    Send configuration commands down the SSH channel.
-
-    config_commands is an iterable containing all of the configuration commands.
-    The commands will be executed one after the other.
-
-    Automatically exits/enters configuration mode.
-
-    :param config_commands: Multiple configuration commands to be sent to the device
-
-    :param exit_config_mode: Determines whether or not to exit config mode after complete
-
-    :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-    :param max_loops: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-    :param strip_prompt: Determines whether or not to strip the prompt
-
-    :param strip_command: Determines whether or not to strip the command
-
-    :param read_timeout: Absolute timer to send to read_channel_timing. Also adjusts
-    read_timeout in read_until_pattern calls.
-
-    :param config_mode_command: The command to enter into config mode
-
-    :param cmd_verify: Whether or not to verify command echo for each command in config_set
-
-    :param enter_config_mode: Do you enter config mode before sending config commands
-
-    :param error_pattern: Regular expression pattern to detect config errors in the
-    output.
-
-    :param terminator: Regular expression pattern to use as an alternate terminator in certain
-    situations.
-
-    :param bypass_commands: Regular expression pattern indicating configuration commands
-    where cmd_verify is automatically disabled.
-    &#34;&#34;&#34;
-
-    if self.global_cmd_verify is not None:
-        cmd_verify = self.global_cmd_verify
-
-    if delay_factor is not None or max_loops is not None:
-        warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
-
-        # Calculate an equivalent read_timeout (if using old settings)
-        # Eliminate in Netmiko 5.x
-        if read_timeout is None:
-            max_loops = 150 if max_loops is None else max_loops
-            delay_factor = 1.0 if delay_factor is None else delay_factor
-
-            # If delay_factor has been set, then look at global_delay_factor
-            delay_factor = self.select_delay_factor(delay_factor)
-
-            read_timeout = calc_old_timeout(
-                max_loops=max_loops, delay_factor=delay_factor, loop_delay=0.1
-            )
-
-    if delay_factor is None:
-        delay_factor = self.select_delay_factor(0)
-    else:
-        delay_factor = self.select_delay_factor(delay_factor)
-
-    if read_timeout is None:
-        read_timeout = 15
-    else:
-        read_timeout = read_timeout
-
-    if config_commands is None:
-        return &#34;&#34;
-    elif isinstance(config_commands, str):
-        config_commands = (config_commands,)
-
-    if not hasattr(config_commands, &#34;__iter__&#34;):
-        raise ValueError(&#34;Invalid argument passed into send_config_set&#34;)
-
-    if bypass_commands is None:
-        # Commands where cmd_verify is automatically disabled reg-ex logical-or
-        bypass_commands = r&#34;^banner .*$&#34;
-
-    # Set bypass_commands=&#34;&#34; to force no-bypass (usually for testing)
-    bypass_detected = False
-    if bypass_commands:
-        # Make a copy of the iterator
-        config_commands, config_commands_tmp = itertools.tee(config_commands, 2)
-        bypass_detected = any(
-            [True for cmd in config_commands_tmp if re.search(bypass_commands, cmd)]
-        )
-    if bypass_detected:
-        cmd_verify = False
-
-    # Send config commands
-    output = &#34;&#34;
-    if enter_config_mode:
-        if config_mode_command:
-            output += self.config_mode(config_mode_command)
-        else:
-            output += self.config_mode()
-
-    # Perform output gathering line-by-line (legacy way)
-    if self.fast_cli and self._legacy_mode and not error_pattern:
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-        # Gather output
-        output += self.read_channel_timing(read_timeout=read_timeout)
-
-    elif not cmd_verify:
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * 0.05)
-
-            # Gather the output incrementally due to error_pattern requirements
-            if error_pattern:
-                output += self.read_channel_timing(read_timeout=read_timeout)
-                if re.search(error_pattern, output, flags=re.M):
-                    msg = f&#34;Invalid input detected at command: {cmd}&#34;
-                    raise ConfigInvalidException(msg)
-
-        # Standard output gathering (no error_pattern)
-        if not error_pattern:
-            output += self.read_channel_timing(read_timeout=read_timeout)
-
-    else:
-        for cmd in config_commands:
-            self.write_channel(self.normalize_cmd(cmd))
-
-            # Make sure command is echoed
-            output += self.read_until_pattern(
-                pattern=re.escape(cmd.strip()), read_timeout=read_timeout
-            )
-
-            # Read until next prompt or terminator (#); the .*$ forces read of entire line
-            pattern = f&#34;(?:{re.escape(self.base_prompt)}.*$|{terminator}.*$)&#34;
-            output += self.read_until_pattern(
-                pattern=pattern, read_timeout=read_timeout, re_flags=re.M
-            )
-
-            if error_pattern:
-                if re.search(error_pattern, output, flags=re.M):
-                    msg = f&#34;Invalid input detected at command: {cmd}&#34;
-                    raise ConfigInvalidException(msg)
-
-    if exit_config_mode:
-        output += self.exit_config_mode()
-    output = self._sanitize_output(output)
-    log.debug(f&#34;{output}&#34;)
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.send_multiline"><code class="name flex">
 <span>def <span class="ident">send_multiline</span></span>(<span>self, commands: Sequence[Union[str, List[str]]], multiline: bool = True, **kwargs: Any) ‑> str</span>
@@ -5226,107 +3400,18 @@ def send_config_set(
 <p>Any expect_string that is a null-string will use pattern based on
 device's prompt (unless expect_string argument is passed in via
 kwargs.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def send_multiline(
-    self,
-    commands: Sequence[Union[str, List[str]]],
-    multiline: bool = True,
-    **kwargs: Any,
-) -&gt; str:
-    &#34;&#34;&#34;
-    commands should either be:
-
-    commands = [[cmd1, expect1], [cmd2, expect2], ...]]
-
-    Or
-
-    commands = [cmd1, cmd2, cmd3, ...]
-
-    Any expect_string that is a null-string will use pattern based on
-    device&#39;s prompt (unless expect_string argument is passed in via
-    kwargs.
-
-    &#34;&#34;&#34;
-    output = &#34;&#34;
-    if multiline:
-        kwargs = self._multiline_kwargs(**kwargs)
-
-    default_expect_string = kwargs.pop(&#34;expect_string&#34;, None)
-    if not default_expect_string:
-        auto_find_prompt = kwargs.get(&#34;auto_find_prompt&#34;, True)
-        default_expect_string = self._prompt_handler(auto_find_prompt)
-
-    if commands and isinstance(commands[0], str):
-        # If list of commands just send directly using default_expect_string (probably prompt)
-        for cmd in commands:
-            cmd = str(cmd)
-            output += self._send_command_str(
-                cmd, expect_string=default_expect_string, **kwargs
-            )
-    else:
-        # If list of lists, then first element is cmd and second element is expect_string
-        for cmd_item in commands:
-            assert not isinstance(cmd_item, str)
-            cmd, expect_string = cmd_item
-            if not expect_string:
-                expect_string = default_expect_string
-            output += self._send_command_str(
-                cmd, expect_string=expect_string, **kwargs
-            )
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.send_multiline_timing"><code class="name flex">
 <span>def <span class="ident">send_multiline_timing</span></span>(<span>self, commands: Sequence[str], multiline: bool = True, **kwargs: Any) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def send_multiline_timing(
-    self, commands: Sequence[str], multiline: bool = True, **kwargs: Any
-) -&gt; str:
-    if multiline:
-        kwargs = self._multiline_kwargs(**kwargs)
-    output = &#34;&#34;
-    for cmd in commands:
-        cmd = str(cmd)
-        output += self._send_command_timing_str(cmd, **kwargs)
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.serial_login"><code class="name flex">
 <span>def <span class="ident">serial_login</span></span>(<span>self, pri_prompt_terminator: str = '#\\s*$', alt_prompt_terminator: str = &#x27;&gt;\\s*$&#x27;, username_pattern: str = '(?:[Uu]ser:|sername|ogin)', pwd_pattern: str = 'assword', delay_factor: float = 1.0, max_loops: int = 20) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def serial_login(
-    self,
-    pri_prompt_terminator: str = r&#34;#\s*$&#34;,
-    alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
-    username_pattern: str = r&#34;(?:[Uu]ser:|sername|ogin)&#34;,
-    pwd_pattern: str = r&#34;assword&#34;,
-    delay_factor: float = 1.0,
-    max_loops: int = 20,
-) -&gt; str:
-    return self.telnet_login(
-        pri_prompt_terminator,
-        alt_prompt_terminator,
-        username_pattern,
-        pwd_pattern,
-        delay_factor,
-        max_loops,
-    )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
@@ -5340,28 +3425,6 @@ self._test_channel_read(pattern=r"some_pattern")
 self.set_base_prompt()
 self.set_terminal_width()
 self.disable_paging()</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def session_preparation(self) -&gt; None:
-    &#34;&#34;&#34;
-    Prepare the session after the connection has been established
-
-    This method handles some differences that occur between various devices
-    early on in the session.
-
-    In general, it should include:
-    self._test_channel_read(pattern=r&#34;some_pattern&#34;)
-    self.set_base_prompt()
-    self.set_terminal_width()
-    self.disable_paging()
-    &#34;&#34;&#34;
-    self._test_channel_read()
-    self.set_base_prompt()
-    self.set_terminal_width()
-    self.disable_paging()</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.set_base_prompt"><code class="name flex">
 <span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = '#', alt_prompt_terminator: str = &#x27;&gt;&#x27;, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
@@ -5377,61 +3440,6 @@ entering/exiting config mode.</p>
 <p>:param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt</p>
 <p>:param delay_factor: See <strong>init</strong>: global_delay_factor</p>
 <p>:param pattern: Regular expression pattern to search for in find_prompt() call</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_base_prompt(
-    self,
-    pri_prompt_terminator: str = &#34;#&#34;,
-    alt_prompt_terminator: str = &#34;&gt;&#34;,
-    delay_factor: float = 1.0,
-    pattern: Optional[str] = None,
-) -&gt; str:
-    &#34;&#34;&#34;Sets self.base_prompt
-
-    Used as delimiter for stripping of trailing prompt in output.
-
-    Should be set to something that is general and applies in multiple contexts. For Cisco
-    devices this will be set to router hostname (i.e. prompt without &gt; or #).
-
-    This will be set on entering user exec or privileged exec on Cisco, but not when
-    entering/exiting config mode.
-
-    :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
-
-    :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
-
-    :param delay_factor: See __init__: global_delay_factor
-
-    :param pattern: Regular expression pattern to search for in find_prompt() call
-    &#34;&#34;&#34;
-    if pattern is None:
-        if pri_prompt_terminator and alt_prompt_terminator:
-            pri_term = re.escape(pri_prompt_terminator)
-            alt_term = re.escape(alt_prompt_terminator)
-            pattern = rf&#34;({pri_term}|{alt_term})&#34;
-        elif pri_prompt_terminator:
-            pattern = re.escape(pri_prompt_terminator)
-        elif alt_prompt_terminator:
-            pattern = re.escape(alt_prompt_terminator)
-
-    if pattern:
-        prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
-    else:
-        prompt = self.find_prompt(delay_factor=delay_factor)
-
-    if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-        raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
-
-    # If all we have is the &#39;terminator&#39; just use that :-(
-    if len(prompt) == 1:
-        self.base_prompt = prompt
-    else:
-        # Strip off trailing terminator
-        self.base_prompt = prompt[:-1]
-    return self.base_prompt</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.set_terminal_width"><code class="name flex">
 <span>def <span class="ident">set_terminal_width</span></span>(<span>self, command: str = '', delay_factor: Optional[float] = None, cmd_verify: bool = False, pattern: Optional[str] = None) ‑> str</span>
@@ -5442,57 +3450,12 @@ This causes the output to get distorted when accessed programmatically.</p>
 <p>Set terminal width to 511 which works on a broad set of devices.</p>
 <p>:param command: Command string to send to the device</p>
 <p>:param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_terminal_width(
-    self,
-    command: str = &#34;&#34;,
-    delay_factor: Optional[float] = None,
-    cmd_verify: bool = False,
-    pattern: Optional[str] = None,
-) -&gt; str:
-    &#34;&#34;&#34;CLI terminals try to automatically adjust the line based on the width of the terminal.
-    This causes the output to get distorted when accessed programmatically.
-
-    Set terminal width to 511 which works on a broad set of devices.
-
-    :param command: Command string to send to the device
-
-    :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-    &#34;&#34;&#34;
-    if delay_factor is not None:
-        warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
-
-    if not command:
-        return &#34;&#34;
-    command = self.normalize_cmd(command)
-    self.write_channel(command)
-
-    # Avoid cmd_verify here as terminal width must be set before doing cmd_verify
-    if cmd_verify and self.global_cmd_verify is not False:
-        output = self.read_until_pattern(pattern=re.escape(command.strip()))
-    elif pattern:
-        output = self.read_until_pattern(pattern=pattern)
-    else:
-        output = self.read_until_prompt()
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.special_login_handler"><code class="name flex">
 <span>def <span class="ident">special_login_handler</span></span>(<span>self, delay_factor: float = 1.0) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Handler for devices like WLC, Extreme ERS that throw up characters prior to login.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
-    &#34;&#34;&#34;Handler for devices like WLC, Extreme ERS that throw up characters prior to login.&#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.strip_ansi_escape_codes"><code class="name flex">
 <span>def <span class="ident">strip_ansi_escape_codes</span></span>(<span>self, string_buffer: str) ‑> str</span>
@@ -5501,7 +3464,7 @@ This causes the output to get distorted when accessed programmatically.</p>
 <div class="desc"><p>Remove any ANSI (VT100) ESC codes from the output</p>
 <p><a href="http://en.wikipedia.org/wiki/ANSI_escape_code">http://en.wikipedia.org/wiki/ANSI_escape_code</a></p>
 <p>Note: this does not capture ALL possible ANSI Escape Codes only the ones
-I have encountered</p>
+that have been encountered</p>
 <p>Current codes that are filtered:
 ESC = '' or chr(27)
 ESC = is the escape character [^ in hex ('')
@@ -5531,124 +3494,15 @@ ESC[1D
 Move cursor position leftward by x characters (1 in this case)
 ESC[9999B
 Move cursor down N-lines (very large value is attempt to move to the
-very bottom of the screen).</p>
-<p>HP ProCurve and Cisco SG300 require this (possible others).</p>
+very bottom of the screen)
+ESC[c
+Query Device (used by MikroTik in 'Safe-Mode')
+ESC[2004h
+Enable bracketed paste mode
+ESC[2004l
+Disable bracketed paste mode</p>
 <p>:param string_buffer: The string to be processed to remove ANSI escape codes
 :type string_buffer: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def strip_ansi_escape_codes(self, string_buffer: str) -&gt; str:
-    &#34;&#34;&#34;
-    Remove any ANSI (VT100) ESC codes from the output
-
-    http://en.wikipedia.org/wiki/ANSI_escape_code
-
-    Note: this does not capture ALL possible ANSI Escape Codes only the ones
-    I have encountered
-
-    Current codes that are filtered:
-    ESC = &#39;\x1b&#39; or chr(27)
-    ESC = is the escape character [^ in hex (&#39;\x1b&#39;)
-    ESC[24;27H   Position cursor
-    ESC[?25h     Show the cursor
-    ESC[E        Next line (HP does ESC-E)
-    ESC[K        Erase line from cursor to the end of line
-    ESC[2K       Erase entire line
-    ESC[1;24r    Enable scrolling from start to row end
-    ESC[?6l      Reset mode screen with options 640 x 200 monochrome (graphics)
-    ESC[?7l      Disable line wrapping
-    ESC[2J       Code erase display
-    ESC[00;32m   Color Green (30 to 37 are different colors)
-    ESC[6n       Get cursor position
-    ESC[1D       Move cursor position leftward by x characters (1 in this case)
-    ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
-                 very bottom of the screen).
-
-    HP ProCurve and Cisco SG300 require this (possible others).
-
-    :param string_buffer: The string to be processed to remove ANSI escape codes
-    :type string_buffer: str
-    &#34;&#34;&#34;  # noqa
-
-    code_position_cursor = chr(27) + r&#34;\[\d+;\d+H&#34;
-    code_show_cursor = chr(27) + r&#34;\[\?25h&#34;
-    code_next_line = chr(27) + r&#34;E&#34;
-    code_erase_line_end = chr(27) + r&#34;\[K&#34;
-    code_erase_line = chr(27) + r&#34;\[2K&#34;
-    code_erase_start_line = chr(27) + r&#34;\[K&#34;
-    code_enable_scroll = chr(27) + r&#34;\[\d+;\d+r&#34;
-    code_insert_line = chr(27) + r&#34;\[(\d+)L&#34;
-    code_carriage_return = chr(27) + r&#34;\[1M&#34;
-    code_disable_line_wrapping = chr(27) + r&#34;\[\?7l&#34;
-    code_reset_mode_screen_options = chr(27) + r&#34;\[\?\d+l&#34;
-    code_reset_graphics_mode = chr(27) + r&#34;\[00m&#34;
-    code_erase_display = chr(27) + r&#34;\[2J&#34;
-    code_erase_display_0 = chr(27) + r&#34;\[J&#34;
-    code_graphics_mode = chr(27) + r&#34;\[\dm&#34;
-    code_graphics_mode1 = chr(27) + r&#34;\[\d\d;\d\dm&#34;
-    code_graphics_mode2 = chr(27) + r&#34;\[\d\d;\d\d;\d\dm&#34;
-    code_graphics_mode3 = chr(27) + r&#34;\[(3|4)\dm&#34;
-    code_graphics_mode4 = chr(27) + r&#34;\[(9|10)[0-7]m&#34;
-    code_get_cursor_position = chr(27) + r&#34;\[6n&#34;
-    code_cursor_position = chr(27) + r&#34;\[m&#34;
-    code_attrs_off = chr(27) + r&#34;\[0m&#34;
-    code_reverse = chr(27) + r&#34;\[7m&#34;
-    code_cursor_left = chr(27) + r&#34;\[\d+D&#34;
-    code_cursor_forward = chr(27) + r&#34;\[\d*C&#34;
-    code_cursor_up = chr(27) + r&#34;\[\d*A&#34;
-    code_cursor_down = chr(27) + r&#34;\[\d*B&#34;
-    code_wrap_around = chr(27) + r&#34;\[\?7h&#34;
-    code_bracketed_paste_mode = chr(27) + r&#34;\[\?2004h&#34;
-
-    code_set = [
-        code_position_cursor,
-        code_show_cursor,
-        code_erase_line,
-        code_enable_scroll,
-        code_erase_start_line,
-        code_carriage_return,
-        code_disable_line_wrapping,
-        code_erase_line_end,
-        code_reset_mode_screen_options,
-        code_reset_graphics_mode,
-        code_erase_display,
-        code_graphics_mode,
-        code_graphics_mode1,
-        code_graphics_mode2,
-        code_graphics_mode3,
-        code_graphics_mode4,
-        code_get_cursor_position,
-        code_cursor_position,
-        code_erase_display,
-        code_erase_display_0,
-        code_attrs_off,
-        code_reverse,
-        code_cursor_left,
-        code_cursor_up,
-        code_cursor_down,
-        code_cursor_forward,
-        code_wrap_around,
-        code_bracketed_paste_mode,
-    ]
-
-    output = string_buffer
-    for ansi_esc_code in code_set:
-        output = re.sub(ansi_esc_code, &#34;&#34;, output)
-
-    # CODE_NEXT_LINE must substitute with return
-    output = re.sub(code_next_line, self.RETURN, output)
-
-    # Aruba and ProCurve switches can use code_insert_line for &lt;enter&gt;
-    insert_line_match = re.search(code_insert_line, output)
-    if insert_line_match:
-        # Substitute each insert_line with a new &lt;enter&gt;
-        count = int(insert_line_match.group(1))
-        output = re.sub(code_insert_line, count * self.RETURN, output)
-
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.strip_command"><code class="name flex">
 <span>def <span class="ident">strip_command</span></span>(<span>self, command_string: str, output: str) ‑> str</span>
@@ -5660,39 +3514,6 @@ very bottom of the screen).</p>
 :type command_string: str</p>
 <p>:param output: The returned output as a result of the command string sent to the device
 :type output: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def strip_command(self, command_string: str, output: str) -&gt; str:
-    &#34;&#34;&#34;
-    Strip command_string from output string
-
-    Cisco IOS adds backspaces into output for long commands (i.e. for commands that line wrap)
-
-    :param command_string: The command string sent to the device
-    :type command_string: str
-
-    :param output: The returned output as a result of the command string sent to the device
-    :type output: str
-    &#34;&#34;&#34;
-    backspace_char = &#34;\x08&#34;
-
-    # Check for line wrap (remove backspaces)
-    if backspace_char in output:
-        output = output.replace(backspace_char, &#34;&#34;)
-
-    # Juniper has a weird case where the echoed command will be &#34; \n&#34;
-    # i.e. there is an extra space there.
-    cmd = command_string.strip()
-    if output.startswith(cmd):
-        output_lines = output.split(self.RESPONSE_RETURN)
-        new_output = output_lines[1:]
-        return self.RESPONSE_RETURN.join(new_output)
-    else:
-        # command_string isn&#39;t there; do nothing
-        return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.strip_prompt"><code class="name flex">
 <span>def <span class="ident">strip_prompt</span></span>(<span>self, a_string: str) ‑> str</span>
@@ -5701,24 +3522,6 @@ very bottom of the screen).</p>
 <div class="desc"><p>Strip the trailing router prompt from the output.</p>
 <p>:param a_string: Returned string from device
 :type a_string: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def strip_prompt(self, a_string: str) -&gt; str:
-    &#34;&#34;&#34;Strip the trailing router prompt from the output.
-
-    :param a_string: Returned string from device
-    :type a_string: str
-    &#34;&#34;&#34;
-    response_list = a_string.split(self.RESPONSE_RETURN)
-    last_line = response_list[-1]
-
-    if self.base_prompt in last_line:
-        return self.RESPONSE_RETURN.join(response_list[:-1])
-    else:
-        return a_string</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.telnet_login"><code class="name flex">
 <span>def <span class="ident">telnet_login</span></span>(<span>self, pri_prompt_terminator: str = '#\\s*$', alt_prompt_terminator: str = &#x27;&gt;\\s*$&#x27;, username_pattern: str = '(?:user:|username|login|user name)', pwd_pattern: str = 'assword', delay_factor: float = 1.0, max_loops: int = 20) ‑> str</span>
@@ -5731,101 +3534,6 @@ very bottom of the screen).</p>
 <p>:param pwd_pattern: Pattern used to identify the pwd prompt</p>
 <p>:param delay_factor: See <strong>init</strong>: global_delay_factor</p>
 <p>:param max_loops: Controls the wait time in conjunction with the delay_factor</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def telnet_login(
-    self,
-    pri_prompt_terminator: str = r&#34;#\s*$&#34;,
-    alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
-    username_pattern: str = r&#34;(?:user:|username|login|user name)&#34;,
-    pwd_pattern: str = r&#34;assword&#34;,
-    delay_factor: float = 1.0,
-    max_loops: int = 20,
-) -&gt; str:
-    &#34;&#34;&#34;Telnet login. Can be username/password or just password.
-
-    :param pri_prompt_terminator: Primary trailing delimiter for identifying a device prompt
-
-    :param alt_prompt_terminator: Alternate trailing delimiter for identifying a device prompt
-
-    :param username_pattern: Pattern used to identify the username prompt
-
-    :param pwd_pattern: Pattern used to identify the pwd prompt
-
-    :param delay_factor: See __init__: global_delay_factor
-
-    :param max_loops: Controls the wait time in conjunction with the delay_factor
-    &#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor)
-
-    # Revert telnet_login back to old speeds/delays
-    if delay_factor &lt; 1:
-        if not self._legacy_mode and self.fast_cli:
-            delay_factor = 1
-
-    time.sleep(1 * delay_factor)
-
-    output = &#34;&#34;
-    return_msg = &#34;&#34;
-    i = 1
-    while i &lt;= max_loops:
-        try:
-            output = self.read_channel()
-            return_msg += output
-
-            # Search for username pattern / send username
-            if re.search(username_pattern, output, flags=re.I):
-                # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
-                self.write_channel(self.username + &#34;\r&#34;)
-                time.sleep(1 * delay_factor)
-                output = self.read_channel()
-                return_msg += output
-
-            # Search for password pattern / send password
-            if re.search(pwd_pattern, output, flags=re.I):
-                # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
-                assert isinstance(self.password, str)
-                self.write_channel(self.password + &#34;\r&#34;)
-                time.sleep(0.5 * delay_factor)
-                output = self.read_channel()
-                return_msg += output
-                if re.search(
-                    pri_prompt_terminator, output, flags=re.M
-                ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                    return return_msg
-
-            # Check if proper data received
-            if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                alt_prompt_terminator, output, flags=re.M
-            ):
-                return return_msg
-
-            self.write_channel(self.TELNET_RETURN)
-            time.sleep(0.5 * delay_factor)
-            i += 1
-        except EOFError:
-            assert self.remote_conn is not None
-            self.remote_conn.close()
-            msg = f&#34;Login failed: {self.host}&#34;
-            raise NetmikoAuthenticationException(msg)
-
-    # Last try to see if we already logged in
-    self.write_channel(self.TELNET_RETURN)
-    time.sleep(0.5 * delay_factor)
-    output = self.read_channel()
-    return_msg += output
-    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-        alt_prompt_terminator, output, flags=re.M
-    ):
-        return return_msg
-
-    msg = f&#34;Login failed: {self.host}&#34;
-    assert self.remote_conn is not None
-    self.remote_conn.close()
-    raise NetmikoAuthenticationException(msg)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.BaseConnection.write_channel"><code class="name flex">
 <span>def <span class="ident">write_channel</span></span>(<span>self, out_data: str) ‑> None</span>
@@ -5834,20 +3542,6 @@ very bottom of the screen).</p>
 <div class="desc"><p>Generic method that will write data out the channel.</p>
 <p>:param out_data: data to be written to the channel
 :type out_data: str</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@lock_channel
-@log_writes
-def write_channel(self, out_data: str) -&gt; None:
-    &#34;&#34;&#34;Generic method that will write data out the channel.
-
-    :param out_data: data to be written to the channel
-    :type out_data: str
-    &#34;&#34;&#34;
-    self.channel.write_channel(out_data)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -6121,37 +3815,12 @@ def write_channel(self, out_data: str) -&gt; None:
 </code></dt>
 <dd>
 <div class="desc"><p>Compute MD5 hash of text.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def config_md5(self, source_config: str) -&gt; str:
-    &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
-    file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
-    file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
-</details>
 </dd>
 <dt id="netmiko.InLineTransfer.file_md5"><code class="name flex">
 <span>def <span class="ident">file_md5</span></span>(<span>self, file_name: str, add_newline: bool = False) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute MD5 hash of file.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
-    &#34;&#34;&#34;Compute MD5 hash of file.&#34;&#34;&#34;
-    if add_newline is True:
-        raise ValueError(
-            &#34;add_newline argument is not supported for inline transfers.&#34;
-        )
-    file_contents = self._read_file(file_name)
-    file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
-    file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -6319,6 +3988,7 @@ def write_channel(self, out_data: str) -&gt; None:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="netmiko.exceptions.NetmikoParsingException" href="exceptions.html#netmiko.exceptions.NetmikoParsingException">NetmikoParsingException</a></li>
 <li><a title="netmiko.exceptions.ReadTimeout" href="exceptions.html#netmiko.exceptions.ReadTimeout">ReadTimeout</a></li>
 </ul>
 </dd>
@@ -6411,78 +4081,30 @@ def write_channel(self, out_data: str) -&gt; None:
 </code></dt>
 <dd>
 <div class="desc"><p>Close the SCP connection.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def close(self) -&gt; None:
-    &#34;&#34;&#34;Close the SCP connection.&#34;&#34;&#34;
-    self.scp_conn.close()</code></pre>
-</details>
 </dd>
 <dt id="netmiko.SCPConn.establish_scp_conn"><code class="name flex">
 <span>def <span class="ident">establish_scp_conn</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Establish the secure copy connection.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def establish_scp_conn(self) -&gt; None:
-    &#34;&#34;&#34;Establish the secure copy connection.&#34;&#34;&#34;
-    ssh_connect_params = self.ssh_ctl_chan._connect_params_dict()
-    self.scp_conn = self.ssh_ctl_chan._build_ssh_client()
-    self.scp_conn.connect(**ssh_connect_params)
-    self.scp_client = scp.SCPClient(
-        self.scp_conn.get_transport(),
-        socket_timeout=self.socket_timeout,
-        progress=self.progress,
-        progress4=self.progress4,
-    )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.SCPConn.scp_get_file"><code class="name flex">
 <span>def <span class="ident">scp_get_file</span></span>(<span>self, source_file: str, dest_file: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get file using SCP.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scp_get_file(self, source_file: str, dest_file: str) -&gt; None:
-    &#34;&#34;&#34;Get file using SCP.&#34;&#34;&#34;
-    self.scp_client.get(source_file, dest_file)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.SCPConn.scp_put_file"><code class="name flex">
 <span>def <span class="ident">scp_put_file</span></span>(<span>self, source_file: str, dest_file: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Put file using SCP.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scp_put_file(self, source_file: str, dest_file: str) -&gt; None:
-    &#34;&#34;&#34;Put file using SCP.&#34;&#34;&#34;
-    self.scp_client.put(source_file, dest_file)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.SCPConn.scp_transfer_file"><code class="name flex">
 <span>def <span class="ident">scp_transfer_file</span></span>(<span>self, source_file: str, dest_file: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Put file using SCP (for backwards compatibility).</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scp_transfer_file(self, source_file: str, dest_file: str) -&gt; None:
-    &#34;&#34;&#34;Put file using SCP (for backwards compatibility).&#34;&#34;&#34;
-    self.scp_client.put(source_file, dest_file)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -6752,50 +4374,6 @@ Try to determine the device type.</p>
 <dt><strong><code>best_match</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
 <dd>The device type that is currently the best to use to interact with the device</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def autodetect(self) -&gt; Union[str, None]:
-    &#34;&#34;&#34;
-    Try to guess the best &#39;device_type&#39; based on patterns defined in SSH_MAPPER_BASE
-
-    Returns
-    -------
-    best_match : str or None
-        The device type that is currently the best to use to interact with the device
-    &#34;&#34;&#34;
-    for device_type, autodetect_dict in SSH_MAPPER_BASE:
-        tmp_dict = autodetect_dict.copy()
-        call_method = tmp_dict.pop(&#34;dispatch&#34;)
-        assert isinstance(call_method, str)
-        autodetect_method = getattr(self, call_method)
-        accuracy = autodetect_method(**tmp_dict)
-        if accuracy:
-            self.potential_matches[device_type] = accuracy
-            if accuracy &gt;= 99:  # Stop the loop as we are sure of our match
-                best_match = sorted(
-                    self.potential_matches.items(), key=lambda t: t[1], reverse=True
-                )
-                # WLC needs two different auto-dectect solutions
-                if &#34;cisco_wlc_85&#34; in best_match[0]:
-                    best_match[0] = (&#34;cisco_wlc&#34;, 99)
-                # IOS XR needs two different auto-dectect solutions
-                if &#34;cisco_xr_2&#34; in best_match[0]:
-                    best_match[0] = (&#34;cisco_xr&#34;, 99)
-                self.connection.disconnect()
-                return best_match[0][0]
-
-    if not self.potential_matches:
-        self.connection.disconnect()
-        return None
-
-    best_match = sorted(
-        self.potential_matches.items(), key=lambda t: t[1], reverse=True
-    )
-    self.connection.disconnect()
-    return best_match[0][0]</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -6803,7 +4381,6 @@ Try to determine the device type.</p>
 </section>
 </article>
 <nav id="sidebar">
-<h1>Index</h1>
 <div class="toc">
 <ul></ul>
 </div>
@@ -6814,6 +4391,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.accedian" href="accedian/index.html">netmiko.accedian</a></code></li>
 <li><code><a title="netmiko.adtran" href="adtran/index.html">netmiko.adtran</a></code></li>
 <li><code><a title="netmiko.adva" href="adva/index.html">netmiko.adva</a></code></li>
+<li><code><a title="netmiko.alaxala" href="alaxala/index.html">netmiko.alaxala</a></code></li>
 <li><code><a title="netmiko.alcatel" href="alcatel/index.html">netmiko.alcatel</a></code></li>
 <li><code><a title="netmiko.allied_telesis" href="allied_telesis/index.html">netmiko.allied_telesis</a></code></li>
 <li><code><a title="netmiko.apresia" href="apresia/index.html">netmiko.apresia</a></code></li>
@@ -6841,6 +4419,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.digi" href="digi/index.html">netmiko.digi</a></code></li>
 <li><code><a title="netmiko.dlink" href="dlink/index.html">netmiko.dlink</a></code></li>
 <li><code><a title="netmiko.eltex" href="eltex/index.html">netmiko.eltex</a></code></li>
+<li><code><a title="netmiko.encryption_handling" href="encryption_handling.html">netmiko.encryption_handling</a></code></li>
 <li><code><a title="netmiko.endace" href="endace/index.html">netmiko.endace</a></code></li>
 <li><code><a title="netmiko.enterasys" href="enterasys/index.html">netmiko.enterasys</a></code></li>
 <li><code><a title="netmiko.ericsson" href="ericsson/index.html">netmiko.ericsson</a></code></li>
@@ -6850,6 +4429,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.fiberstore" href="fiberstore/index.html">netmiko.fiberstore</a></code></li>
 <li><code><a title="netmiko.flexvnf" href="flexvnf/index.html">netmiko.flexvnf</a></code></li>
 <li><code><a title="netmiko.fortinet" href="fortinet/index.html">netmiko.fortinet</a></code></li>
+<li><code><a title="netmiko.garderos" href="garderos/index.html">netmiko.garderos</a></code></li>
 <li><code><a title="netmiko.hillstone" href="hillstone/index.html">netmiko.hillstone</a></code></li>
 <li><code><a title="netmiko.hp" href="hp/index.html">netmiko.hp</a></code></li>
 <li><code><a title="netmiko.huawei" href="huawei/index.html">netmiko.huawei</a></code></li>
@@ -6891,6 +4471,7 @@ Try to determine the device type.</p>
 <li><code><a title="netmiko.tplink" href="tplink/index.html">netmiko.tplink</a></code></li>
 <li><code><a title="netmiko.ubiquiti" href="ubiquiti/index.html">netmiko.ubiquiti</a></code></li>
 <li><code><a title="netmiko.utilities" href="utilities.html">netmiko.utilities</a></code></li>
+<li><code><a title="netmiko.vertiv" href="vertiv/index.html">netmiko.vertiv</a></code></li>
 <li><code><a title="netmiko.vyos" href="vyos/index.html">netmiko.vyos</a></code></li>
 <li><code><a title="netmiko.watchguard" href="watchguard/index.html">netmiko.watchguard</a></code></li>
 <li><code><a title="netmiko.yamaha" href="yamaha/index.html">netmiko.yamaha</a></code></li>
@@ -6900,7 +4481,6 @@ Try to determine the device type.</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
-<li><code><a title="netmiko.AgnosticHandler" href="#netmiko.AgnosticHandler">AgnosticHandler</a></code></li>
 <li><code><a title="netmiko.ConnLogOnly" href="#netmiko.ConnLogOnly">ConnLogOnly</a></code></li>
 <li><code><a title="netmiko.ConnUnify" href="#netmiko.ConnUnify">ConnUnify</a></code></li>
 <li><code><a title="netmiko.ConnectHandler" href="#netmiko.ConnectHandler">ConnectHandler</a></code></li>
@@ -7019,7 +4599,7 @@ Try to determine the device type.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
 </footer>
 </body>
 </html>
