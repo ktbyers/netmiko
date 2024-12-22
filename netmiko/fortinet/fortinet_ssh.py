@@ -1,6 +1,6 @@
 import paramiko
 import re
-from typing import Optional
+from typing import Optional, Any
 
 from netmiko.no_config import NoConfig
 from netmiko.no_enable import NoEnable
@@ -9,16 +9,24 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
     prompt_pattern = r"[#$]"
+    preferred_kex = {
+        "diffie-hellman-group14-sha1",
+        "diffie-hellman-group-exchange-sha1",
+        "diffie-hellman-group-exchange-sha256",
+        "diffie-hellman-group1-sha1",
+    }
 
-    def _modify_connection_params(self) -> None:
-        """Modify connection parameters prior to SSH connection."""
-        paramiko_transport = getattr(paramiko, "Transport")
-        paramiko_transport._preferred_kex = (
-            "diffie-hellman-group14-sha1",
-            "diffie-hellman-group-exchange-sha1",
-            "diffie-hellman-group-exchange-sha256",
-            "diffie-hellman-group1-sha1",
-        )
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        disabled_algorithms = kwargs.get("disabled_algorithms")
+        # Set this as long as no "kex" settings being passed via disabled_algorithms
+        if disabled_algorithms is None or not disabled_algorithms.get("kex"):
+            paramiko_transport = getattr(paramiko, "Transport")
+            paramiko_cur_kex = set(paramiko_transport._preferred_kex)
+            # Disable any kex not in allowed fortinet set
+            disabled_kex = list(paramiko_cur_kex - self.preferred_kex)
+            kwargs["disabled_algorithms"] = {"kex": disabled_kex}
+
+        super().__init__(*args, **kwargs)
 
     def _try_session_preparation(self, force_data: bool = False) -> None:
         super()._try_session_preparation(force_data=force_data)
@@ -74,7 +82,9 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
             check_command, expect_string=self.prompt_pattern
         )
         return bool(
-            re.search(r"Virtual domain configuration: (multiple|enable)", output)
+            re.search(
+                r"Virtual domain configuration: (multiple|enable|split-task)", output
+            )
         )
 
     def _config_global(self) -> str:
