@@ -116,6 +116,20 @@ def load_yaml_file(yaml_file: Union[str, bytes, "PathLike[Any]"]) -> Any:
         sys.exit("Unable to open YAML file")
 
 
+def load_netmiko_yml(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> Any:
+    """
+    Load and parse the .netmiko.yml as determined by 'find_cfg_file'.
+
+    Parsing:
+        Retrieve and extract 'config' parameters: __meta__ field
+        Determine if encryption is being used and decrypt any encrypted fields
+    """
+    yaml_devices_file = find_cfg_file(file_name)
+    netmiko_yaml_data = load_yaml_file(yaml_devices_file)
+    config_params = netmiko_yaml_data.pop("__meta__", {})
+    return config_params, netmiko_yaml_data
+
+
 def load_devices(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> Any:
     """Find and load .netmiko.yml file."""
     yaml_devices_file = find_cfg_file(file_name)
@@ -146,13 +160,14 @@ def find_cfg_file(
         if files:
             return files[0]
     raise IOError(
-        ".netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,"
+        ".netmiko.yml file not found in NETMIKO_TOOLS_CFG environment variable directory,"
         " current directory, or home directory."
     )
 
 
 def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -> None:
     """Print out inventory devices and groups."""
+    config_params = my_devices.pop("__meta__", {})  # noqa
     inventory_groups = ["all"]
     inventory_devices = []
     for k, v in my_devices.items():
