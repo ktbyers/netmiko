@@ -3,8 +3,8 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 class OptilinkEOLT9702Base(CiscoBaseConnection):
     """
-    Optilink EOLT 97028P2AB
-    Optilink EOLT 97024P
+    Optilink EOLT 9702-8P2AB
+    Optilink EOLT 9702-4P
     """
 
     def session_preparation(self) -> None:
@@ -51,8 +51,8 @@ class OptilinkEOLT9702Base(CiscoBaseConnection):
 
 class OptilinkEOLT9702Telnet(OptilinkEOLT9702Base):
     """
-    Optilink EOLT 97028P2AB telnet driver
-    Optilink EOLT 97024P telnet driver
+    Optilink EOLT 9702-8P2AB telnet driver
+    Optilink EOLT 9702-4P telnet driver
     """
 
     pass
