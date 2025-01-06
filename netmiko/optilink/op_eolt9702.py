@@ -27,12 +27,6 @@ class OptilinkEOLT9702Base(CiscoBaseConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def check_enable_mode(self, check_string: str = "#") -> bool:
-        """Check if in enable mode. Return a boolean."""
-        self.write_channel(self.RETURN)
-        output = self.read_until_prompt(read_entire_line=True)
-        return check_string in output
-
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
         """Exit from enable mode."""
         output = ""
