@@ -114,8 +114,6 @@ from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.optilink import OptilinkEOLT9702Telnet
 from netmiko.optilink import OptilinkEOLT11444Telnet
-from netmiko.optilink import OptilinkGOLT924Telnet
-from netmiko.optilink import OptilinkGOLT944Telnet
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
@@ -366,8 +364,6 @@ CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["optilink_eolt9702_telnet"] = OptilinkEOLT9702Telnet
 CLASS_MAPPER["optilink_eolt11444_telnet"] = OptilinkEOLT11444Telnet
-CLASS_MAPPER["optilink_golt924_telnet"] = OptilinkGOLT924Telnet
-CLASS_MAPPER["optilink_golt944_telnet"] = OptilinkGOLT944Telnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
