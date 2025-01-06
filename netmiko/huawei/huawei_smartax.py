@@ -142,7 +142,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             output += self.read_channel()
             if output.endswith("Are you sure to log out? (y/n)[n]:"):
                 self.write_channel("y" + self.RETURN)
-                output = ''
+                output = ""
                 continue
             if output.endswith("Configuration console exit, please retry to log on\n"):
                 break
