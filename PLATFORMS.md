@@ -99,6 +99,7 @@
 - F5 Linux
 - Fortinet
 - Garderos GRS
+- Genexis Saturn SOLT33
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
@@ -280,6 +281,7 @@
 - extreme_telnet
 - generic_telnet
 - generic_termserver_telnet
+- genexis_solt33_telnet
 - hp_comware_telnet
 - hp_procurve_telnet
 - huawei_olt_telnet
