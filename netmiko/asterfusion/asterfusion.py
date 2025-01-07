@@ -126,6 +126,7 @@ class AsterfusionSSH(AsterfusionBase):
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
+        raise_parsing_error: bool = True,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         log.debug(
             "Host [{}], run cmd [{}] , find prompt: {} ".format(
@@ -149,6 +150,7 @@ class AsterfusionSSH(AsterfusionBase):
                 ttp_template=ttp_template,
                 use_genie=use_genie,
                 cmd_verify=cmd_verify,
+                raise_parsing_error=raise_parsing_error,
             )
             return output
         except Exception as e:
