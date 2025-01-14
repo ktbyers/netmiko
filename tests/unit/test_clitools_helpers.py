@@ -52,6 +52,7 @@ def test_ssh_conn_failure(mock_connecthandler):
 def test_obtain_devices_all(netmiko_yml, monkeypatch, set_encryption_key):
     yml_path = BASE_YAML_PATH / netmiko_yml
     monkeypatch.setenv("NETMIKO_TOOLS_CFG", str(yml_path))
+    set_encryption_key()
 
     result = obtain_devices("all")
 

@@ -1,5 +1,5 @@
 
-# Use pydev2 machine
+# Use pydev3 machine
 # Use virtual environment = .venv
 
 # Run the following command to update docs: 
@@ -18,8 +18,8 @@ $ pdoc3 --html --output-dir docs netmiko --force
 # Run ./_release.sh
 
 # Create a tag for the version
-git tag -a v4.4.0 -m "Version 4.4.0 Release"
-git push origin_ssh v4.4.0
+git tag -a v4.5.0 -m "Version 4.5.0 Release"
+git push origin v4.5.0
 
 # Make sure to run the performance tests for the new release and to update the graphs!
 
