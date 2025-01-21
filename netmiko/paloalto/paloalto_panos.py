@@ -78,8 +78,8 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         self.set_base_prompt()
 
         # PA devices can be really slow--try to make sure we are caught up
-        self.write_channel("show admins\n")
-        self._test_channel_read(pattern=r"Client")
+        self.write_channel("show system info\n")
+        self._test_channel_read(pattern=r"operational-mode")
         self._test_channel_read(pattern=r"[>#]")
 
     def find_prompt(

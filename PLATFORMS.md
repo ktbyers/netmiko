@@ -99,10 +99,12 @@
 - F5 Linux
 - Fortinet
 - Garderos GRS
+- Genexis Saturn SOLT33 (telnet only)
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
 - Nokia SR Linux
+- Optilink EOLT 9702 (telnet only)
 - QuantaMesh
 - Rad ETX
 - Raisecom ROAP
@@ -280,6 +282,7 @@
 - extreme_telnet
 - generic_telnet
 - generic_termserver_telnet
+- genexis_solt33_telnet
 - hp_comware_telnet
 - hp_procurve_telnet
 - huawei_olt_telnet
@@ -289,6 +292,7 @@
 - maipu_telnet
 - nokia_sros_telnet
 - oneaccess_oneos_telnet
+- optilink_eolt9702_telnet
 - paloalto_panos_telnet
 - rad_etx_telnet
 - raisecom_telnet
