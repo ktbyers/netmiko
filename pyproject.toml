@@ -1,6 +1,6 @@
 [build-system]
-requires = ["poetry>=1.6.1"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "netmiko"
@@ -31,7 +31,7 @@ rich = ">=13.8"
 "ruamel.yaml" = ">=0.17"
 
 [tool.poetry.group.dev.dependencies]
-black = "24.8.0"
+black = "24.10.0"
 mypy = "1.11.2"
 mypy-extensions = "1.0.0"
 pytest = "8.3.3"
