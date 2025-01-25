@@ -1,9 +1,20 @@
+"""Huawei SmartAX and OLT support."""
+
 import time
 import re
 from typing import Optional
+from enum import Enum
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
+
+
+class Mode(Enum):
+    """Define the mode of the device."""
+
+    BASE = "base"
+    ENABLE = "enable"
+    CONFIG = "config"
 
 
 class HuaweiSmartAXSSH(CiscoBaseConnection):
@@ -11,19 +22,64 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
     prompt_pattern = r"[>$]"
 
+    def __init__(self, **kwargs) -> None:
+        self.mmi_mode = False
+        if "mmi-mode" in kwargs:
+            if not isinstance(kwargs["mmi-mode"], bool):
+                raise ValueError("mmi-mode must be a boolean")
+            self.mmi_mode = kwargs.get("mmi-mode", False)
+            del kwargs["mmi-mode"]
+        super().__init__(**kwargs)
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
 
         data = self._test_channel_read(pattern=f"YES.NO|{self.prompt_pattern}")
-        # Huawei OLT might put a post-login banner that requires 'yes' to be sent.
+        # Huawei OLT might put a post-login banner
+        # that requires 'yes' to be sent.
         if re.search(r"YES.NO", data):
             self.write_channel(f"yes{self.RETURN}")
             self._test_channel_read(pattern=self.prompt_pattern)
 
         self.set_base_prompt()
-        self._disable_smart_interaction()
-        self.disable_paging()
+        if self.mmi_mode:
+            self.__send_command(
+                command="mmi-mode enable",
+                mode=Mode.CONFIG,
+            )
+        else:
+            self.__send_command("undo smart")  # Disable autocomplete
+            self.disable_paging("scroll")
+            self.__send_command(  # Disable alarms
+                command="infoswitch cli OFF",
+                mode=Mode.ENABLE,
+            )
+
+    def __send_command(
+        self, command: str, delay_factor: float = 1.0, mode: Mode = Mode.BASE
+    ) -> None:
+        """
+        Send a command on startup to disable the automatic paging.
+        """
+        if mode in [Mode.ENABLE, Mode.CONFIG]:
+            self.enable()
+        if mode == Mode.CONFIG:
+            self.config_mode()
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+        command = self.normalize_cmd(command)
+        log.debug("Command: %s", command)
+        self.write_channel(command)
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        output = self.read_until_prompt(read_entire_line=True)
+        log.debug("%s", output)
+        if mode == Mode.CONFIG:
+            self.exit_config_mode()
+        if mode in [Mode.ENABLE, Mode.CONFIG]:
+            self.exit_enable_mode()
 
     def strip_ansi_escape_codes(self, string_buffer: str) -> str:
         """
@@ -37,59 +93,31 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         output = re.sub(pattern, "", output)
 
         log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
+        log.debug("new_output = %s", output)
+        log.debug("repr = %s", repr(output))
         return super().strip_ansi_escape_codes(output)
 
-    def _disable_smart_interaction(
-        self, command: str = "undo smart", delay_factor: float = 1.0
-    ) -> None:
-        """Disables the { <cr> } prompt to avoid having to sent a 2nd return after each command"""
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-        command = self.normalize_cmd(command)
-        log.debug("In disable_smart_interaction")
-        log.debug(f"Command: {command}")
-        self.write_channel(command)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-            output = self.read_until_prompt(read_entire_line=True)
-        else:
-            output = self.read_until_prompt(read_entire_line=True)
-        log.debug(f"{output}")
-        log.debug("Exiting disable_smart_interaction")
-
-    def disable_paging(
-        self,
-        command: str = "scroll",
-        delay_factor: Optional[float] = None,
-        cmd_verify: bool = True,
-        pattern: Optional[str] = None,
-    ) -> str:
-        return super().disable_paging(
-            command=command,
-            delay_factor=delay_factor,
-            cmd_verify=cmd_verify,
-            pattern=pattern,
-        )
-
     def config_mode(
-        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
+        self, config_command: str = "config", pattern: str = r"\)#", re_flags: int = 0
     ) -> str:
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def check_config_mode(
-        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+        self,
+        check_string: str = "\\)#",
+        pattern: str = "[#>]",
+        force_regex: bool = True,
     ) -> bool:
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def exit_config_mode(
         self, exit_config: str = "return", pattern: str = r"#.*"
     ) -> str:
-        return super().exit_config_mode(exit_config=exit_config)
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
@@ -131,3 +159,26 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
+    def cleanup(self, command: str = "quit") -> None:
+        """
+        Gracefully exit the SSH session.
+        If mmi-mode is activated the session is automatically logged out.
+        """
+        super().cleanup(command=command)
+        start_time = time.time()
+        output: str = ""
+        # If after 20 seconds the device hasn't logged out, force it
+        while time.time() - start_time < 20 and not self.mmi_mode:
+            output += self.read_channel()
+            if output.endswith("Are you sure to log out? (y/n)[n]:"):
+                self.write_channel("y" + self.RETURN)
+                break
+        output = ""
+        start_time = time.time()
+        while time.time() - start_time < 20:
+            output += self.read_channel()
+            if output.endswith("Configuration console exit, please retry to log on\n"):
+                return
+            time.sleep(0.01)
+        raise ValueError("Failed to log out of the device")
