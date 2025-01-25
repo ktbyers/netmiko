@@ -194,6 +194,14 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "huawei_smartax": {
+        "cmd": "display system sys-info\n",
+        "search_patterns": [
+            r'Huawei Integrated Access Software',
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "juniper_junos": {
         "cmd": "show version",
         "search_patterns": [
@@ -537,6 +545,7 @@ class SSHDetect(object):
             r"command not found",
             r"Syntax Error: unexpected argument",
             r"% Unrecognized command found at",
+            r"% Unknown command, the error locates at \'^\'"
         ]
         if not cmd or not search_patterns:
             return 0
