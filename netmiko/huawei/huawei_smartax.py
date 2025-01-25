@@ -2,7 +2,7 @@
 
 import time
 import re
-from typing import Optional
+from typing import Optional, Any
 from enum import Enum
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
@@ -22,7 +22,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
     prompt_pattern = r"[>$]"
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.mmi_mode = False
         if "mmi-mode" in kwargs:
             if not isinstance(kwargs["mmi-mode"], bool):
