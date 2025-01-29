@@ -145,6 +145,7 @@ from netmiko.zte import ZteZxrosTelnet
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
+from netmiko.sundenshi import SundenshiSE220SSH
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -293,6 +294,7 @@ CLASS_MAPPER_BASE = {
     "yamaha": YamahaSSH,
     "zyxel_os": ZyxelSSH,
     "maipu": MaipuSSH,
+    "sundenshi_se220": SundenshiSE220SSH,
 }
 
 FILE_TRANSFER_MAP = {
