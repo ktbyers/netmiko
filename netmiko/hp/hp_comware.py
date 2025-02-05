@@ -37,10 +37,10 @@ class HPComwareBase(CiscoSSHConnection):
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_config_mode(
-        self, check_string: str = "]", pattern: str = "", force_regex: bool = False
+        self, check_string: str = "]", pattern: str = r"[>]|]", force_regex: bool = False
     ) -> bool:
         """Check whether device is in configuration mode. Return a boolean."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def send_config_set(
         self,
