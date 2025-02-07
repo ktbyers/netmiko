@@ -83,6 +83,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "aruba_aoscx": {
+        "cmd": "show version",
+        "search_patterns": [r"ArubaOS-CX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "ciena_saos": {
         "cmd": "software show",
         "search_patterns": [r"saos"],
