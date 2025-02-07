@@ -222,6 +222,17 @@ aruba_os:
     - "location location2"
   config_verification: "show location"
 
+aruba_aoscx:
+  version: "show version"
+  basic: "show int mgmt"
+  basic_textfsm: "show system"
+  extended_output: "show run"
+  config: 
+    - 'snmp-server community public'
+    - 'no snmp-server community public'
+    - 'snmp-server community public'
+  config_verification: "show run"
+
 ubiquiti_edge:
   version: "show version"
   basic: "show network"
