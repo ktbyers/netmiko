@@ -20,7 +20,6 @@ class BintecBossBase(NoEnable, NoConfig, CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
-        return self._send_command_timing_str(command_string=cmd)
 
     def _reload_device(
         self,
