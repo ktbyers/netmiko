@@ -176,6 +176,8 @@ class BaseConnection:
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
+        # For telnet 'conn_timeout' is mapped to main telnet timeout (which is used for both the
+        # telnet connection and for other blocking operations).
         conn_timeout: int = 10,
         # Timeout to wait for authentication response
         auth_timeout: Optional[int] = None,
