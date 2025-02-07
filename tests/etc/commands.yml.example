@@ -222,6 +222,17 @@ aruba_os:
     - "location location2"
   config_verification: "show location"
 
+aruba_aoscx:
+  version: "show version"
+  basic: "show int mgmt"
+  basic_textfsm: "show system"
+  extended_output: "show run"
+  config: 
+    - 'snmp-server community public'
+    - 'no snmp-server community public'
+    - 'snmp-server community public'
+  config_verification: "show run"
+
 ubiquiti_edge:
   version: "show version"
   basic: "show network"
@@ -555,4 +566,55 @@ bintec_boss_telnet:
   basic: "ifconfig 1000"
   extended_output: "show rev"
 
+digi_transport:
+  version: "type version"
+  basic: "type config.da0"
+  extended_output: "type version all"
 
+maipu:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"
+  config: 
+    - "logging buffer count 4096"           # base command
+    - "no logging console"
+    - "logging source default console deny"           # something you can verify has changed
+  config_verification: "show running-config | include logging"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
+  
+maipu_telnet:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show running-config"
+  config: 
+    - "logging buffer count 4096"           # base command
+    - "no logging console"
+    - "logging source default console deny"           # something you can verify has changed
+  config_verification: "show running-config | include logging"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
+
+hillstone_stoneos:
+  version: "show version"
+  basic: "show interface"
+  extended_output: "show configuration"
+  config:
+    - "clock zone china"
+  config_verification: "show configuration | inc clock"
+  save_config_cmd: 'save all'
+  save_config_confirm: True
+  save_config_response: 'Saving configuration is finished'
+
+fiberstore_fsos:
+  version: "show version"
+  basic: "show ip interface"
+  wide_command: "show ip access-lists myverybiglongaccesslistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show run"   # requires paging to be disabled
+  config:
+    - 'logging buffered severity 6'
+    - 'no logging console'
+    - 'logging buffered severity 3'
+  config_verification: "show run"

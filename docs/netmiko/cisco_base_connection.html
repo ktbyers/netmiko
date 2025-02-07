@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.1">
 <title>netmiko.cisco_base_connection API documentation</title>
-<meta name="description" content="CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms." />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<meta name="description" content="CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
 </head>
 <body>
 <main>
@@ -23,279 +26,6 @@
 </header>
 <section id="section-intro">
 <p>CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms.</p>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">&#34;&#34;&#34;CiscoBaseConnection is netmiko SSH class for Cisco and Cisco-like platforms.&#34;&#34;&#34;
-from typing import Optional
-import re
-import time
-from netmiko.base_connection import BaseConnection
-from netmiko.scp_handler import BaseFileTransfer
-from netmiko.exceptions import NetmikoAuthenticationException
-
-
-class CiscoBaseConnection(BaseConnection):
-    &#34;&#34;&#34;Base Class for cisco-like behavior.&#34;&#34;&#34;
-
-    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
-        &#34;&#34;&#34;Check if in enable mode. Return boolean.&#34;&#34;&#34;
-        return super().check_enable_mode(check_string=check_string)
-
-    def enable(
-        self,
-        cmd: str = &#34;enable&#34;,
-        pattern: str = &#34;ssword&#34;,
-        enable_pattern: Optional[str] = None,
-        re_flags: int = re.IGNORECASE,
-    ) -&gt; str:
-        &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-        return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
-        )
-
-    def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
-        &#34;&#34;&#34;Exits enable (privileged exec) mode.&#34;&#34;&#34;
-        return super().exit_enable_mode(exit_command=exit_command)
-
-    def check_config_mode(
-        self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-    ) -&gt; bool:
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        &#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
-
-    def config_mode(
-        self,
-        config_command: str = &#34;configure terminal&#34;,
-        pattern: str = &#34;&#34;,
-        re_flags: int = 0,
-    ) -&gt; str:
-        return super().config_mode(
-            config_command=config_command, pattern=pattern, re_flags=re_flags
-        )
-
-    def exit_config_mode(self, exit_config: str = &#34;end&#34;, pattern: str = r&#34;#.*&#34;) -&gt; str:
-        &#34;&#34;&#34;Exit from configuration mode.&#34;&#34;&#34;
-        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
-
-    def serial_login(
-        self,
-        pri_prompt_terminator: str = r&#34;\#\s*$&#34;,
-        alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
-        username_pattern: str = r&#34;(?:user:|username|login)&#34;,
-        pwd_pattern: str = r&#34;assword&#34;,
-        delay_factor: float = 1.0,
-        max_loops: int = 20,
-    ) -&gt; str:
-        self.write_channel(self.TELNET_RETURN)
-        output = self.read_channel()
-        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
-        ):
-            return output
-        else:
-            return self.telnet_login(
-                pri_prompt_terminator,
-                alt_prompt_terminator,
-                username_pattern,
-                pwd_pattern,
-                delay_factor,
-                max_loops,
-            )
-
-    def telnet_login(
-        self,
-        pri_prompt_terminator: str = r&#34;\#\s*$&#34;,
-        alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
-        username_pattern: str = r&#34;(?:user:|username|login|user name)&#34;,
-        pwd_pattern: str = r&#34;assword&#34;,
-        delay_factor: float = 1.0,
-        max_loops: int = 20,
-    ) -&gt; str:
-        &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor)
-
-        if delay_factor &lt; 1:
-            if not self._legacy_mode and self.fast_cli:
-                delay_factor = 1
-
-        time.sleep(1 * delay_factor)
-
-        output = &#34;&#34;
-        return_msg = &#34;&#34;
-        outer_loops = 3
-        inner_loops = int(max_loops / outer_loops)
-        i = 1
-        for _ in range(outer_loops):
-            while i &lt;= inner_loops:
-                try:
-                    output = self.read_channel()
-                    return_msg += output
-
-                    # Search for username pattern / send username
-                    if re.search(username_pattern, output, flags=re.I):
-                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
-                        self.write_channel(self.username + &#34;\r&#34;)
-                        time.sleep(1 * delay_factor)
-                        output = self.read_channel()
-                        return_msg += output
-
-                    # Search for password pattern / send password
-                    if re.search(pwd_pattern, output, flags=re.I):
-                        # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
-                        assert isinstance(self.password, str)
-                        self.write_channel(self.password + &#34;\r&#34;)
-                        time.sleep(0.5 * delay_factor)
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(
-                            pri_prompt_terminator, output, flags=re.M
-                        ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                            return return_msg
-
-                    # Support direct telnet through terminal server
-                    if re.search(
-                        r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
-                    ):
-                        self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                        time.sleep(0.5 * delay_factor)
-                        count = 0
-                        while count &lt; 15:
-                            output = self.read_channel()
-                            return_msg += output
-                            if re.search(r&#34;ress RETURN to get started&#34;, output):
-                                output = &#34;&#34;
-                                break
-                            time.sleep(2 * delay_factor)
-                            count += 1
-
-                    # Check for device with no password configured
-                    if re.search(r&#34;assword required, but none set&#34;, output):
-                        assert self.remote_conn is not None
-                        self.remote_conn.close()
-                        msg = (
-                            &#34;Login failed - Password required, but none set: {}&#34;.format(
-                                self.host
-                            )
-                        )
-                        raise NetmikoAuthenticationException(msg)
-
-                    # Check if proper data received
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                        return return_msg
-
-                    i += 1
-
-                except EOFError:
-                    assert self.remote_conn is not None
-                    self.remote_conn.close()
-                    msg = f&#34;Login failed: {self.host}&#34;
-                    raise NetmikoAuthenticationException(msg)
-
-            # Try sending an &lt;enter&gt; to restart the login process
-            self.write_channel(self.TELNET_RETURN)
-            time.sleep(0.5 * delay_factor)
-            i = 1
-
-        # Last try to see if we already logged in
-        self.write_channel(self.TELNET_RETURN)
-        time.sleep(0.5 * delay_factor)
-        output = self.read_channel()
-        return_msg += output
-        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
-        ):
-            return return_msg
-
-        assert self.remote_conn is not None
-        self.remote_conn.close()
-        msg = f&#34;Login failed: {self.host}&#34;
-        raise NetmikoAuthenticationException(msg)
-
-    def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
-        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
-        try:
-            if self.check_config_mode():
-                self.exit_config_mode()
-        except Exception:
-            pass
-        # Always try to send final &#39;exit&#39; (command)
-        if self.session_log:
-            self.session_log.fin = True
-        self.write_channel(command + self.RETURN)
-
-    def _autodetect_fs(
-        self, cmd: str = &#34;dir&#34;, pattern: str = r&#34;Directory of (.*)/&#34;
-    ) -&gt; str:
-        &#34;&#34;&#34;Autodetect the file system on the remote device. Used by SCP operations.&#34;&#34;&#34;
-        if not self.check_enable_mode():
-            raise ValueError(&#34;Must be in enable mode to auto-detect the file-system.&#34;)
-        output = self._send_command_str(cmd)
-        match = re.search(pattern, output)
-        if match:
-            file_system = match.group(1)
-            # Test file_system
-            cmd = f&#34;dir {file_system}&#34;
-            output = self._send_command_str(cmd)
-            if &#34;% Invalid&#34; in output or &#34;%Error:&#34; in output:
-                raise ValueError(
-                    &#34;An error occurred in dynamically determining remote file &#34;
-                    &#34;system: {} {}&#34;.format(cmd, output)
-                )
-            else:
-                return file_system
-
-        raise ValueError(
-            &#34;An error occurred in dynamically determining remote file &#34;
-            &#34;system: {} {}&#34;.format(cmd, output)
-        )
-
-    def save_config(
-        self,
-        cmd: str = &#34;copy running-config startup-config&#34;,
-        confirm: bool = False,
-        confirm_response: str = &#34;&#34;,
-    ) -&gt; str:
-        &#34;&#34;&#34;Saves Config.&#34;&#34;&#34;
-        self.enable()
-        if confirm:
-            output = self._send_command_timing_str(
-                command_string=cmd, strip_prompt=False, strip_command=False
-            )
-            if confirm_response:
-                output += self._send_command_timing_str(
-                    confirm_response, strip_prompt=False, strip_command=False
-                )
-            else:
-                # Send enter by default
-                output += self._send_command_timing_str(
-                    self.RETURN, strip_prompt=False, strip_command=False
-                )
-        else:
-            # Some devices are slow so match on trailing-prompt if you can
-            output = self._send_command_str(
-                command_string=cmd,
-                strip_prompt=False,
-                strip_command=False,
-                read_timeout=100.0,
-            )
-        return output
-
-
-class CiscoSSHConnection(CiscoBaseConnection):
-    pass
-
-
-class CiscoFileTransfer(BaseFileTransfer):
-    pass</code></pre>
-</details>
 </section>
 <section>
 </section>
@@ -308,7 +38,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <dl>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoBaseConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -349,6 +79,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -363,13 +96,17 @@ class CiscoFileTransfer(BaseFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -382,11 +119,14 @@ class CiscoFileTransfer(BaseFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -399,10 +139,13 @@ class CiscoFileTransfer(BaseFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -414,6 +157,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -431,11 +177,16 @@ class CiscoFileTransfer(BaseFileTransfer):
         cmd: str = &#34;enable&#34;,
         pattern: str = &#34;ssword&#34;,
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -&gt; str:
         &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
@@ -445,12 +196,10 @@ class CiscoFileTransfer(BaseFileTransfer):
     def check_config_mode(
         self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
     ) -&gt; bool:
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-
-        Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-        &#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,
@@ -685,9 +434,11 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.cisco.cisco_xr.CiscoXrBase" href="cisco/cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase">CiscoXrBase</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell/dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
+<li><a title="netmiko.hillstone.hillstone.HillstoneStoneosBase" href="hillstone/hillstone.html#netmiko.hillstone.hillstone.HillstoneStoneosBase">HillstoneStoneosBase</a></li>
 <li><a title="netmiko.huawei.huawei.HuaweiBase" href="huawei/huawei.html#netmiko.huawei.huawei.HuaweiBase">HuaweiBase</a></li>
 <li><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="huawei/huawei_smartax.html#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></li>
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="ipinfusion/ipinfusion_ocnos.html#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
+<li><a title="netmiko.maipu.maipu.MaipuBase" href="maipu/maipu.html#netmiko.maipu.maipu.MaipuBase">MaipuBase</a></li>
 <li><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase" href="oneaccess/oneaccess_oneos.html#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase">OneaccessOneOSBase</a></li>
 <li><a title="netmiko.raisecom.raisecom_roap.RaisecomRoapBase" href="raisecom/raisecom_roap.html#netmiko.raisecom.raisecom_roap.RaisecomRoapBase">RaisecomRoapBase</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="ruijie/ruijie_os.html#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></li>
@@ -701,305 +452,55 @@ class CiscoFileTransfer(BaseFileTransfer):
 <span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ')#', pattern: str = '', force_regex: bool = False) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Checks if the device is in configuration mode or not.</p>
-<p>Cisco IOS devices abbreviate the prompt at 20 chars in config mode</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_config_mode(
-    self, check_string: str = &#34;)#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-) -&gt; bool:
-    &#34;&#34;&#34;
-    Checks if the device is in configuration mode or not.
-
-    Cisco IOS devices abbreviate the prompt at 20 chars in config mode
-    &#34;&#34;&#34;
-    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
-</details>
+<div class="desc"><p>Checks if the device is in configuration mode or not.</p></div>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode"><code class="name flex">
 <span>def <span class="ident">check_enable_mode</span></span>(<span>self, check_string: str = '#') ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Check if in enable mode. Return boolean.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
-    &#34;&#34;&#34;Check if in enable mode. Return boolean.&#34;&#34;&#34;
-    return super().check_enable_mode(check_string=check_string)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup"><code class="name flex">
 <span>def <span class="ident">cleanup</span></span>(<span>self, command: str = 'exit') ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gracefully exit the SSH session.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
-    &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
-    try:
-        if self.check_config_mode():
-            self.exit_config_mode()
-    except Exception:
-        pass
-    # Always try to send final &#39;exit&#39; (command)
-    if self.session_log:
-        self.session_log.fin = True
-    self.write_channel(command + self.RETURN)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = 'ssword', enable_pattern: Optional[str] = None, re_flags: int = re.IGNORECASE) ‑> str</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = 'ssword', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Enter enable mode.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def enable(
-    self,
-    cmd: str = &#34;enable&#34;,
-    pattern: str = &#34;ssword&#34;,
-    enable_pattern: Optional[str] = None,
-    re_flags: int = re.IGNORECASE,
-) -&gt; str:
-    &#34;&#34;&#34;Enter enable mode.&#34;&#34;&#34;
-    return super().enable(
-        cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
-    )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode"><code class="name flex">
 <span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = 'end', pattern: str = '#.*') ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Exit from configuration mode.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;end&#34;, pattern: str = r&#34;#.*&#34;) -&gt; str:
-    &#34;&#34;&#34;Exit from configuration mode.&#34;&#34;&#34;
-    return super().exit_config_mode(exit_config=exit_config, pattern=pattern)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode"><code class="name flex">
 <span>def <span class="ident">exit_enable_mode</span></span>(<span>self, exit_command: str = 'disable') ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Exits enable (privileged exec) mode.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
-    &#34;&#34;&#34;Exits enable (privileged exec) mode.&#34;&#34;&#34;
-    return super().exit_enable_mode(exit_command=exit_command)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'copy running-config startup-config', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Saves Config.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def save_config(
-    self,
-    cmd: str = &#34;copy running-config startup-config&#34;,
-    confirm: bool = False,
-    confirm_response: str = &#34;&#34;,
-) -&gt; str:
-    &#34;&#34;&#34;Saves Config.&#34;&#34;&#34;
-    self.enable()
-    if confirm:
-        output = self._send_command_timing_str(
-            command_string=cmd, strip_prompt=False, strip_command=False
-        )
-        if confirm_response:
-            output += self._send_command_timing_str(
-                confirm_response, strip_prompt=False, strip_command=False
-            )
-        else:
-            # Send enter by default
-            output += self._send_command_timing_str(
-                self.RETURN, strip_prompt=False, strip_command=False
-            )
-    else:
-        # Some devices are slow so match on trailing-prompt if you can
-        output = self._send_command_str(
-            command_string=cmd,
-            strip_prompt=False,
-            strip_command=False,
-            read_timeout=100.0,
-        )
-    return output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.serial_login"><code class="name flex">
 <span>def <span class="ident">serial_login</span></span>(<span>self, pri_prompt_terminator: str = '\\#\\s*$', alt_prompt_terminator: str = &#x27;&gt;\\s*$&#x27;, username_pattern: str = '(?:user:|username|login)', pwd_pattern: str = 'assword', delay_factor: float = 1.0, max_loops: int = 20) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def serial_login(
-    self,
-    pri_prompt_terminator: str = r&#34;\#\s*$&#34;,
-    alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
-    username_pattern: str = r&#34;(?:user:|username|login)&#34;,
-    pwd_pattern: str = r&#34;assword&#34;,
-    delay_factor: float = 1.0,
-    max_loops: int = 20,
-) -&gt; str:
-    self.write_channel(self.TELNET_RETURN)
-    output = self.read_channel()
-    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-        alt_prompt_terminator, output, flags=re.M
-    ):
-        return output
-    else:
-        return self.telnet_login(
-            pri_prompt_terminator,
-            alt_prompt_terminator,
-            username_pattern,
-            pwd_pattern,
-            delay_factor,
-            max_loops,
-        )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoBaseConnection.telnet_login"><code class="name flex">
 <span>def <span class="ident">telnet_login</span></span>(<span>self, pri_prompt_terminator: str = '\\#\\s*$', alt_prompt_terminator: str = &#x27;&gt;\\s*$&#x27;, username_pattern: str = '(?:user:|username|login|user name)', pwd_pattern: str = 'assword', delay_factor: float = 1.0, max_loops: int = 20) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Telnet login. Can be username/password or just password.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def telnet_login(
-    self,
-    pri_prompt_terminator: str = r&#34;\#\s*$&#34;,
-    alt_prompt_terminator: str = r&#34;&gt;\s*$&#34;,
-    username_pattern: str = r&#34;(?:user:|username|login|user name)&#34;,
-    pwd_pattern: str = r&#34;assword&#34;,
-    delay_factor: float = 1.0,
-    max_loops: int = 20,
-) -&gt; str:
-    &#34;&#34;&#34;Telnet login. Can be username/password or just password.&#34;&#34;&#34;
-    delay_factor = self.select_delay_factor(delay_factor)
-
-    if delay_factor &lt; 1:
-        if not self._legacy_mode and self.fast_cli:
-            delay_factor = 1
-
-    time.sleep(1 * delay_factor)
-
-    output = &#34;&#34;
-    return_msg = &#34;&#34;
-    outer_loops = 3
-    inner_loops = int(max_loops / outer_loops)
-    i = 1
-    for _ in range(outer_loops):
-        while i &lt;= inner_loops:
-            try:
-                output = self.read_channel()
-                return_msg += output
-
-                # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
-                    self.write_channel(self.username + &#34;\r&#34;)
-                    time.sleep(1 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-
-                # Search for password pattern / send password
-                if re.search(pwd_pattern, output, flags=re.I):
-                    # Sometimes username/password must be terminated with &#34;\r&#34; and not &#34;\r\n&#34;
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + &#34;\r&#34;)
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                        return return_msg
-
-                # Support direct telnet through terminal server
-                if re.search(
-                    r&#34;initial configuration dialog\? \[yes/no\]: &#34;, output
-                ):
-                    self.write_channel(&#34;no&#34; + self.TELNET_RETURN)
-                    time.sleep(0.5 * delay_factor)
-                    count = 0
-                    while count &lt; 15:
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(r&#34;ress RETURN to get started&#34;, output):
-                            output = &#34;&#34;
-                            break
-                        time.sleep(2 * delay_factor)
-                        count += 1
-
-                # Check for device with no password configured
-                if re.search(r&#34;assword required, but none set&#34;, output):
-                    assert self.remote_conn is not None
-                    self.remote_conn.close()
-                    msg = (
-                        &#34;Login failed - Password required, but none set: {}&#34;.format(
-                            self.host
-                        )
-                    )
-                    raise NetmikoAuthenticationException(msg)
-
-                # Check if proper data received
-                if re.search(
-                    pri_prompt_terminator, output, flags=re.M
-                ) or re.search(alt_prompt_terminator, output, flags=re.M):
-                    return return_msg
-
-                i += 1
-
-            except EOFError:
-                assert self.remote_conn is not None
-                self.remote_conn.close()
-                msg = f&#34;Login failed: {self.host}&#34;
-                raise NetmikoAuthenticationException(msg)
-
-        # Try sending an &lt;enter&gt; to restart the login process
-        self.write_channel(self.TELNET_RETURN)
-        time.sleep(0.5 * delay_factor)
-        i = 1
-
-    # Last try to see if we already logged in
-    self.write_channel(self.TELNET_RETURN)
-    time.sleep(0.5 * delay_factor)
-    output = self.read_channel()
-    return_msg += output
-    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-        alt_prompt_terminator, output, flags=re.M
-    ):
-        return return_msg
-
-    assert self.remote_conn is not None
-    self.remote_conn.close()
-    msg = f&#34;Login failed: {self.host}&#34;
-    raise NetmikoAuthenticationException(msg)</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -1096,7 +597,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </dd>
 <dt id="netmiko.cisco_base_connection.CiscoSSHConnection"><code class="flex name class">
 <span>class <span class="ident">CiscoSSHConnection</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, auto_connect: bool = True, delay_factor_compat: bool = False)</span>
+<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base Class for cisco-like behavior.</p>
@@ -1137,6 +638,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
             documentation for a description of the expected format.
 
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
     :param allow_agent: Enable use of SSH key-agent.
 
     :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
@@ -1151,13 +655,17 @@ class CiscoFileTransfer(BaseFileTransfer):
 
     :param ssh_config_file: File name of OpenSSH configuration file.
 
-    :param timeout: Connection timeout.
+    :param conn_timeout: TCP connection timeout.
 
     :param session_timeout: Set a timeout for parallel requests.
 
     :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
 
     :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
 
     :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
             Currently defaults to 0, for backwards compatibility (it will not attempt
@@ -1170,11 +678,14 @@ class CiscoFileTransfer(BaseFileTransfer):
             enter key (default:
 </code></pre>
 <p>)</p>
-<pre><code>    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
             to select smallest of global and specific. Sets default global_delay_factor to .1
             (default: True)
 
-    :param session_log: File path or BufferedIOBase subclass object to write the session log to.
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
 
     :param session_log_record_writes: The session log generally only records channel reads due
             to eliminate command duplication due to command echo. You can enable this if you
@@ -1187,10 +698,13 @@ class CiscoFileTransfer(BaseFileTransfer):
             (default: False)
 
     :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: ascii)
+            (default: "utf-8")
 
     :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
             communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
 
     :param global_cmd_verify: Control whether command echo verification is enabled or disabled
             (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
@@ -1202,6 +716,9 @@ class CiscoFileTransfer(BaseFileTransfer):
     :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
             3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
             eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1219,16 +736,23 @@ class CiscoFileTransfer(BaseFileTransfer):
 <ul class="hlist">
 <li><a title="netmiko.a10.a10_ssh.A10SSH" href="a10/a10_ssh.html#netmiko.a10.a10_ssh.A10SSH">A10SSH</a></li>
 <li><a title="netmiko.accedian.accedian_ssh.AccedianSSH" href="accedian/accedian_ssh.html#netmiko.accedian.accedian_ssh.AccedianSSH">AccedianSSH</a></li>
+<li><a title="netmiko.adva.adva_aos_fsp_150_f2.AdvaAosFsp150F2SSH" href="adva/adva_aos_fsp_150_f2.html#netmiko.adva.adva_aos_fsp_150_f2.AdvaAosFsp150F2SSH">AdvaAosFsp150F2SSH</a></li>
+<li><a title="netmiko.adva.adva_aos_fsp_150_f3.AdvaAosFsp150F3SSH" href="adva/adva_aos_fsp_150_f3.html#netmiko.adva.adva_aos_fsp_150_f3.AdvaAosFsp150F3SSH">AdvaAosFsp150F3SSH</a></li>
+<li><a title="netmiko.alaxala.alaxala_ax36s.AlaxalaAx36sBase" href="alaxala/alaxala_ax36s.html#netmiko.alaxala.alaxala_ax36s.AlaxalaAx36sBase">AlaxalaAx36sBase</a></li>
 <li><a title="netmiko.alcatel.alcatel_aos_ssh.AlcatelAosSSH" href="alcatel/alcatel_aos_ssh.html#netmiko.alcatel.alcatel_aos_ssh.AlcatelAosSSH">AlcatelAosSSH</a></li>
 <li><a title="netmiko.apresia.apresia_aeos.ApresiaAeosBase" href="apresia/apresia_aeos.html#netmiko.apresia.apresia_aeos.ApresiaAeosBase">ApresiaAeosBase</a></li>
 <li><a title="netmiko.arista.arista.AristaBase" href="arista/arista.html#netmiko.arista.arista.AristaBase">AristaBase</a></li>
-<li><a title="netmiko.aruba.aruba_ssh.ArubaSSH" href="aruba/aruba_ssh.html#netmiko.aruba.aruba_ssh.ArubaSSH">ArubaSSH</a></li>
+<li><a title="netmiko.arris.arris_cer.ArrisCERBase" href="arris/arris_cer.html#netmiko.arris.arris_cer.ArrisCERBase">ArrisCERBase</a></li>
+<li><a title="netmiko.aruba.aruba_aoscx.ArubaCxSSH" href="aruba/aruba_aoscx.html#netmiko.aruba.aruba_aoscx.ArubaCxSSH">ArubaCxSSH</a></li>
+<li><a title="netmiko.aruba.aruba_os.ArubaOsSSH" href="aruba/aruba_os.html#netmiko.aruba.aruba_os.ArubaOsSSH">ArubaOsSSH</a></li>
 <li><a title="netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH" href="broadcom/broadcom_icos_ssh.html#netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH">BroadcomIcosSSH</a></li>
 <li><a title="netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH" href="brocade/brocade_fos_ssh.html#netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH">BrocadeFOSSSH</a></li>
 <li><a title="netmiko.calix.calix_b6.CalixB6Base" href="calix/calix_b6.html#netmiko.calix.calix_b6.CalixB6Base">CalixB6Base</a></li>
+<li><a title="netmiko.casa.casa_cmts.CasaCMTSBase" href="casa/casa_cmts.html#netmiko.casa.casa_cmts.CasaCMTSBase">CasaCMTSBase</a></li>
 <li><a title="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH" href="cisco/cisco_asa_ssh.html#netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH">CiscoAsaSSH</a></li>
 <li><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH" href="cisco/cisco_ftd_ssh.html#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH">CiscoFtdSSH</a></li>
 <li><a title="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH" href="cisco/cisco_nxos_ssh.html#netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH">CiscoNxosSSH</a></li>
+<li><a title="netmiko.cisco.cisco_s200.CiscoS200Base" href="cisco/cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base">CiscoS200Base</a></li>
 <li><a title="netmiko.cisco.cisco_s300.CiscoS300Base" href="cisco/cisco_s300.html#netmiko.cisco.cisco_s300.CiscoS300Base">CiscoS300Base</a></li>
 <li><a title="netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH" href="cisco/cisco_tp_tcce.html#netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH">CiscoTpTcCeSSH</a></li>
 <li><a title="netmiko.cisco.cisco_viptela.CiscoViptelaSSH" href="cisco/cisco_viptela.html#netmiko.cisco.cisco_viptela.CiscoViptelaSSH">CiscoViptelaSSH</a></li>
@@ -1237,6 +761,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.dell.dell_force10_ssh.DellForce10SSH" href="dell/dell_force10_ssh.html#netmiko.dell.dell_force10_ssh.DellForce10SSH">DellForce10SSH</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10SSH" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10SSH">DellOS10SSH</a></li>
 <li><a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="dell/dell_sonic_ssh.html#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a></li>
+<li><a title="netmiko.digi.digi_transport.DigiTransportBase" href="digi/digi_transport.html#netmiko.digi.digi_transport.DigiTransportBase">DigiTransportBase</a></li>
 <li><a title="netmiko.dlink.dlink_ds.DlinkDSBase" href="dlink/dlink_ds.html#netmiko.dlink.dlink_ds.DlinkDSBase">DlinkDSBase</a></li>
 <li><a title="netmiko.eltex.eltex_esr_ssh.EltexEsrSSH" href="eltex/eltex_esr_ssh.html#netmiko.eltex.eltex_esr_ssh.EltexEsrSSH">EltexEsrSSH</a></li>
 <li><a title="netmiko.eltex.eltex_ssh.EltexSSH" href="eltex/eltex_ssh.html#netmiko.eltex.eltex_ssh.EltexSSH">EltexSSH</a></li>
@@ -1250,7 +775,9 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH" href="extreme/extreme_tierraos_ssh.html#netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH">ExtremeTierraSSH</a></li>
 <li><a title="netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH" href="extreme/extreme_vsp_ssh.html#netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH">ExtremeVspSSH</a></li>
 <li><a title="netmiko.extreme.extreme_wing_ssh.ExtremeWingSSH" href="extreme/extreme_wing_ssh.html#netmiko.extreme.extreme_wing_ssh.ExtremeWingSSH">ExtremeWingSSH</a></li>
+<li><a title="netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH" href="fiberstore/fiberstore_fsos.html#netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH">FiberstoreFsosSSH</a></li>
 <li><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH" href="fortinet/fortinet_ssh.html#netmiko.fortinet.fortinet_ssh.FortinetSSH">FortinetSSH</a></li>
+<li><a title="netmiko.garderos.garderos_grs.GarderosGrsSSH" href="garderos/garderos_grs.html#netmiko.garderos.garderos_grs.GarderosGrsSSH">GarderosGrsSSH</a></li>
 <li><a title="netmiko.hp.hp_comware.HPComwareBase" href="hp/hp_comware.html#netmiko.hp.hp_comware.HPComwareBase">HPComwareBase</a></li>
 <li><a title="netmiko.hp.hp_procurve.HPProcurveBase" href="hp/hp_procurve.html#netmiko.hp.hp_procurve.HPProcurveBase">HPProcurveBase</a></li>
 <li><a title="netmiko.linux.linux_ssh.LinuxSSH" href="linux/linux_ssh.html#netmiko.linux.linux_ssh.LinuxSSH">LinuxSSH</a></li>
@@ -1264,6 +791,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 <li><a title="netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH" href="sophos/sophos_sfos_ssh.html#netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH">SophosSfosSSH</a></li>
 <li><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase" href="tplink/tplink_jetstream.html#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase">TPLinkJetStreamBase</a></li>
 <li><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH" href="ubiquiti/edge_ssh.html#netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH">UbiquitiEdgeSSH</a></li>
+<li><a title="netmiko.vertiv.vertiv_mph_ssh.VertivMPHBase" href="vertiv/vertiv_mph_ssh.html#netmiko.vertiv.vertiv_mph_ssh.VertivMPHBase">VertivMPHBase</a></li>
 <li><a title="netmiko.vyos.vyos_ssh.VyOSSSH" href="vyos/vyos_ssh.html#netmiko.vyos.vyos_ssh.VyOSSSH">VyOSSSH</a></li>
 <li><a title="netmiko.zyxel.zyxel_ssh.ZyxelSSH" href="zyxel/zyxel_ssh.html#netmiko.zyxel.zyxel_ssh.ZyxelSSH">ZyxelSSH</a></li>
 </ul>
@@ -1320,7 +848,6 @@ class CiscoFileTransfer(BaseFileTransfer):
 </section>
 </article>
 <nav id="sidebar">
-<h1>Index</h1>
 <div class="toc">
 <ul></ul>
 </div>
@@ -1358,7 +885,7 @@ class CiscoFileTransfer(BaseFileTransfer):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
 </footer>
 </body>
 </html>

@@ -67,7 +67,9 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         self.ansi_escape_codes = True
         self._test_channel_read(pattern=r"[>#]")
         self.disable_paging(
-            command="set cli scripting-mode on", cmd_verify=False, pattern=r" on"
+            command="set cli scripting-mode on",
+            cmd_verify=False,
+            pattern=r"[>#].*mode on",
         )
         self.set_terminal_width(
             command="set cli terminal width 500", pattern=r"set cli terminal width 500"
@@ -76,8 +78,8 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         self.set_base_prompt()
 
         # PA devices can be really slow--try to make sure we are caught up
-        self.write_channel("show admins\n")
-        self._test_channel_read(pattern=r"Client")
+        self.write_channel("show system info\n")
+        self._test_channel_read(pattern=r"operational-mode")
         self._test_channel_read(pattern=r"[>#]")
 
     def find_prompt(

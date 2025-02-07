@@ -1,6 +1,6 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/netmiko.svg)](https://img.shields.io/pypi/pyversions/netmiko)
 [![PyPI](https://img.shields.io/pypi/v/netmiko.svg)](https://pypi.python.org/pypi/netmiko)
-[![Downloads](https://pepy.tech/badge/netmiko)](https://pepy.tech/project/netmiko)
+[![Downloads](https://static.pepy.tech/badge/netmiko)](https://static.pepy.tech/badge/netmiko)
 [![GitHub contributors](https://img.shields.io/github/contributors/ktbyers/netmiko.svg)](https://GitHub.com/ktbyers/netmiko/graphs/contributors/)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
@@ -10,6 +10,12 @@ Netmiko
 =======
 
 Multi-vendor library to simplify CLI connections to network devices
+
+<br />
+
+## Contributing to Netmiko
+
+[CONTRIBUTING.md](https://github.com/ktbyers/netmiko/blob/develop/CONTRIBUTING.md)
 
 <br />
 
@@ -42,7 +48,7 @@ Netmiko aims to accomplish both of these operations and to do it across a very b
 
 ## Installation
 
-To install netmiko, simply us pip:
+To install netmiko, simply use pip:
 
 ```
 $ pip install netmiko

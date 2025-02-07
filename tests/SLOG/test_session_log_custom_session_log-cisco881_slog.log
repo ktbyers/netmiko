@@ -1,0 +1,15 @@
+cisco1>
+cisco1>terminal width 511
+cisco1>********
+cisco1>
+cisco1>
+Testing password and secret replacement
+This is my first secret ********
+This is my second secret ********
+This is my third secret ********
+This is my super secret ********
+
+!Testing send_command() and send_command_timing() filtering
+cisco1>********
+cisco1>********
+cisco1>

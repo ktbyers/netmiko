@@ -1,4 +1,5 @@
 """Generic Terminal Server driver."""
+
 from typing import Any
 
 from netmiko.base_connection import BaseConnection
@@ -27,7 +28,7 @@ class TerminalServerTelnet(TerminalServer):
 
     def telnet_login(self, *args: Any, **kwargs: Any) -> str:
         # Disable automatic handling of username and password when using terminal server driver
-        pass
+        return ""
 
     def std_login(self, *args: Any, **kwargs: Any) -> str:
         return super().telnet_login(*args, **kwargs)

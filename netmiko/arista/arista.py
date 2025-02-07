@@ -13,6 +13,7 @@ class AristaBase(CiscoSSHConnection):
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
+        self.ansi_escape_codes = True
         self._test_channel_read(pattern=self.prompt_pattern)
         cmd = "terminal width 511"
         self.set_terminal_width(command=cmd, pattern=r"Width set to")
@@ -41,10 +42,15 @@ class AristaBase(CiscoSSHConnection):
         cmd: str = "enable",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = r"\#",
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def check_config_mode(

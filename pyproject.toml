@@ -1,0 +1,72 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "netmiko"
+version = "4.5.0"
+description = "Multi-vendor library to simplify legacy CLI connections to network devices"
+authors = ["Kirk Byers <ktbyers@twb-tech.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ktbyers/netmiko"
+classifiers = [
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
+paramiko = ">=2.9.5"
+scp = ">=0.13.6"
+pyyaml = ">=6.0.2"
+textfsm = ">=1.1.3"
+ntc-templates = ">=3.1.0"
+pyserial = ">=3.3"
+rich = ">=13.8"
+"ruamel.yaml" = ">=0.17"
+
+[tool.poetry.group.dev.dependencies]
+black = "24.10.0"
+mypy = "1.11.2"
+mypy-extensions = "1.0.0"
+pytest = "8.3.3"
+pyflakes = "3.2.0"
+pylama = "8.4.1"
+twine = "5.1.1"
+docutils = "0.21.2"
+pysnmp = "6.2.6"
+pdoc3 = "0.11.1"
+types-paramiko = "3.5.0.20240918"
+types-PyYAML = "6.0.12.20240917"
+setuptools = ">=65.0.0"
+
+[tool.poetry.group.parsers]
+optional = true
+
+[tool.poetry.group.parsers.dependencies]
+pyats = ">=24.5"
+genie = ">=24.5"
+ttp = ">=0.9.5"
+
+[tool.poetry.scripts]
+"netmiko-grep" = "netmiko.cli_tools.netmiko_grep:main_ep"
+"netmiko-show" = "netmiko.cli_tools.netmiko_show:main_ep"
+"netmiko-cfg" = "netmiko.cli_tools.netmiko_cfg:main_ep"
+"netmiko-encrypt" = "netmiko.cli_tools.netmiko_encrypt:main_ep"
+"netmiko-bulk-encrypt" = "netmiko.cli_tools.netmiko_bulk_encrypt:main_ep"
+
+[tool.black]
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | build
+    | dist
+    | netmiko/_telnetlib
+)/
+'''

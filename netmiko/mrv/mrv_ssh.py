@@ -1,4 +1,5 @@
 """MRV Communications Driver (OptiSwitch)."""
+
 import time
 import re
 from typing import Optional
@@ -25,21 +26,24 @@ class MrvOptiswitchSSH(CiscoSSHConnection):
         cmd: str = "enable",
         pattern: str = r"#",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enable mode on MRV uses no password."""
         output = ""
+        if check_state and self.check_enable_mode():
+            return output
+
+        self.write_channel(self.normalize_cmd(cmd))
+        output += self.read_until_prompt_or_pattern(
+            pattern=pattern, re_flags=re_flags, read_entire_line=True
+        )
         if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags, read_entire_line=True
+            msg = (
+                "Failed to enter enable mode. Please ensure you pass "
+                "the 'secret' argument to ConnectHandler."
             )
-            if not self.check_enable_mode():
-                msg = (
-                    "Failed to enter enable mode. Please ensure you pass "
-                    "the 'secret' argument to ConnectHandler."
-                )
-                raise ValueError(msg)
+            raise ValueError(msg)
         return output
 
     def save_config(

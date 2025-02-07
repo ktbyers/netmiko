@@ -48,7 +48,6 @@ class NokiaSros(BaseConnection):
                 command="environment console width 512", pattern="environment"
             )
             self.disable_paging(command="environment more false")
-            # To perform file operations we need to disable paging in classical-CLI also
             self.disable_paging(command="//environment no more")
         else:
             # Classical CLI has no method to set the terminal width nor to disable command
@@ -56,6 +55,8 @@ class NokiaSros(BaseConnection):
             # Only disabled if not set under the ConnectHandler.
             if self.global_cmd_verify is None:
                 self.global_cmd_verify = False
+            # Disable paging in both modes, file operations require no paging in classic
+            self.disable_paging(command="//environment more false")
             self.disable_paging(command="environment no more", pattern="environment")
 
         # Clear the read buffer
@@ -91,12 +92,19 @@ class NokiaSros(BaseConnection):
         cmd: str = "enable",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enable SR OS administrative mode"""
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
-        return super().enable(cmd=cmd, pattern=pattern, re_flags=re_flags)
+        return super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
 
     def check_enable_mode(self, check_string: str = "in admin mode") -> bool:
         """Check if in enable mode."""
@@ -175,13 +183,13 @@ class NokiaSros(BaseConnection):
     def send_config_set(
         self,
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
-        exit_config_mode: bool = None,
+        exit_config_mode: bool = True,
         **kwargs: Any,
     ) -> str:
         """Model driven CLI requires you not exit from configuration mode."""
-        if exit_config_mode is None:
-            # Set to False if model-driven CLI
-            exit_config_mode = False if "@" in self.base_prompt else True
+        # Set to False if model-driven CLI
+        if "@" in self.base_prompt:
+            exit_config_mode = False
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
@@ -292,13 +300,12 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             hash_supported=hash_supported,
         )
 
-    def _file_cmd_prefix(self) -> str:
+    def _file_list_command(self) -> str:
         """
-        Allow MD-CLI to execute file operations by using classical CLI.
+        return the md-cli command in mdcli mode, otherwise classic
 
-        Returns "//" if the current prompt is MD-CLI (empty string otherwise).
         """
-        return "//" if "@" in self.ssh_ctl_chan.base_prompt else ""
+        return "file list " if "@" in self.ssh_ctl_chan.base_prompt else "file dir "
 
     def remote_space_available(
         self, search_pattern: str = r"(\d+)\s+\w+\s+free"
@@ -307,7 +314,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
         # Sample text for search_pattern.
         # "               3 Dir(s)               961531904 bytes free."
-        remote_cmd = self._file_cmd_prefix() + "file dir {}".format(self.file_system)
+        remote_cmd = self._file_list_command() + "{}".format(self.file_system)
         remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
         match = re.search(search_pattern, remote_output)
         assert match is not None
@@ -318,7 +325,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
 
         if self.direction == "put":
             if not remote_cmd:
-                remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
+                remote_cmd = self._file_list_command() + "{}/{}".format(
                     self.file_system, self.dest_file
                 )
             dest_file_name = self.dest_file.replace("\\", "/").split("/")[-1]
@@ -347,12 +354,12 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             else:
                 raise ValueError("Unexpected value for self.direction")
         if not remote_cmd:
-            remote_cmd = self._file_cmd_prefix() + "file dir {}/{}".format(
+            remote_cmd = self._file_list_command() + "{}/{}".format(
                 self.file_system, remote_file
             )
         remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
 
-        if "File Not Found" in remote_out:
+        if "File Not Found" in remote_out or "Invalid element value" in remote_out:
             raise IOError("Unable to find file on remote system")
 
         dest_file_name = remote_file.replace("\\", "/").split("/")[-1]

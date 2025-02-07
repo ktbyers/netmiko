@@ -20,7 +20,7 @@ while true; do
     esac
 done
 
-pylama
+pylama .
 if [ $? -eq 0 ]; then
     echo
     echo "pylama ... [OK]"
@@ -32,7 +32,7 @@ else
 fi
 
 echo
-python setup.py sdist bdist_wheel > /dev/null
+poetry build > /dev/null
 if [ $? -eq 0 ]; then
     echo "creating distribution ... [OK]"
     ls -ltr $DIR_PACKAGE
@@ -69,7 +69,7 @@ if [ -d "netmiko_packaging" ]; then
     exit 1
 else
     echo "Create virtualenv"
-    /usr/local/bin/python3.9 -m venv netmiko_packaging
+    /usr/local/bin/python3.12 -m venv netmiko_packaging
     echo "Source virtualenv"
     source /home/ktbyers/VENV/netmiko_packaging/bin/activate
     which python
@@ -124,7 +124,7 @@ echo
 ### FIX: NEED TO ADD
 twine upload $DIR_PACKAGE $DIR_WHL_PACKAGE
 
-
+echo "Sleeping 90 seconds..."
 sleep 90
 echo
 echo "Test clean install from pypi"
@@ -141,7 +141,7 @@ if [ -d "netmiko_packaging" ]; then
     exit 1
 else
     echo "Create virtualenv"
-    /usr/local/bin/python3.9 -m venv netmiko_packaging
+    /usr/local/bin/python3.12 -m venv netmiko_packaging
     echo "Source virtualenv"
     deactivate
     source /home/ktbyers/VENV/netmiko_packaging/bin/activate

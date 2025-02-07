@@ -1,6 +1,7 @@
 """
 Ericsson Ipos looks like it was RedBack equipment.
 """
+
 from typing import Optional, Any, Union, Sequence, Iterator, TextIO
 import re
 import warnings
@@ -23,10 +24,15 @@ class EricssonIposSSH(BaseConnection):
         cmd: str = "enable 15",
         pattern: str = "ssword",
         enable_pattern: Optional[str] = None,
+        check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         return super().enable(
-            cmd=cmd, pattern=pattern, enable_pattern=enable_pattern, re_flags=re_flags
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
         )
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:

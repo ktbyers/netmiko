@@ -32,6 +32,12 @@ hp_procurve:
   password: '{more%comple9' # for passwords with special chars use quotes
   secret: ''
 
+aruba_aoscx:
+  device_type: aruba_aoscx
+  ip: 1.2.3.4
+  username: admin
+  password: password
+
 juniper:
   device_type: juniper
   ip: 10.10.10.14
@@ -289,3 +295,29 @@ audiocode_shell:
   ip: 192.168.1.3
   username: TestUser
   password: TestPass
+
+digi_transport:
+  device_type: digi_transport
+  ip: 192.168.1.33
+  username: bob
+  password: bob
+
+maipu:
+  device_type: maipu
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a
+
+maipu_telnet:
+  device_type: maipu_telnet
+  ip: 129.255.27.1
+  username: hxl
+  password: test123
+  secret: a
+
+hillstone:
+  device_type: hillstone_stoneos
+  ip: 192.168.100.234
+  username: hillstone
+  password: Hillstone
