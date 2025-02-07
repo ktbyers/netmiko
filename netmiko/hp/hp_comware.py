@@ -42,8 +42,15 @@ class HPComwareBase(CiscoSSHConnection):
         pattern: str = r"[>\]]",
         force_regex: bool = False,
     ) -> bool:
-        """Check whether device is in configuration mode. Return a boolean."""
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        """Checks if the device is in configuration mode or not.
+
+        :param check_string: Identification of configuration mode from the device
+        :param pattern: Pattern to terminate reading of channel
+        :param force_regex: Use regular expression pattern to find check_string in output
+        """
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def send_config_set(
         self,
