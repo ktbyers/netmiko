@@ -561,6 +561,11 @@ audiocode_shell:
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
 
+bintec_boss_telnet:
+  version: "show rev"
+  basic: "ifconfig 1000"
+  extended_output: "show rev"
+
 digi_transport:
   version: "type version"
   basic: "type config.da0"
@@ -613,4 +618,3 @@ fiberstore_fsos:
     - 'no logging console'
     - 'logging buffered severity 3'
   config_verification: "show run"
-
