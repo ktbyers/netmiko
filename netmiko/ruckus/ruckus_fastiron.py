@@ -3,7 +3,7 @@ import time
 from socket import socket
 from typing import Optional, Any
 
-from telnetlib import DO, DONT, ECHO, IAC, WILL, WONT, Telnet
+from netmiko._telnetlib.telnetlib import DO, DONT, ECHO, IAC, WILL, WONT, Telnet
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -103,7 +103,7 @@ class RuckusFastironTelnet(RuckusFastironBase):
     def telnet_login(self, *args: Any, **kwargs: Any) -> str:
         # set callback function to handle telnet options.
         assert isinstance(self.remote_conn, Telnet)
-        self.remote_conn.set_option_negotiation_callback(self._process_option)
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         return super().telnet_login(*args, **kwargs)
 
 

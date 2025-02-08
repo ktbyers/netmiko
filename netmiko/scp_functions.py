@@ -5,6 +5,7 @@ Supports file get and file put operations.
 
 SCP requires a separate SSH connection for a control channel.
 """
+
 from typing import AnyStr, Optional, Callable, Any, Dict
 from typing import TYPE_CHECKING
 from netmiko.scp_handler import BaseFileTransfer
@@ -28,7 +29,7 @@ def progress_bar(
 
     # Percentage done
     percent_complete = sent / size
-    percent_str = f"{percent_complete*100:.2f}%"
+    percent_str = f"{percent_complete * 100:.2f}%"
     hash_count = int(percent_complete * max_width)
     progress = hash_count * ">"
 
