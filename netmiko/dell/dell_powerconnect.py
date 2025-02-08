@@ -1,4 +1,5 @@
 """Dell PowerConnect Driver."""
+
 from typing import Optional
 from paramiko import SSHClient
 import time

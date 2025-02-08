@@ -21,11 +21,25 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         return super().__init__(**kwargs)
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
-        # Mikrotik might prompt to read software licenses before displaying the initial prompt.
+        """Handles special case scenarios for logins that might be encountered.
+
+        Special cases:
+        Mikrotik might prompt to read software licenses before displaying the initial prompt.
+        Mikrotik might also prompt for acknowledging no software key message if unlicensed.
+        """
+        no_license_message = 'Please press "Enter" to continue!'
         license_prompt = "Do you want to see the software license"
-        combined_pattern = rf"(?:{self.prompt_pattern}|{license_prompt})"
+        combined_pattern = (
+            rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})"
+        )
+
         data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-        if license_prompt in data:
+        if no_license_message in data:
+            # Handle "no license" message
+            self.write_channel(self.RETURN)
+            self.read_until_pattern(pattern=self.prompt_pattern)
+        elif license_prompt in data:
+            # Handle software license prompt
             self.write_channel("n")
             self.read_until_pattern(pattern=self.prompt_pattern)
 
@@ -121,6 +135,10 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         return super().send_command_timing(
             command_string=command_string, cmd_verify=cmd_verify, **kwargs
         )
+
+    def cleanup(self, command: str = "quit") -> None:
+        """MikroTik uses 'quit' command instead of 'exit'."""
+        return super().cleanup(command=command)
 
 
 class MikrotikRouterOsSSH(MikrotikBase):

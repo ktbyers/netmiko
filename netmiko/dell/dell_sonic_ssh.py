@@ -2,6 +2,7 @@
 Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies Driver
 - supports dellenterprisesonic.
 """
+
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko import log

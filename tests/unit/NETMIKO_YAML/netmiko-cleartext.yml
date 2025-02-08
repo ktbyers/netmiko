@@ -1,0 +1,61 @@
+__meta__:
+  encryption: true
+  encryption_type: fernet
+
+sf1:
+  device_type: cisco_xe
+  host: sf-rtr1.bogus.com
+  username: admin
+  password: cisco123
+
+sf2:
+  device_type: cisco_xe
+  host: sf-rtr2.bogus.com
+  username: admin
+  password: cisco123
+
+den-asa:
+  device_type: cisco_asa
+  ip: 10.1.1.1
+  username: admin
+  password: secretpass
+  secret: supersecretpass
+
+den1:
+  device_type: arista_eos
+  host: den-sw1.bogus.com
+  username: admin
+  password: eospass
+
+den2:
+  device_type: arista_eos
+  host: den-sw2.bogus.com
+  username: admin
+  password: eospass
+
+nyc1:
+  device_type: juniper_junos
+  host: nyc-vmx1.lasthop.io
+  username: admin
+  password: junos123
+
+nyc2:
+  device_type: juniper_junos
+  host: nyc-vmx2.lasthop.io
+  username: admin
+  password: junos123
+
+
+sf:
+  - sf1
+  - sf2
+
+denver:
+  - den-asa
+  - den1
+  - den2
+
+nyc:
+  - nyc1
+  - nyc2
+

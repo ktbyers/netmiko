@@ -1,0 +1,2 @@
+interface {{ intf_name }}
+ description {{ description | ORPHRASE}}
