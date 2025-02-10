@@ -26,6 +26,8 @@ from netmiko.audiocode import (
     Audiocode66Telnet,
     AudiocodeShellTelnet,
 )
+
+from netmiko.bintec import BintecBossSSH, BintecBossTelnet
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
@@ -179,6 +181,7 @@ CLASS_MAPPER_BASE = {
     "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
+    "bintec_boss": BintecBossSSH,
     "broadcom_icos": BroadcomIcosSSH,
     "brocade_fos": BrocadeFOSSSH,
     "brocade_fastiron": RuckusFastironSSH,
@@ -337,6 +340,7 @@ CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["audiocode_72_telnet"] = Audiocode72Telnet
 CLASS_MAPPER["audiocode_66_telnet"] = Audiocode66Telnet
 CLASS_MAPPER["audiocode_shell_telnet"] = AudiocodeShellTelnet
+CLASS_MAPPER["bintec_boss_telnet"] = BintecBossTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
