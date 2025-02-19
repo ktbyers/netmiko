@@ -2403,6 +2403,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
+        code_graphics_mode5 = chr(27) + r"\[\d;\d\dm"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_attrs_off = chr(27) + r"\[0m"
@@ -2434,6 +2435,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_graphics_mode2,
             code_graphics_mode3,
             code_graphics_mode4,
+            code_graphics_mode5,
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
