@@ -1,6 +1,3 @@
-import re
-from typing import Optional
-from netmiko.exceptions import NetmikoTimeoutException
 from netmiko.huawei.huawei import HuaweiTelnet
 
 
