@@ -38,8 +38,8 @@ write_channel: b'terminal width 511\n'
 read_channel: 
 cisco1>
 cisco1>
-read_channel: terminal widt
-read_channel: h 511
+read_channel: terminal wid
+read_channel: th 511
 cisco1>
 Pattern found: (terminal width 511) 
 cisco1>
@@ -64,6 +64,16 @@ write_channel: b'\n'
 read_channel: 
 read_channel: 
 cisco1>
+
+Parenthesis found in pattern.
+
+pattern: (\#|>)
+
+
+This can be problemtic when used in read_until_pattern().
+
+You should ensure that you use either non-capture groups i.e. '(?:' or that the
+parenthesis completely wrap the pattern '(pattern)'
 Pattern found: (\#|>) 
 cisco1>
 read_channel: 
@@ -72,8 +82,8 @@ write_channel: b'\n'
 write_channel: b'terminal width 511\n'
 read_channel: cisco1>
 cisco1>
-read_channel: terminal wid
-read_channel: th 511
+read_channel: terminal widt
+read_channel: h 511
 cisco1>
 Pattern found: (terminal width 511) cisco1>
 cisco1>terminal width 511
@@ -97,6 +107,16 @@ write_channel: b'\n'
 read_channel: 
 read_channel: 
 cisco1>
+
+Parenthesis found in pattern.
+
+pattern: (\#|>)
+
+
+This can be problemtic when used in read_until_pattern().
+
+You should ensure that you use either non-capture groups i.e. '(?:' or that the
+parenthesis completely wrap the pattern '(pattern)'
 Pattern found: (\#|>) 
 cisco1>
 read_channel: 
@@ -110,8 +130,8 @@ read_channel:
 [find_prompt()]: prompt is cisco1>
 write_channel: b'show ip interface brief\n'
 read_channel: 
-read_channel: show ip inter
-read_channel: face brief
+read_channel: show ip interf
+read_channel: ace brief
 Interface                  IP-Address      OK? Method Status                Protocol
 FastEthernet0              unassigned      YES unset  down                  down    
 FastEthernet1              unassigned      YES unset  down                  down    
@@ -129,3 +149,48 @@ cisco1>
 Pattern found: ([>#]) 
 cisco1>
 write_channel: b'exit\n'
+write_channel: b'\n'
+write_channel: b'terminal width 511\n'
+read_channel: 
+cisco1>
+cisco1>
+read_channel: terminal wid
+read_channel: th 511
+cisco1>
+Pattern found: (terminal width 511) 
+cisco1>
+cisco1>terminal width 511
+In disable_paging
+Command: terminal length 0
+
+write_channel: b'terminal length 0\n'
+read_channel: 
+read_channel: terminal lengt
+read_channel: h 0
+cisco1>
+Pattern found: (terminal\ length\ 0) 
+cisco1>terminal length 0
+
+cisco1>terminal length 0
+Exiting disable_paging
+read_channel: 
+Clear buffer detects data in the channel
+read_channel: 
+write_channel: b'\n'
+read_channel: 
+read_channel: 
+cisco1>
+
+Parenthesis found in pattern.
+
+pattern: (\#|>)
+
+
+This can be problemtic when used in read_until_pattern().
+
+You should ensure that you use either non-capture groups i.e. '(?:' or that the
+parenthesis completely wrap the pattern '(pattern)'
+Pattern found: (\#|>) 
+cisco1>
+read_channel: 
+[find_prompt()]: prompt is cisco1>

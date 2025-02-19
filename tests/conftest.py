@@ -117,7 +117,7 @@ def net_connect_slog_wr(request):
 @pytest.fixture(scope="module")
 def device_slog(request):
     """
-    Create the SSH connection to the remote device. Modify session_log init arguments.
+    Modify session_log init arguments.
 
     Return the netmiko device (not connected)
     """
@@ -129,6 +129,23 @@ def device_slog(request):
     device["verbose"] = False
     device["session_log_file_mode"] = "append"
     return device
+
+
+@pytest.fixture(scope="function")
+def device_slog_test_name(request):
+    """
+    Modify session_log init arguments.
+
+    Return the netmiko device (not connected)
+    """
+    device_under_test = request.config.getoption("test_device")
+    test_devices = parse_yaml(PWD + "/etc/test_devices.yml")
+    device = test_devices[device_under_test]
+    # Fictional secret
+    device["secret"] = "invalid"
+    device["verbose"] = False
+    test_name = request.node.name
+    return (device, test_name)
 
 
 @pytest.fixture(scope="module")
@@ -261,6 +278,20 @@ def delete_file_dellos10(ssh_conn, dest_file_system, dest_file):
         return output
 
     raise ValueError("An error happened deleting file on Dell OS10")
+
+
+def delete_file_dellsonic(ssh_conn, dest_file_system, dest_file):
+    """Delete a remote file for a Dell SONiC device."""
+    if not dest_file:
+        raise ValueError("Invalid dest file specified")
+
+    cmd = "delete home:/{}".format(dest_file)
+    output = ssh_conn.send_command_timing(cmd)
+    if "Proceed to delete" in output:
+        output = ssh_conn.send_command_timing("y")
+        return output
+
+    raise ValueError("An error happened deleting file on Dell SONiC")
 
 
 def delete_file_generic(ssh_conn, dest_file_system, dest_file):
@@ -568,6 +599,11 @@ def get_platform_args():
             "file_system": "/home/admin",
             "enable_scp": False,
             "delete_file": delete_file_dellos10,
+        },
+        "dell_sonic": {
+            "file_system": "/home/admin",
+            "enable_scp": False,
+            "delete_file": delete_file_dellsonic,
         },
         "ciena_saos": {
             "file_system": "/tmp/users/ciena",

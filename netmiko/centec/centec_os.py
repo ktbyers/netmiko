@@ -1,4 +1,5 @@
 """Centec OS Support"""
+
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
 

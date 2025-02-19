@@ -53,6 +53,32 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
             self.disable_paging(command=command, cmd_verify=True, pattern=r"#")
         self.set_base_prompt()
 
+    def strip_prompt(self, *args: Any, **kwargs: Any) -> str:
+        """Strip the prompt and the additional context line"""
+        a_string = super().strip_prompt(*args, **kwargs)
+        return self._strip_context_items(a_string)
+
+    def _strip_context_items(self, a_string: str) -> str:
+        """Strip NokiaSRL-specific output.
+
+        Nokia will put extra context in the 1st line of the prompt, such as:
+        --{ running }--[  ]--
+        --{ candidate private private-admin }--[  ]--
+        --{ candidate private private-admin }--[  ]--
+
+        This method removes those lines.
+        """
+        strings_to_strip = [
+            r"--{.*\B",
+        ]
+
+        response_list = a_string.split(self.RESPONSE_RETURN)
+        last_line = response_list[-1]
+        for pattern in strings_to_strip:
+            if re.search(pattern, last_line, flags=re.I):
+                return self.RESPONSE_RETURN.join(response_list[:-1])
+        return a_string
+
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
