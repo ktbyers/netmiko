@@ -1,4 +1,5 @@
 """Subclass specific to Cisco AP."""
+
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoBaseConnection
 
