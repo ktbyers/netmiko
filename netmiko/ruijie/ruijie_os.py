@@ -1,4 +1,5 @@
 """Ruijie RGOS Support"""
+
 import time
 from typing import Any
 
