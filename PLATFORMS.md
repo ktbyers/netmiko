@@ -75,8 +75,10 @@
 - Accedian
 - Alaxala AX2600S and AX3600S 
 - Allied Telesis AlliedWare Plus
+- Arris CER
 - Aruba OS (Wireless Controllers/WAPs)
 - Aruba AOS-CX
+- Bintec BOSS (Bintec/Funkwerk)
 - Brocade Fabric OS
 - C-DOT CROS
 - Ciena SAOS
@@ -140,6 +142,7 @@
 - audiocode_shell
 - avaya_ers
 - avaya_vsp
+- bintec_boss
 - broadcom_icos
 - brocade_fastiron
 - brocade_fos
@@ -265,6 +268,7 @@
 - audiocode_66_telnet
 - audiocode_72_telnet
 - audiocode_shell_telnet
+- bintec_boss_telnet
 - brocade_fastiron_telnet
 - brocade_netiron_telnet
 - calix_b6_telnet
