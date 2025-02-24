@@ -53,6 +53,7 @@ from netmiko.cisco import CiscoWlcSSH
 from netmiko.cisco import CiscoXrSSH, CiscoXrTelnet, CiscoXrFileTransfer
 from netmiko.citrix import NetscalerSSH
 from netmiko.cloudgenix import CloudGenixIonSSH
+from netmiko.corelight import CorelightLinuxSSH
 from netmiko.coriant import CoriantSSH
 from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
@@ -206,6 +207,7 @@ CLASS_MAPPER_BASE = {
     "cisco_xe": CiscoIosSSH,
     "cisco_xr": CiscoXrSSH,
     "cloudgenix_ion": CloudGenixIonSSH,
+    "corelight_linux": CorelightLinuxSSH,
     "coriant": CoriantSSH,
     "dell_dnos9": DellForce10SSH,
     "dell_force10": DellForce10SSH,
