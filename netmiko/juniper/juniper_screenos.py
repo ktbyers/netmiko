@@ -13,7 +13,7 @@ class JuniperScreenOsSSH(NoEnable, NoConfig, BaseConnection):
         ScreenOS can be configured to require: Accept this agreement y/[n]
         """
         terminator = r"\->"
-        pattern = rf"(Accept this|{terminator})"
+        pattern = rf"(?:Accept this|{terminator})"
         data = self._test_channel_read(pattern=pattern)
         if "Accept this" in data:
             self.write_channel("y")
