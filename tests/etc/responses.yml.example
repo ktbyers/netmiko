@@ -79,6 +79,14 @@ aruba_os:
   cmd_response_init: "location1"
   cmd_response_final: "location2"
 
+aruba_aoscx:
+  base_prompt: "6405"
+  router_prompt: "6405>"
+  enable_prompt: "6405#"
+  interface_ip: 1.2.3.4
+  version_banner: "Hewlett Packard Enterprise"
+  multiple_line_output: "Current configuration:"
+
 ubiquiti_edge:
   base_prompt: "(UBNT EdgeSwitch) "
   router_prompt: "(UBNT EdgeSwitch) >"
@@ -396,6 +404,14 @@ audiocode_shell:
   save_config: 'Configuration has been saved'
   cmd_response_init: "Test_String1"
   cmd_response_final: "Test_String2"
+
+bintec_boss_telnet:
+  base_prompt: "x1200ii:"
+  router_prompt: "x1200ii:>"
+  enable_prompt: "x1200ii:>"
+  interface_ip: "1000:\tencap: Ethernet mtu: 1500 speed: 100 MBit/s desc: en1-0\n\tphysical address: 00:a0:f9:06:85:32"
+  version_banner: "Logik    :\tV.7.2"
+  multiple_line_output: ""
 
 digi_transport:
   base_prompt: "digi>"

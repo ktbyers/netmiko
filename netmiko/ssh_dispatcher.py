@@ -25,6 +25,8 @@ from netmiko.audiocode import (
     Audiocode66Telnet,
     AudiocodeShellTelnet,
 )
+
+from netmiko.bintec import BintecBossSSH, BintecBossTelnet
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
 from netmiko.calix import CalixB6SSH, CalixB6Telnet
@@ -86,6 +88,7 @@ from netmiko.fiberstore import FiberstoreFsosSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.garderos import GarderosGrsSSH
+from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hioso import HiosoTelnet
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
@@ -112,6 +115,8 @@ from netmiko.nokia import (
 )
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
+from netmiko.optilink import OptilinkEOLT9702Telnet
+from netmiko.optilink import OptilinkEOLT11444Telnet
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
@@ -144,7 +149,6 @@ from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
 
-
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
     from netmiko.scp_handler import BaseFileTransfer
@@ -176,6 +180,7 @@ CLASS_MAPPER_BASE = {
     "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
+    "bintec_boss": BintecBossSSH,
     "broadcom_icos": BroadcomIcosSSH,
     "brocade_fos": BrocadeFOSSSH,
     "brocade_fastiron": RuckusFastironSSH,
@@ -334,6 +339,7 @@ CLASS_MAPPER["aruba_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["audiocode_72_telnet"] = Audiocode72Telnet
 CLASS_MAPPER["audiocode_66_telnet"] = Audiocode66Telnet
 CLASS_MAPPER["audiocode_shell_telnet"] = AudiocodeShellTelnet
+CLASS_MAPPER["bintec_boss_telnet"] = BintecBossTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
@@ -351,6 +357,7 @@ CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
+CLASS_MAPPER["genexis_solt33_telnet"] = GenexisSOLT33Telnet
 CLASS_MAPPER["hioso_telnet"] = HiosoTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
@@ -358,8 +365,11 @@ CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
+CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
 CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
+CLASS_MAPPER["optilink_eolt9702_telnet"] = OptilinkEOLT9702Telnet
+CLASS_MAPPER["optilink_eolt11444_telnet"] = OptilinkEOLT11444Telnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
@@ -370,7 +380,6 @@ CLASS_MAPPER["teldat_cit_telnet"] = TeldatCITTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
 CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
-CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
