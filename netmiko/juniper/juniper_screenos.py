@@ -13,12 +13,11 @@ class JuniperScreenOsSSH(NoEnable, NoConfig, BaseConnection):
         ScreenOS can be configured to require: Accept this agreement y/[n]
         """
         terminator = r"\->"
-        pattern = rf"(?:Accept this|{terminator})"
-        data = self._test_channel_read(pattern=pattern)
+        pattern = rf"(?:Accept this.*|{terminator})"
+        data = self.read_until_pattern(pattern=pattern)
         if "Accept this" in data:
             self.write_channel("y")
-            data += self._test_channel_read(pattern=terminator)
-
+            data += self.read_until_pattern(pattern=terminator)
         self.set_base_prompt()
         self.disable_paging(command="set console page 0")
 
