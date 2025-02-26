@@ -176,6 +176,8 @@ class BaseConnection:
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
+        # For telnet 'conn_timeout' is mapped to main telnet timeout (which is used for both the
+        # telnet connection and for other blocking operations).
         conn_timeout: int = 10,
         # Timeout to wait for authentication response
         auth_timeout: Optional[int] = None,
@@ -472,15 +474,18 @@ class BaseConnection:
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
+            self.disabled_algorithms = disabled_algorithms
 
-            if disabled_algorithms:
-                self.disabled_algorithms = disabled_algorithms
-            else:
-                self.disabled_algorithms = (
-                    {"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]}
-                    if disable_sha2_fix
-                    else {}
-                )
+            if disable_sha2_fix:
+                sha2_pubkeys = ["rsa-sha2-256", "rsa-sha2-512"]
+                if self.disabled_algorithms is None:
+                    self.disabled_algorithms = {"pubkeys": sha2_pubkeys}
+                else:
+                    # Merge sha2_pubkeys into pubkeys and prevent duplicates
+                    current_pubkeys = self.disabled_algorithms.get("pubkeys", [])
+                    self.disabled_algorithms["pubkeys"] = list(
+                        set(current_pubkeys + sha2_pubkeys)
+                    )
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -1115,12 +1120,12 @@ You can look at the Netmiko session_log or debug log for more information.
                 self.remote_conn = telnet_proxy.Telnet(
                     self.host,
                     port=self.port,
-                    timeout=self.timeout,
+                    timeout=self.conn_timeout,
                     proxy_dict=self.sock_telnet,
                 )
             else:
                 self.remote_conn = telnetlib.Telnet(  # type: ignore
-                    self.host, port=self.port, timeout=self.timeout
+                    self.host, port=self.port, timeout=self.conn_timeout
                 )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
@@ -1516,6 +1521,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = False,
+        raise_parsing_error: bool = False,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1553,6 +1559,8 @@ A paramiko SSHException occurred during connection creation:
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
+
+        :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         """
         if delay_factor is not None or max_loops is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
@@ -1586,6 +1594,7 @@ A paramiko SSHException occurred during connection creation:
             use_genie=use_genie,
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
+            raise_parsing_error=raise_parsing_error,
         )
         return return_data
 
@@ -1666,6 +1675,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
+        raise_parsing_error: bool = False,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1705,6 +1715,8 @@ A paramiko SSHException occurred during connection creation:
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
 
         :param cmd_verify: Verify command echo before proceeding (default: True).
+
+        :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         """
 
         # Time to delay in each read loop
@@ -1840,6 +1852,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             use_genie=use_genie,
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
+            raise_parsing_error=raise_parsing_error,
         )
         return return_val
 
@@ -2364,6 +2377,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
                      very bottom of the screen)
         ESC[c        Query Device (used by MikroTik in 'Safe-Mode')
+        ESC[2004h    Enable bracketed paste mode
+        ESC[2004l    Disable bracketed paste mode
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
@@ -2388,6 +2403,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
+        code_graphics_mode5 = chr(27) + r"\[\d;\d\dm"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_attrs_off = chr(27) + r"\[0m"
@@ -2397,7 +2413,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_up = chr(27) + r"\[\d*A"
         code_cursor_down = chr(27) + r"\[\d*B"
         code_wrap_around = chr(27) + r"\[\?7h"
-        code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_enable_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_disable_bracketed_paste_mode = chr(27) + r"\[\?2004l"
         code_underline = chr(27) + r"\[4m"
         code_query_device = chr(27) + r"\[c"
 
@@ -2418,6 +2435,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_graphics_mode2,
             code_graphics_mode3,
             code_graphics_mode4,
+            code_graphics_mode5,
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
@@ -2429,7 +2447,8 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_down,
             code_cursor_forward,
             code_wrap_around,
-            code_bracketed_paste_mode,
+            code_enable_bracketed_paste_mode,
+            code_disable_bracketed_paste_mode,
             code_underline,
             code_query_device,
         ]

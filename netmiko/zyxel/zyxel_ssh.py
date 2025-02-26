@@ -1,3 +1,5 @@
+import re
+
 from typing import Any, Sequence, Iterator, TextIO, Union
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.no_enable import NoEnable
@@ -28,3 +30,8 @@ class ZyxelSSH(NoEnable, NoConfig, CiscoSSHConnection):
         super().session_preparation()
         # Zyxel switches output ansi codes
         self.ansi_escape_codes = True
+
+    def strip_ansi_escape_codes(self, string_buffer: str) -> str:
+        """Replace '^J' code by next line"""
+        output = re.sub(r"^\^J", self.RETURN, string_buffer)
+        return super().strip_ansi_escape_codes(output)

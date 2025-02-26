@@ -83,6 +83,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "aruba_aoscx": {
+        "cmd": "show version",
+        "search_patterns": [r"ArubaOS-CX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "ciena_saos": {
         "cmd": "software show",
         "search_patterns": [r"saos"],
@@ -107,7 +113,7 @@ SSH_MAPPER_DICT = {
             "Cisco IOS Software",
             "Cisco Internetwork Operating System Software",
         ],
-        "priority": 99,
+        "priority": 95,
         "dispatch": "_autodetect_std",
     },
     "cisco_xe": {
@@ -312,6 +318,12 @@ SSH_MAPPER_DICT = {
     "netgear_prosafe": {
         "cmd": "show version",
         "search_patterns": [r"ProSAFE"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "huawei_smartax": {
+        "cmd": "display version",
+        "search_patterns": [r"Huawei Integrated Access Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -537,6 +549,7 @@ class SSHDetect(object):
             r"command not found",
             r"Syntax Error: unexpected argument",
             r"% Unrecognized command found at",
+            r"% Unknown command, the error locates at",
         ]
         if not cmd or not search_patterns:
             return 0

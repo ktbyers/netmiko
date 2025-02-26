@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.1">
 <title>netmiko.utilities API documentation</title>
-<meta name="description" content="Miscellaneous utility functions." />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<meta name="description" content="Miscellaneous utility functions.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
 </head>
 <body>
 <main>
@@ -23,678 +26,6 @@
 </header>
 <section id="section-intro">
 <p>Miscellaneous utility functions.</p>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">&#34;&#34;&#34;Miscellaneous utility functions.&#34;&#34;&#34;
-
-from typing import (
-    Any,
-    AnyStr,
-    TypeVar,
-    Callable,
-    cast,
-    Optional,
-    Union,
-    List,
-    Dict,
-    Tuple,
-)
-from typing import TYPE_CHECKING
-import re
-from glob import glob
-import sys
-import io
-import os
-from pathlib import Path
-import functools
-from datetime import datetime
-import importlib.resources as pkg_resources
-from textfsm import clitable
-from textfsm.clitable import CliTableError
-from netmiko import log
-
-# For decorators
-F = TypeVar(&#34;F&#34;, bound=Callable[..., Any])
-
-
-if TYPE_CHECKING:
-    from netmiko.base_connection import BaseConnection
-    from os import PathLike
-
-try:
-    from ttp import ttp
-
-    TTP_INSTALLED = True
-
-except ImportError:
-    TTP_INSTALLED = False
-
-try:
-    from genie.conf.base import Device
-    from genie.libs.parser.utils import get_parser
-    from pyats.datastructures import AttrDict
-
-    GENIE_INSTALLED = True
-except ImportError:
-    GENIE_INSTALLED = False
-
-try:
-    import serial.tools.list_ports
-
-    PYSERIAL_INSTALLED = True
-except ImportError:
-    PYSERIAL_INSTALLED = False
-
-# Dictionary mapping &#39;show run&#39; for vendors with different command
-SHOW_RUN_MAPPER = {
-    &#34;brocade_fos&#34;: &#34;configShow&#34;,
-    &#34;juniper&#34;: &#34;show configuration&#34;,
-    &#34;juniper_junos&#34;: &#34;show configuration&#34;,
-    &#34;extreme&#34;: &#34;show configuration&#34;,
-    &#34;extreme_ers&#34;: &#34;show running-config&#34;,
-    &#34;extreme_exos&#34;: &#34;show configuration&#34;,
-    &#34;extreme_netiron&#34;: &#34;show running-config&#34;,
-    &#34;extreme_nos&#34;: &#34;show running-config&#34;,
-    &#34;extreme_slx&#34;: &#34;show running-config&#34;,
-    &#34;extreme_vdx&#34;: &#34;show running-config&#34;,
-    &#34;extreme_vsp&#34;: &#34;show running-config&#34;,
-    &#34;extreme_wing&#34;: &#34;show running-config&#34;,
-    &#34;ericsson_ipos&#34;: &#34;show configuration&#34;,
-    &#34;hp_comware&#34;: &#34;display current-configuration&#34;,
-    &#34;huawei&#34;: &#34;display current-configuration&#34;,
-    &#34;fortinet&#34;: &#34;show full-configuration&#34;,
-    &#34;checkpoint&#34;: &#34;show configuration&#34;,
-    &#34;cisco_wlc&#34;: &#34;show run-config&#34;,
-    &#34;enterasys&#34;: &#34;show running-config&#34;,
-    &#34;dell_force10&#34;: &#34;show running-config&#34;,
-    &#34;avaya_vsp&#34;: &#34;show running-config&#34;,
-    &#34;avaya_ers&#34;: &#34;show running-config&#34;,
-    &#34;brocade_vdx&#34;: &#34;show running-config&#34;,
-    &#34;brocade_nos&#34;: &#34;show running-config&#34;,
-    &#34;brocade_fastiron&#34;: &#34;show running-config&#34;,
-    &#34;brocade_netiron&#34;: &#34;show running-config&#34;,
-    &#34;alcatel_aos&#34;: &#34;show configuration snapshot&#34;,
-    &#34;cros_mtbr&#34;: &#34;show running-config&#34;,
-}
-
-# Expand SHOW_RUN_MAPPER to include &#39;_ssh&#39; key
-new_dict = {}
-for k, v in SHOW_RUN_MAPPER.items():
-    new_key = k + &#34;_ssh&#34;
-    new_dict[k] = v
-    new_dict[new_key] = v
-SHOW_RUN_MAPPER = new_dict
-
-# Default location of netmiko temp directory for netmiko tools
-NETMIKO_BASE_DIR = &#34;~/.netmiko&#34;
-
-
-def load_yaml_file(yaml_file: Union[str, bytes, &#34;PathLike[Any]&#34;]) -&gt; Any:
-    &#34;&#34;&#34;Read YAML file.&#34;&#34;&#34;
-    try:
-        import yaml
-    except ImportError:
-        sys.exit(&#34;Unable to import yaml module.&#34;)
-    try:
-        with io.open(yaml_file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fname:
-            return yaml.safe_load(fname)
-    except IOError:
-        sys.exit(&#34;Unable to open YAML file&#34;)
-
-
-def load_devices(file_name: Union[str, bytes, &#34;PathLike[Any]&#34;, None] = None) -&gt; Any:
-    &#34;&#34;&#34;Find and load .netmiko.yml file.&#34;&#34;&#34;
-    yaml_devices_file = find_cfg_file(file_name)
-    return load_yaml_file(yaml_devices_file)
-
-
-def find_cfg_file(
-    file_name: Union[str, bytes, &#34;PathLike[Any]&#34;, None] = None
-) -&gt; Union[str, bytes, &#34;PathLike[Any]&#34;]:
-    &#34;&#34;&#34;
-    Search for netmiko_tools inventory file in the following order:
-    NETMIKO_TOOLS_CFG environment variable
-    Current directory
-    Home directory
-    Look for file named: .netmiko.yml or netmiko.yml
-    Also allow NETMIKO_TOOLS_CFG to point directly at a file
-    &#34;&#34;&#34;
-    if file_name and os.path.isfile(file_name):
-        return file_name
-    optional_path = os.environ.get(&#34;NETMIKO_TOOLS_CFG&#34;, &#34;&#34;)
-    if os.path.isfile(optional_path):
-        return optional_path
-    search_paths = [optional_path, &#34;.&#34;, os.path.expanduser(&#34;~&#34;)]
-    # Filter optional_path if null
-    search_paths = [path for path in search_paths if path]
-    for path in search_paths:
-        files = glob(f&#34;{path}/.netmiko.yml&#34;) + glob(f&#34;{path}/netmiko.yml&#34;)
-        if files:
-            return files[0]
-    raise IOError(
-        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,&#34;
-        &#34; current directory, or home directory.&#34;
-    )
-
-
-def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -&gt; None:
-    &#34;&#34;&#34;Print out inventory devices and groups.&#34;&#34;&#34;
-    inventory_groups = [&#34;all&#34;]
-    inventory_devices = []
-    for k, v in my_devices.items():
-        if isinstance(v, list):
-            inventory_groups.append(k)
-        elif isinstance(v, dict):
-            inventory_devices.append((k, v[&#34;device_type&#34;]))
-
-    inventory_groups.sort()
-    inventory_devices.sort(key=lambda x: x[0])
-    print(&#34;\nDevices:&#34;)
-    print(&#34;-&#34; * 40)
-    for a_device, device_type in inventory_devices:
-        device_type = f&#34;  ({device_type})&#34;
-        print(f&#34;{a_device:&lt;25}{device_type:&gt;15}&#34;)
-    print(&#34;\n\nGroups:&#34;)
-    print(&#34;-&#34; * 40)
-    for a_group in inventory_groups:
-        print(a_group)
-    print()
-
-
-def obtain_all_devices(
-    my_devices: Dict[str, Union[List[str], Dict[str, Any]]]
-) -&gt; Dict[str, Dict[str, Any]]:
-    &#34;&#34;&#34;Dynamically create &#39;all&#39; group.&#34;&#34;&#34;
-    new_devices = {}
-    for device_name, device_or_group in my_devices.items():
-        # Skip any groups
-        if not isinstance(device_or_group, list):
-            new_devices[device_name] = device_or_group
-    return new_devices
-
-
-def obtain_netmiko_filename(device_name: str) -&gt; str:
-    &#34;&#34;&#34;Create file name based on device_name.&#34;&#34;&#34;
-    _, netmiko_full_dir = find_netmiko_dir()
-    return f&#34;{netmiko_full_dir}/{device_name}.txt&#34;
-
-
-def write_tmp_file(device_name: str, output: str) -&gt; str:
-    file_name = obtain_netmiko_filename(device_name)
-    with open(file_name, &#34;w&#34;) as f:
-        f.write(output)
-    return file_name
-
-
-def ensure_dir_exists(verify_dir: str) -&gt; None:
-    &#34;&#34;&#34;Ensure directory exists. Create if necessary.&#34;&#34;&#34;
-    if not os.path.exists(verify_dir):
-        # Doesn&#39;t exist create dir
-        os.makedirs(verify_dir)
-    else:
-        # Exists
-        if not os.path.isdir(verify_dir):
-            # Not a dir, raise an exception
-            raise ValueError(f&#34;{verify_dir} is not a directory&#34;)
-
-
-def find_netmiko_dir() -&gt; Tuple[str, str]:
-    &#34;&#34;&#34;Check environment first, then default dir&#34;&#34;&#34;
-    try:
-        netmiko_base_dir = os.environ[&#34;NETMIKO_DIR&#34;]
-    except KeyError:
-        netmiko_base_dir = NETMIKO_BASE_DIR
-    netmiko_base_dir = os.path.expanduser(netmiko_base_dir)
-    if netmiko_base_dir == &#34;/&#34;:
-        raise ValueError(&#34;/ cannot be netmiko_base_dir&#34;)
-    netmiko_full_dir = f&#34;{netmiko_base_dir}/tmp&#34;
-    return (netmiko_base_dir, netmiko_full_dir)
-
-
-def write_bytes(out_data: AnyStr, encoding: str = &#34;utf-8&#34;) -&gt; bytes:
-    &#34;&#34;&#34;Ensure output is properly encoded bytes.&#34;&#34;&#34;
-    if isinstance(out_data, str):
-        return out_data.encode(encoding)
-    elif isinstance(out_data, bytes):
-        return out_data
-    msg = f&#34;Invalid value for out_data neither unicode nor byte string: {str(out_data)}&#34;
-    raise ValueError(msg)
-
-
-def check_serial_port(name: str) -&gt; str:
-    &#34;&#34;&#34;returns valid COM Port.&#34;&#34;&#34;
-
-    if not PYSERIAL_INSTALLED:
-        msg = (
-            &#34;\npyserial is not installed. Please PIP install pyserial:\n\n&#34;
-            &#34;pip install pyserial\n\n&#34;
-        )
-        raise ValueError(msg)
-
-    try:
-        cdc = next(serial.tools.list_ports.grep(name))
-        serial_port = cdc[0]
-        assert isinstance(serial_port, str)
-        return serial_port
-    except StopIteration:
-        msg = f&#34;device {name} not found. &#34;
-        msg += &#34;available devices are: &#34;
-        ports = list(serial.tools.list_ports.comports())
-        for p in ports:
-            msg += f&#34;{str(p)},&#34;
-        raise ValueError(msg)
-
-
-def get_template_dir(_skip_ntc_package: bool = False) -&gt; str:
-    &#34;&#34;&#34;
-    Find and return the directory containing the TextFSM index file.
-
-    Order of preference is:
-    1) Find directory in `NET_TEXTFSM` Environment Variable.
-    2) Check for pip installed `ntc-templates` location in this environment.
-    3) ~/ntc-templates/ntc_templates/templates.
-
-    If `index` file is not found in any of these locations, raise ValueError
-
-    :return: directory containing the TextFSM index file
-
-    &#34;&#34;&#34;
-
-    msg = &#34;&#34;&#34;
-Directory containing TextFSM index file not found.
-
-Please set the NET_TEXTFSM environment variable to point at the directory containing your TextFSM
-index file.
-
-Alternatively, `pip install ntc-templates` (if using ntc-templates).
-
-&#34;&#34;&#34;
-
-    # Try NET_TEXTFSM environment variable
-    template_dir = os.environ.get(&#34;NET_TEXTFSM&#34;)
-    if template_dir is not None:
-        template_dir = os.path.expanduser(template_dir)
-        index = os.path.join(template_dir, &#34;index&#34;)
-        if not os.path.isfile(index):
-            # Assume only base ./ntc-templates specified
-            template_dir = os.path.join(template_dir, &#34;templates&#34;)
-
-    else:
-        # Try &#39;pip installed&#39; ntc-templates
-        try:
-            with pkg_resources.path(
-                package=&#34;ntc_templates&#34;, resource=&#34;parse.py&#34;
-            ) as posix_path:
-                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
-                template_dir = str(posix_path.parent.joinpath(&#34;templates&#34;))
-                # This is for Netmiko automated testing
-                if _skip_ntc_package:
-                    raise ModuleNotFoundError()
-
-        except ModuleNotFoundError:
-            # Finally check in ~/ntc-templates/ntc_templates/templates
-            home_dir = os.path.expanduser(&#34;~&#34;)
-            template_dir = os.path.join(
-                home_dir, &#34;ntc-templates&#34;, &#34;ntc_templates&#34;, &#34;templates&#34;
-            )
-
-    index = os.path.join(template_dir, &#34;index&#34;)
-    if not os.path.isdir(template_dir) or not os.path.isfile(index):
-        raise ValueError(msg)
-    return os.path.abspath(template_dir)
-
-
-def clitable_to_dict(cli_table: clitable.CliTable) -&gt; List[Dict[str, str]]:
-    &#34;&#34;&#34;Converts TextFSM cli_table object to list of dictionaries.&#34;&#34;&#34;
-    return_list = []
-    for row in cli_table:
-        temp_dict = {}
-        for index, element in enumerate(row):
-            temp_dict[cli_table.header[index].lower()] = element
-        return_list.append(temp_dict)
-    return return_list
-
-
-def _textfsm_parse(
-    textfsm_obj: clitable.CliTable,
-    raw_output: str,
-    attrs: Dict[str, str],
-    template_file: Optional[str] = None,
-) -&gt; Union[str, List[Dict[str, str]]]:
-    &#34;&#34;&#34;Perform the actual TextFSM parsing using the CliTable object.&#34;&#34;&#34;
-    tfsm_parse: Callable[..., Any] = textfsm_obj.ParseCmd
-    try:
-        # Parse output through template
-        if template_file is not None:
-            tfsm_parse(raw_output, templates=template_file)
-        else:
-            tfsm_parse(raw_output, attrs)
-
-        structured_data = clitable_to_dict(textfsm_obj)
-        if structured_data == []:
-            return raw_output
-        else:
-            return structured_data
-    except (FileNotFoundError, CliTableError):
-        return raw_output
-
-
-def get_structured_data_textfsm(
-    raw_output: str,
-    platform: Optional[str] = None,
-    command: Optional[str] = None,
-    template: Optional[str] = None,
-) -&gt; Union[str, List[Dict[str, str]]]:
-    &#34;&#34;&#34;
-    Convert raw CLI output to structured data using TextFSM template.
-
-    You can use a straight TextFSM file i.e. specify &#34;template&#34;. If no template is specified,
-    then you must use an CliTable index file.
-    &#34;&#34;&#34;
-    if platform is None or command is None:
-        attrs = {}
-    else:
-        attrs = {&#34;Command&#34;: command, &#34;Platform&#34;: platform}
-
-    if template is None:
-        if attrs == {}:
-            raise ValueError(
-                &#34;Either &#39;platform/command&#39; or &#39;template&#39; must be specified.&#34;
-            )
-        template_dir = get_template_dir()
-        index_file = os.path.join(template_dir, &#34;index&#34;)
-        textfsm_obj = clitable.CliTable(index_file, template_dir)
-        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
-
-        # Retry the output if &#34;cisco_xe&#34; and not structured data
-        if platform and &#34;cisco_xe&#34; in platform:
-            if not isinstance(output, list):
-                attrs[&#34;Platform&#34;] = &#34;cisco_ios&#34;
-                output = _textfsm_parse(textfsm_obj, raw_output, attrs)
-        return output
-    else:
-        template_path = Path(os.path.expanduser(template))
-        template_file = template_path.name
-        template_dir_alt = template_path.parents[0]
-        # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=template_dir_alt)
-        return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=template_file
-        )
-
-
-# For compatibility
-get_structured_data = get_structured_data_textfsm
-
-
-def get_structured_data_ttp(raw_output: str, template: str) -&gt; Union[str, List[Any]]:
-    &#34;&#34;&#34;
-    Convert raw CLI output to structured data using TTP template.
-
-    You can use a straight TextFSM file i.e. specify &#34;template&#34;
-    &#34;&#34;&#34;
-    if not TTP_INSTALLED:
-        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n\npip install ttp\n&#34;
-        raise ValueError(msg)
-
-    try:
-        ttp_parser = ttp(data=raw_output, template=template)
-        ttp_parser.parse(one=True)
-        result: List[Any] = ttp_parser.result(format=&#34;raw&#34;)
-        return result
-    except Exception:
-        return raw_output
-
-
-def run_ttp_template(
-    connection: &#34;BaseConnection&#34;,
-    template: Union[str, bytes, &#34;PathLike[Any]&#34;],
-    res_kwargs: Dict[str, Any],
-    **kwargs: Any,
-) -&gt; Any:
-    &#34;&#34;&#34;
-    Helper function to run TTP template parsing.
-
-    :param connection: Netmiko connection object
-
-    :param template: TTP template
-
-    :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
-
-    :param kwargs: ``**kwargs`` for TTP object instantiation
-    &#34;&#34;&#34;
-    if not TTP_INSTALLED:
-        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n&#34; &#34;pip install ttp\n&#34;
-        raise ValueError(msg)
-
-    parser = ttp(template=template, **kwargs)
-
-    # get inputs load for TTP template
-    ttp_inputs_load = parser.get_input_load()
-    log.debug(&#34;run_ttp_template: inputs load - {}&#34;.format(ttp_inputs_load))
-
-    # go over template&#39;s inputs and collect output from devices
-    for template_name, inputs in ttp_inputs_load.items():
-        for input_name, input_params in inputs.items():
-            method = input_params.get(&#34;method&#34;, &#34;send_command&#34;)
-            method_kwargs = input_params.get(&#34;kwargs&#34;, {})
-            commands = input_params.get(&#34;commands&#34;, None)
-
-            # run sanity checks
-            if method not in dir(connection):
-                log.warning(
-                    &#34;run_ttp_template: &#39;{}&#39; input, unsupported method &#39;{}&#39;, skipping&#34;.format(
-                        input_name, method
-                    )
-                )
-                continue
-            elif not commands:
-                log.warning(
-                    &#34;run_ttp_template: &#39;{}&#39; input no commands to collect, skipping&#34;.format(
-                        input_name
-                    )
-                )
-                continue
-
-            # collect commands output from device
-            out_list = [
-                getattr(connection, method)(command_string=command, **method_kwargs)
-                for command in commands
-            ]
-            output = &#34;\n&#34;.join(out_list)
-
-            # add collected output to TTP parser object
-            parser.add_input(
-                data=output, input_name=input_name, template_name=template_name
-            )
-
-    # run parsing in single process
-    parser.parse(one=True)
-
-    return parser.result(**res_kwargs)
-
-
-def get_structured_data_genie(
-    raw_output: str, platform: str, command: str
-) -&gt; Union[str, Dict[str, Any]]:
-    if not sys.version_info &gt;= (3, 4):
-        raise ValueError(&#34;Genie requires Python &gt;= 3.4&#34;)
-
-    if not GENIE_INSTALLED:
-        msg = (
-            &#34;\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n&#34;
-            &#34;pip install genie\npip install pyats\n&#34;
-        )
-        raise ValueError(msg)
-
-    if &#34;cisco&#34; not in platform and &#34;linux&#34; not in platform:
-        return raw_output
-
-    genie_device_mapper = {
-        &#34;cisco_ios&#34;: &#34;ios&#34;,
-        &#34;cisco_xe&#34;: &#34;iosxe&#34;,
-        &#34;cisco_xr&#34;: &#34;iosxr&#34;,
-        &#34;cisco_nxos&#34;: &#34;nxos&#34;,
-        &#34;cisco_asa&#34;: &#34;asa&#34;,
-        &#34;linux&#34;: &#34;linux&#34;,
-        &#34;f5_linux&#34;: &#34;linux&#34;,
-        &#34;ovs_linux&#34;: &#34;linux&#34;,
-    }
-
-    os = None
-    # platform might be _ssh, _telnet, _serial strip that off
-    if platform.count(&#34;_&#34;) &gt; 1:
-        base_list = platform.split(&#34;_&#34;)[:-1]
-        base_platform = &#34;_&#34;.join(base_list)
-    else:
-        base_platform = platform
-
-    os = genie_device_mapper.get(base_platform)
-    if os is None:
-        return raw_output
-
-    # Genie specific construct for doing parsing (based on Genie in Ansible)
-    device = Device(&#34;new_device&#34;, os=os)
-    device.custom.setdefault(&#34;abstraction&#34;, {})
-    device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
-    device.cli = AttrDict({&#34;execute&#34;: None})
-    try:
-        # Test whether there is a parser for given command (return Exception if fails)
-        get_parser(command, device)
-        parsed_output: Dict[str, Any] = device.parse(command, output=raw_output)
-        return parsed_output
-    except Exception:
-        return raw_output
-
-
-def structured_data_converter(
-    raw_data: str,
-    command: str,
-    platform: str,
-    use_textfsm: bool = False,
-    use_ttp: bool = False,
-    use_genie: bool = False,
-    textfsm_template: Optional[str] = None,
-    ttp_template: Optional[str] = None,
-) -&gt; Union[str, List[Any], Dict[str, Any]]:
-    &#34;&#34;&#34;
-    Try structured data converters in the following order: TextFSM, TTP, Genie.
-
-    Return the first structured data found, else return the raw_data as-is.
-    &#34;&#34;&#34;
-    command = command.strip()
-    if use_textfsm:
-        structured_output_tfsm = get_structured_data_textfsm(
-            raw_data, platform=platform, command=command, template=textfsm_template
-        )
-        if not isinstance(structured_output_tfsm, str):
-            return structured_output_tfsm
-
-    if use_ttp:
-        if ttp_template is None:
-            msg = &#34;&#34;&#34;
-The argument &#39;ttp_template=/path/to/template.ttp&#39; must be set when use_ttp=True
-&#34;&#34;&#34;
-            raise ValueError(msg)
-        else:
-            structured_output_ttp = get_structured_data_ttp(
-                raw_data, template=ttp_template
-            )
-
-        if not isinstance(structured_output_ttp, str):
-            return structured_output_ttp
-
-    if use_genie:
-        structured_output_genie = get_structured_data_genie(
-            raw_data, platform=platform, command=command
-        )
-        if not isinstance(structured_output_genie, str):
-            return structured_output_genie
-    return raw_data
-
-
-def select_cmd_verify(func: F) -&gt; F:
-    &#34;&#34;&#34;Override function cmd_verify argument with global setting.&#34;&#34;&#34;
-
-    @functools.wraps(func)
-    def wrapper_decorator(self: &#34;BaseConnection&#34;, *args: Any, **kwargs: Any) -&gt; Any:
-        if self.global_cmd_verify is not None:
-            kwargs[&#34;cmd_verify&#34;] = self.global_cmd_verify
-        return func(self, *args, **kwargs)
-
-    return cast(F, wrapper_decorator)
-
-
-def m_exec_time(func: F) -&gt; F:
-    @functools.wraps(func)
-    def wrapper_decorator(self: Any, *args: Any, **kwargs: Any) -&gt; Any:
-        start_time = datetime.now()
-        result = func(self, *args, **kwargs)
-        end_time = datetime.now()
-        method_name = str(func)
-        print(f&#34;{method_name}: Elapsed time: {end_time - start_time}&#34;)
-        return result
-
-    return cast(F, wrapper_decorator)
-
-
-def f_exec_time(func: F) -&gt; F:
-    @functools.wraps(func)
-    def wrapper_decorator(*args: Any, **kwargs: Any) -&gt; Any:
-        start_time = datetime.now()
-        result = func(*args, **kwargs)
-        end_time = datetime.now()
-        print(f&#34;Elapsed time: {end_time - start_time}&#34;)
-        return result
-
-    return cast(F, wrapper_decorator)
-
-
-def calc_old_timeout(
-    max_loops: Optional[int] = None,
-    delay_factor: Optional[float] = None,
-    loop_delay: float = 0.2,
-    old_timeout: int = 100,
-) -&gt; float:
-    &#34;&#34;&#34;
-    loop_delay is .2 in Netmiko 3.x
-    delay_factor would multiple the loop delay
-    Number of loops was typically 500
-
-    Thus each loop would sleep (loop_delay * delay_factor) seconds
-    That sleep would happen max_loops time
-
-    Formula is (loop_delay * delay_factor) * max_loops
-
-    There was a way Netmiko&#39;s self.timeout could override the default settings and essentially be
-    used to adjust max_loops (this was probably rarely used).
-    &#34;&#34;&#34;
-    if max_loops is None:
-        max_loops = 500
-    if delay_factor is None:
-        delay_factor = 1.0
-    # This is the logic for having self.timeout override max_loops
-    if delay_factor == 1 and max_loops == 500:
-        max_loops = int(old_timeout / loop_delay)
-
-    return max_loops * loop_delay * delay_factor
-
-
-def nokia_context_filter(data: str, re_flags: int = re.M) -&gt; str:
-    &#34;&#34;&#34;
-    Nokia context from string. Examples:
-
-    (ro)[]
-
-    (ex)[configure router &#34;Base&#34; bgp]
-
-    Converted over to a standalone function for easier unit testing.
-    &#34;&#34;&#34;
-    context_pattern = r&#34;^\!?\*?(\((ex|gl|pr|ro)\))?\[.*\]&#34;
-    return re.sub(context_pattern, &#34;&#34;, data, flags=re_flags)</code></pre>
-</details>
 </section>
 <section>
 </section>
@@ -715,170 +46,39 @@ That sleep would happen max_loops time</p>
 <p>Formula is (loop_delay * delay_factor) * max_loops</p>
 <p>There was a way Netmiko's self.timeout could override the default settings and essentially be
 used to adjust max_loops (this was probably rarely used).</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def calc_old_timeout(
-    max_loops: Optional[int] = None,
-    delay_factor: Optional[float] = None,
-    loop_delay: float = 0.2,
-    old_timeout: int = 100,
-) -&gt; float:
-    &#34;&#34;&#34;
-    loop_delay is .2 in Netmiko 3.x
-    delay_factor would multiple the loop delay
-    Number of loops was typically 500
-
-    Thus each loop would sleep (loop_delay * delay_factor) seconds
-    That sleep would happen max_loops time
-
-    Formula is (loop_delay * delay_factor) * max_loops
-
-    There was a way Netmiko&#39;s self.timeout could override the default settings and essentially be
-    used to adjust max_loops (this was probably rarely used).
-    &#34;&#34;&#34;
-    if max_loops is None:
-        max_loops = 500
-    if delay_factor is None:
-        delay_factor = 1.0
-    # This is the logic for having self.timeout override max_loops
-    if delay_factor == 1 and max_loops == 500:
-        max_loops = int(old_timeout / loop_delay)
-
-    return max_loops * loop_delay * delay_factor</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.check_serial_port"><code class="name flex">
 <span>def <span class="ident">check_serial_port</span></span>(<span>name: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>returns valid COM Port.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_serial_port(name: str) -&gt; str:
-    &#34;&#34;&#34;returns valid COM Port.&#34;&#34;&#34;
-
-    if not PYSERIAL_INSTALLED:
-        msg = (
-            &#34;\npyserial is not installed. Please PIP install pyserial:\n\n&#34;
-            &#34;pip install pyserial\n\n&#34;
-        )
-        raise ValueError(msg)
-
-    try:
-        cdc = next(serial.tools.list_ports.grep(name))
-        serial_port = cdc[0]
-        assert isinstance(serial_port, str)
-        return serial_port
-    except StopIteration:
-        msg = f&#34;device {name} not found. &#34;
-        msg += &#34;available devices are: &#34;
-        ports = list(serial.tools.list_ports.comports())
-        for p in ports:
-            msg += f&#34;{str(p)},&#34;
-        raise ValueError(msg)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.clitable_to_dict"><code class="name flex">
 <span>def <span class="ident">clitable_to_dict</span></span>(<span>cli_table: textfsm.clitable.CliTable) ‑> List[Dict[str, str]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts TextFSM cli_table object to list of dictionaries.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def clitable_to_dict(cli_table: clitable.CliTable) -&gt; List[Dict[str, str]]:
-    &#34;&#34;&#34;Converts TextFSM cli_table object to list of dictionaries.&#34;&#34;&#34;
-    return_list = []
-    for row in cli_table:
-        temp_dict = {}
-        for index, element in enumerate(row):
-            temp_dict[cli_table.header[index].lower()] = element
-        return_list.append(temp_dict)
-    return return_list</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.display_inventory"><code class="name flex">
 <span>def <span class="ident">display_inventory</span></span>(<span>my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Print out inventory devices and groups.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -&gt; None:
-    &#34;&#34;&#34;Print out inventory devices and groups.&#34;&#34;&#34;
-    inventory_groups = [&#34;all&#34;]
-    inventory_devices = []
-    for k, v in my_devices.items():
-        if isinstance(v, list):
-            inventory_groups.append(k)
-        elif isinstance(v, dict):
-            inventory_devices.append((k, v[&#34;device_type&#34;]))
-
-    inventory_groups.sort()
-    inventory_devices.sort(key=lambda x: x[0])
-    print(&#34;\nDevices:&#34;)
-    print(&#34;-&#34; * 40)
-    for a_device, device_type in inventory_devices:
-        device_type = f&#34;  ({device_type})&#34;
-        print(f&#34;{a_device:&lt;25}{device_type:&gt;15}&#34;)
-    print(&#34;\n\nGroups:&#34;)
-    print(&#34;-&#34; * 40)
-    for a_group in inventory_groups:
-        print(a_group)
-    print()</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.ensure_dir_exists"><code class="name flex">
 <span>def <span class="ident">ensure_dir_exists</span></span>(<span>verify_dir: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Ensure directory exists. Create if necessary.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ensure_dir_exists(verify_dir: str) -&gt; None:
-    &#34;&#34;&#34;Ensure directory exists. Create if necessary.&#34;&#34;&#34;
-    if not os.path.exists(verify_dir):
-        # Doesn&#39;t exist create dir
-        os.makedirs(verify_dir)
-    else:
-        # Exists
-        if not os.path.isdir(verify_dir):
-            # Not a dir, raise an exception
-            raise ValueError(f&#34;{verify_dir} is not a directory&#34;)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.f_exec_time"><code class="name flex">
 <span>def <span class="ident">f_exec_time</span></span>(<span>func: ~F) ‑> ~F</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def f_exec_time(func: F) -&gt; F:
-    @functools.wraps(func)
-    def wrapper_decorator(*args: Any, **kwargs: Any) -&gt; Any:
-        start_time = datetime.now()
-        result = func(*args, **kwargs)
-        end_time = datetime.now()
-        print(f&#34;Elapsed time: {end_time - start_time}&#34;)
-        return result
-
-    return cast(F, wrapper_decorator)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.find_cfg_file"><code class="name flex">
-<span>def <span class="ident">find_cfg_file</span></span>(<span>file_name: Union[str, bytes, ForwardRef('PathLike[Any]'), ForwardRef(None)] = None) ‑> Union[str, bytes, PathLike[Any]]</span>
+<span>def <span class="ident">find_cfg_file</span></span>(<span>file_name: Union[str, bytes, ForwardRef('PathLike[Any]'), ForwardRef(None)] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Search for netmiko_tools inventory file in the following order:
@@ -887,261 +87,41 @@ Current directory
 Home directory
 Look for file named: .netmiko.yml or netmiko.yml
 Also allow NETMIKO_TOOLS_CFG to point directly at a file</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def find_cfg_file(
-    file_name: Union[str, bytes, &#34;PathLike[Any]&#34;, None] = None
-) -&gt; Union[str, bytes, &#34;PathLike[Any]&#34;]:
-    &#34;&#34;&#34;
-    Search for netmiko_tools inventory file in the following order:
-    NETMIKO_TOOLS_CFG environment variable
-    Current directory
-    Home directory
-    Look for file named: .netmiko.yml or netmiko.yml
-    Also allow NETMIKO_TOOLS_CFG to point directly at a file
-    &#34;&#34;&#34;
-    if file_name and os.path.isfile(file_name):
-        return file_name
-    optional_path = os.environ.get(&#34;NETMIKO_TOOLS_CFG&#34;, &#34;&#34;)
-    if os.path.isfile(optional_path):
-        return optional_path
-    search_paths = [optional_path, &#34;.&#34;, os.path.expanduser(&#34;~&#34;)]
-    # Filter optional_path if null
-    search_paths = [path for path in search_paths if path]
-    for path in search_paths:
-        files = glob(f&#34;{path}/.netmiko.yml&#34;) + glob(f&#34;{path}/netmiko.yml&#34;)
-        if files:
-            return files[0]
-    raise IOError(
-        &#34;.netmiko.yml file not found in NETMIKO_TOOLS environment variable directory,&#34;
-        &#34; current directory, or home directory.&#34;
-    )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.find_netmiko_dir"><code class="name flex">
 <span>def <span class="ident">find_netmiko_dir</span></span>(<span>) ‑> Tuple[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Check environment first, then default dir</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def find_netmiko_dir() -&gt; Tuple[str, str]:
-    &#34;&#34;&#34;Check environment first, then default dir&#34;&#34;&#34;
-    try:
-        netmiko_base_dir = os.environ[&#34;NETMIKO_DIR&#34;]
-    except KeyError:
-        netmiko_base_dir = NETMIKO_BASE_DIR
-    netmiko_base_dir = os.path.expanduser(netmiko_base_dir)
-    if netmiko_base_dir == &#34;/&#34;:
-        raise ValueError(&#34;/ cannot be netmiko_base_dir&#34;)
-    netmiko_full_dir = f&#34;{netmiko_base_dir}/tmp&#34;
-    return (netmiko_base_dir, netmiko_full_dir)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.get_structured_data"><code class="name flex">
-<span>def <span class="ident">get_structured_data</span></span>(<span>raw_output: str, platform: Optional[str] = None, command: Optional[str] = None, template: Optional[str] = None) ‑> Union[str, List[Dict[str, str]]]</span>
+<span>def <span class="ident">get_structured_data</span></span>(<span>raw_output: str, platform: Optional[str] = None, command: Optional[str] = None, template: Optional[str] = None, raise_parsing_error: bool = False) ‑> Union[str, List[Dict[str, str]]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert raw CLI output to structured data using TextFSM template.</p>
 <p>You can use a straight TextFSM file i.e. specify "template". If no template is specified,
 then you must use an CliTable index file.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_structured_data_textfsm(
-    raw_output: str,
-    platform: Optional[str] = None,
-    command: Optional[str] = None,
-    template: Optional[str] = None,
-) -&gt; Union[str, List[Dict[str, str]]]:
-    &#34;&#34;&#34;
-    Convert raw CLI output to structured data using TextFSM template.
-
-    You can use a straight TextFSM file i.e. specify &#34;template&#34;. If no template is specified,
-    then you must use an CliTable index file.
-    &#34;&#34;&#34;
-    if platform is None or command is None:
-        attrs = {}
-    else:
-        attrs = {&#34;Command&#34;: command, &#34;Platform&#34;: platform}
-
-    if template is None:
-        if attrs == {}:
-            raise ValueError(
-                &#34;Either &#39;platform/command&#39; or &#39;template&#39; must be specified.&#34;
-            )
-        template_dir = get_template_dir()
-        index_file = os.path.join(template_dir, &#34;index&#34;)
-        textfsm_obj = clitable.CliTable(index_file, template_dir)
-        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
-
-        # Retry the output if &#34;cisco_xe&#34; and not structured data
-        if platform and &#34;cisco_xe&#34; in platform:
-            if not isinstance(output, list):
-                attrs[&#34;Platform&#34;] = &#34;cisco_ios&#34;
-                output = _textfsm_parse(textfsm_obj, raw_output, attrs)
-        return output
-    else:
-        template_path = Path(os.path.expanduser(template))
-        template_file = template_path.name
-        template_dir_alt = template_path.parents[0]
-        # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=template_dir_alt)
-        return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=template_file
-        )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.get_structured_data_genie"><code class="name flex">
-<span>def <span class="ident">get_structured_data_genie</span></span>(<span>raw_output: str, platform: str, command: str) ‑> Union[str, Dict[str, Any]]</span>
+<span>def <span class="ident">get_structured_data_genie</span></span>(<span>raw_output: str, platform: str, command: str, raise_parsing_error: bool = False) ‑> Union[str, Dict[str, Any]]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_structured_data_genie(
-    raw_output: str, platform: str, command: str
-) -&gt; Union[str, Dict[str, Any]]:
-    if not sys.version_info &gt;= (3, 4):
-        raise ValueError(&#34;Genie requires Python &gt;= 3.4&#34;)
-
-    if not GENIE_INSTALLED:
-        msg = (
-            &#34;\nGenie and PyATS are not installed. Please PIP install both Genie and PyATS:\n&#34;
-            &#34;pip install genie\npip install pyats\n&#34;
-        )
-        raise ValueError(msg)
-
-    if &#34;cisco&#34; not in platform and &#34;linux&#34; not in platform:
-        return raw_output
-
-    genie_device_mapper = {
-        &#34;cisco_ios&#34;: &#34;ios&#34;,
-        &#34;cisco_xe&#34;: &#34;iosxe&#34;,
-        &#34;cisco_xr&#34;: &#34;iosxr&#34;,
-        &#34;cisco_nxos&#34;: &#34;nxos&#34;,
-        &#34;cisco_asa&#34;: &#34;asa&#34;,
-        &#34;linux&#34;: &#34;linux&#34;,
-        &#34;f5_linux&#34;: &#34;linux&#34;,
-        &#34;ovs_linux&#34;: &#34;linux&#34;,
-    }
-
-    os = None
-    # platform might be _ssh, _telnet, _serial strip that off
-    if platform.count(&#34;_&#34;) &gt; 1:
-        base_list = platform.split(&#34;_&#34;)[:-1]
-        base_platform = &#34;_&#34;.join(base_list)
-    else:
-        base_platform = platform
-
-    os = genie_device_mapper.get(base_platform)
-    if os is None:
-        return raw_output
-
-    # Genie specific construct for doing parsing (based on Genie in Ansible)
-    device = Device(&#34;new_device&#34;, os=os)
-    device.custom.setdefault(&#34;abstraction&#34;, {})
-    device.custom[&#34;abstraction&#34;][&#34;order&#34;] = [&#34;os&#34;]
-    device.cli = AttrDict({&#34;execute&#34;: None})
-    try:
-        # Test whether there is a parser for given command (return Exception if fails)
-        get_parser(command, device)
-        parsed_output: Dict[str, Any] = device.parse(command, output=raw_output)
-        return parsed_output
-    except Exception:
-        return raw_output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.get_structured_data_textfsm"><code class="name flex">
-<span>def <span class="ident">get_structured_data_textfsm</span></span>(<span>raw_output: str, platform: Optional[str] = None, command: Optional[str] = None, template: Optional[str] = None) ‑> Union[str, List[Dict[str, str]]]</span>
+<span>def <span class="ident">get_structured_data_textfsm</span></span>(<span>raw_output: str, platform: Optional[str] = None, command: Optional[str] = None, template: Optional[str] = None, raise_parsing_error: bool = False) ‑> Union[str, List[Dict[str, str]]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert raw CLI output to structured data using TextFSM template.</p>
 <p>You can use a straight TextFSM file i.e. specify "template". If no template is specified,
 then you must use an CliTable index file.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_structured_data_textfsm(
-    raw_output: str,
-    platform: Optional[str] = None,
-    command: Optional[str] = None,
-    template: Optional[str] = None,
-) -&gt; Union[str, List[Dict[str, str]]]:
-    &#34;&#34;&#34;
-    Convert raw CLI output to structured data using TextFSM template.
-
-    You can use a straight TextFSM file i.e. specify &#34;template&#34;. If no template is specified,
-    then you must use an CliTable index file.
-    &#34;&#34;&#34;
-    if platform is None or command is None:
-        attrs = {}
-    else:
-        attrs = {&#34;Command&#34;: command, &#34;Platform&#34;: platform}
-
-    if template is None:
-        if attrs == {}:
-            raise ValueError(
-                &#34;Either &#39;platform/command&#39; or &#39;template&#39; must be specified.&#34;
-            )
-        template_dir = get_template_dir()
-        index_file = os.path.join(template_dir, &#34;index&#34;)
-        textfsm_obj = clitable.CliTable(index_file, template_dir)
-        output = _textfsm_parse(textfsm_obj, raw_output, attrs)
-
-        # Retry the output if &#34;cisco_xe&#34; and not structured data
-        if platform and &#34;cisco_xe&#34; in platform:
-            if not isinstance(output, list):
-                attrs[&#34;Platform&#34;] = &#34;cisco_ios&#34;
-                output = _textfsm_parse(textfsm_obj, raw_output, attrs)
-        return output
-    else:
-        template_path = Path(os.path.expanduser(template))
-        template_file = template_path.name
-        template_dir_alt = template_path.parents[0]
-        # CliTable with no index will fall-back to a TextFSM parsing behavior
-        textfsm_obj = clitable.CliTable(template_dir=template_dir_alt)
-        return _textfsm_parse(
-            textfsm_obj, raw_output, attrs, template_file=template_file
-        )</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.get_structured_data_ttp"><code class="name flex">
-<span>def <span class="ident">get_structured_data_ttp</span></span>(<span>raw_output: str, template: str) ‑> Union[str, List[Any]]</span>
+<span>def <span class="ident">get_structured_data_ttp</span></span>(<span>raw_output: str, template: str, raise_parsing_error: bool = False) ‑> Union[str, List[Any]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert raw CLI output to structured data using TTP template.</p>
 <p>You can use a straight TextFSM file i.e. specify "template"</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_structured_data_ttp(raw_output: str, template: str) -&gt; Union[str, List[Any]]:
-    &#34;&#34;&#34;
-    Convert raw CLI output to structured data using TTP template.
-
-    You can use a straight TextFSM file i.e. specify &#34;template&#34;
-    &#34;&#34;&#34;
-    if not TTP_INSTALLED:
-        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n\npip install ttp\n&#34;
-        raise ValueError(msg)
-
-    try:
-        ttp_parser = ttp(data=raw_output, template=template)
-        ttp_parser.parse(one=True)
-        result: List[Any] = ttp_parser.result(format=&#34;raw&#34;)
-        return result
-    except Exception:
-        return raw_output</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.get_template_dir"><code class="name flex">
 <span>def <span class="ident">get_template_dir</span></span>(<span>) ‑> str</span>
@@ -1154,127 +134,33 @@ then you must use an CliTable index file.</p></div>
 3) ~/ntc-templates/ntc_templates/templates.</p>
 <p>If <code>index</code> file is not found in any of these locations, raise ValueError</p>
 <p>:return: directory containing the TextFSM index file</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_template_dir(_skip_ntc_package: bool = False) -&gt; str:
-    &#34;&#34;&#34;
-    Find and return the directory containing the TextFSM index file.
-
-    Order of preference is:
-    1) Find directory in `NET_TEXTFSM` Environment Variable.
-    2) Check for pip installed `ntc-templates` location in this environment.
-    3) ~/ntc-templates/ntc_templates/templates.
-
-    If `index` file is not found in any of these locations, raise ValueError
-
-    :return: directory containing the TextFSM index file
-
-    &#34;&#34;&#34;
-
-    msg = &#34;&#34;&#34;
-Directory containing TextFSM index file not found.
-
-Please set the NET_TEXTFSM environment variable to point at the directory containing your TextFSM
-index file.
-
-Alternatively, `pip install ntc-templates` (if using ntc-templates).
-
-&#34;&#34;&#34;
-
-    # Try NET_TEXTFSM environment variable
-    template_dir = os.environ.get(&#34;NET_TEXTFSM&#34;)
-    if template_dir is not None:
-        template_dir = os.path.expanduser(template_dir)
-        index = os.path.join(template_dir, &#34;index&#34;)
-        if not os.path.isfile(index):
-            # Assume only base ./ntc-templates specified
-            template_dir = os.path.join(template_dir, &#34;templates&#34;)
-
-    else:
-        # Try &#39;pip installed&#39; ntc-templates
-        try:
-            with pkg_resources.path(
-                package=&#34;ntc_templates&#34;, resource=&#34;parse.py&#34;
-            ) as posix_path:
-                # Example: /opt/venv/netmiko/lib/python3.8/site-packages/ntc_templates/templates
-                template_dir = str(posix_path.parent.joinpath(&#34;templates&#34;))
-                # This is for Netmiko automated testing
-                if _skip_ntc_package:
-                    raise ModuleNotFoundError()
-
-        except ModuleNotFoundError:
-            # Finally check in ~/ntc-templates/ntc_templates/templates
-            home_dir = os.path.expanduser(&#34;~&#34;)
-            template_dir = os.path.join(
-                home_dir, &#34;ntc-templates&#34;, &#34;ntc_templates&#34;, &#34;templates&#34;
-            )
-
-    index = os.path.join(template_dir, &#34;index&#34;)
-    if not os.path.isdir(template_dir) or not os.path.isfile(index):
-        raise ValueError(msg)
-    return os.path.abspath(template_dir)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.load_devices"><code class="name flex">
-<span>def <span class="ident">load_devices</span></span>(<span>file_name: Union[str, bytes, ForwardRef('PathLike[Any]'), ForwardRef(None)] = None) ‑> Any</span>
+<span>def <span class="ident">load_devices</span></span>(<span>file_name: Union[str, bytes, ForwardRef('PathLike[Any]'), ForwardRef(None)] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find and load .netmiko.yml file.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_devices(file_name: Union[str, bytes, &#34;PathLike[Any]&#34;, None] = None) -&gt; Any:
-    &#34;&#34;&#34;Find and load .netmiko.yml file.&#34;&#34;&#34;
-    yaml_devices_file = find_cfg_file(file_name)
-    return load_yaml_file(yaml_devices_file)</code></pre>
-</details>
+</dd>
+<dt id="netmiko.utilities.load_netmiko_yml"><code class="name flex">
+<span>def <span class="ident">load_netmiko_yml</span></span>(<span>file_name: Union[str, bytes, ForwardRef('PathLike[Any]'), ForwardRef(None)] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load and parse the .netmiko.yml as determined by 'find_cfg_file'.</p>
+<h2 id="parsing">Parsing</h2>
+<p>Retrieve and extract 'config' parameters: <strong>meta</strong> field
+Determine if encryption is being used and decrypt any encrypted fields</p></div>
 </dd>
 <dt id="netmiko.utilities.load_yaml_file"><code class="name flex">
-<span>def <span class="ident">load_yaml_file</span></span>(<span>yaml_file: Union[str, bytes, ForwardRef('PathLike[Any]')]) ‑> Any</span>
+<span>def <span class="ident">load_yaml_file</span></span>(<span>yaml_file: Union[str, bytes, ForwardRef('PathLike[Any]')])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Read YAML file.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_yaml_file(yaml_file: Union[str, bytes, &#34;PathLike[Any]&#34;]) -&gt; Any:
-    &#34;&#34;&#34;Read YAML file.&#34;&#34;&#34;
-    try:
-        import yaml
-    except ImportError:
-        sys.exit(&#34;Unable to import yaml module.&#34;)
-    try:
-        with io.open(yaml_file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fname:
-            return yaml.safe_load(fname)
-    except IOError:
-        sys.exit(&#34;Unable to open YAML file&#34;)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.m_exec_time"><code class="name flex">
 <span>def <span class="ident">m_exec_time</span></span>(<span>func: ~F) ‑> ~F</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def m_exec_time(func: F) -&gt; F:
-    @functools.wraps(func)
-    def wrapper_decorator(self: Any, *args: Any, **kwargs: Any) -&gt; Any:
-        start_time = datetime.now()
-        result = func(self, *args, **kwargs)
-        end_time = datetime.now()
-        method_name = str(func)
-        print(f&#34;{method_name}: Elapsed time: {end_time - start_time}&#34;)
-        return result
-
-    return cast(F, wrapper_decorator)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.nokia_context_filter"><code class="name flex">
 <span>def <span class="ident">nokia_context_filter</span></span>(<span>data: str, re_flags: int = re.MULTILINE) ‑> str</span>
@@ -1284,62 +170,21 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
 <p>(ro)[]</p>
 <p>(ex)[configure router "Base" bgp]</p>
 <p>Converted over to a standalone function for easier unit testing.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nokia_context_filter(data: str, re_flags: int = re.M) -&gt; str:
-    &#34;&#34;&#34;
-    Nokia context from string. Examples:
-
-    (ro)[]
-
-    (ex)[configure router &#34;Base&#34; bgp]
-
-    Converted over to a standalone function for easier unit testing.
-    &#34;&#34;&#34;
-    context_pattern = r&#34;^\!?\*?(\((ex|gl|pr|ro)\))?\[.*\]&#34;
-    return re.sub(context_pattern, &#34;&#34;, data, flags=re_flags)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.obtain_all_devices"><code class="name flex">
 <span>def <span class="ident">obtain_all_devices</span></span>(<span>my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) ‑> Dict[str, Dict[str, Any]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dynamically create 'all' group.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def obtain_all_devices(
-    my_devices: Dict[str, Union[List[str], Dict[str, Any]]]
-) -&gt; Dict[str, Dict[str, Any]]:
-    &#34;&#34;&#34;Dynamically create &#39;all&#39; group.&#34;&#34;&#34;
-    new_devices = {}
-    for device_name, device_or_group in my_devices.items():
-        # Skip any groups
-        if not isinstance(device_or_group, list):
-            new_devices[device_name] = device_or_group
-    return new_devices</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.obtain_netmiko_filename"><code class="name flex">
 <span>def <span class="ident">obtain_netmiko_filename</span></span>(<span>device_name: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create file name based on device_name.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def obtain_netmiko_filename(device_name: str) -&gt; str:
-    &#34;&#34;&#34;Create file name based on device_name.&#34;&#34;&#34;
-    _, netmiko_full_dir = find_netmiko_dir()
-    return f&#34;{netmiko_full_dir}/{device_name}.txt&#34;</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.run_ttp_template"><code class="name flex">
-<span>def <span class="ident">run_ttp_template</span></span>(<span>connection: BaseConnection, template: Union[str, bytes, ForwardRef('PathLike[Any]')], res_kwargs: Dict[str, Any], **kwargs: Any) ‑> Any</span>
+<span>def <span class="ident">run_ttp_template</span></span>(<span>connection: BaseConnection, template: Union[str, bytes, ForwardRef('PathLike[Any]')], res_kwargs: Dict[str, Any], **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper function to run TTP template parsing.</p>
@@ -1347,189 +192,32 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
 <p>:param template: TTP template</p>
 <p>:param res_kwargs: <code>**res_kwargs</code> arguments for TTP result method</p>
 <p>:param kwargs: <code>**kwargs</code> for TTP object instantiation</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def run_ttp_template(
-    connection: &#34;BaseConnection&#34;,
-    template: Union[str, bytes, &#34;PathLike[Any]&#34;],
-    res_kwargs: Dict[str, Any],
-    **kwargs: Any,
-) -&gt; Any:
-    &#34;&#34;&#34;
-    Helper function to run TTP template parsing.
-
-    :param connection: Netmiko connection object
-
-    :param template: TTP template
-
-    :param res_kwargs: ``**res_kwargs`` arguments for TTP result method
-
-    :param kwargs: ``**kwargs`` for TTP object instantiation
-    &#34;&#34;&#34;
-    if not TTP_INSTALLED:
-        msg = &#34;\nTTP is not installed. Please PIP install ttp:\n&#34; &#34;pip install ttp\n&#34;
-        raise ValueError(msg)
-
-    parser = ttp(template=template, **kwargs)
-
-    # get inputs load for TTP template
-    ttp_inputs_load = parser.get_input_load()
-    log.debug(&#34;run_ttp_template: inputs load - {}&#34;.format(ttp_inputs_load))
-
-    # go over template&#39;s inputs and collect output from devices
-    for template_name, inputs in ttp_inputs_load.items():
-        for input_name, input_params in inputs.items():
-            method = input_params.get(&#34;method&#34;, &#34;send_command&#34;)
-            method_kwargs = input_params.get(&#34;kwargs&#34;, {})
-            commands = input_params.get(&#34;commands&#34;, None)
-
-            # run sanity checks
-            if method not in dir(connection):
-                log.warning(
-                    &#34;run_ttp_template: &#39;{}&#39; input, unsupported method &#39;{}&#39;, skipping&#34;.format(
-                        input_name, method
-                    )
-                )
-                continue
-            elif not commands:
-                log.warning(
-                    &#34;run_ttp_template: &#39;{}&#39; input no commands to collect, skipping&#34;.format(
-                        input_name
-                    )
-                )
-                continue
-
-            # collect commands output from device
-            out_list = [
-                getattr(connection, method)(command_string=command, **method_kwargs)
-                for command in commands
-            ]
-            output = &#34;\n&#34;.join(out_list)
-
-            # add collected output to TTP parser object
-            parser.add_input(
-                data=output, input_name=input_name, template_name=template_name
-            )
-
-    # run parsing in single process
-    parser.parse(one=True)
-
-    return parser.result(**res_kwargs)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.select_cmd_verify"><code class="name flex">
 <span>def <span class="ident">select_cmd_verify</span></span>(<span>func: ~F) ‑> ~F</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Override function cmd_verify argument with global setting.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def select_cmd_verify(func: F) -&gt; F:
-    &#34;&#34;&#34;Override function cmd_verify argument with global setting.&#34;&#34;&#34;
-
-    @functools.wraps(func)
-    def wrapper_decorator(self: &#34;BaseConnection&#34;, *args: Any, **kwargs: Any) -&gt; Any:
-        if self.global_cmd_verify is not None:
-            kwargs[&#34;cmd_verify&#34;] = self.global_cmd_verify
-        return func(self, *args, **kwargs)
-
-    return cast(F, wrapper_decorator)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.structured_data_converter"><code class="name flex">
-<span>def <span class="ident">structured_data_converter</span></span>(<span>raw_data: str, command: str, platform: str, use_textfsm: bool = False, use_ttp: bool = False, use_genie: bool = False, textfsm_template: Optional[str] = None, ttp_template: Optional[str] = None) ‑> Union[str, List[Any], Dict[str, Any]]</span>
+<span>def <span class="ident">structured_data_converter</span></span>(<span>raw_data: str, command: str, platform: str, use_textfsm: bool = False, use_ttp: bool = False, use_genie: bool = False, textfsm_template: Optional[str] = None, ttp_template: Optional[str] = None, raise_parsing_error: bool = False) ‑> Union[str, List[Any], Dict[str, Any]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Try structured data converters in the following order: TextFSM, TTP, Genie.</p>
-<p>Return the first structured data found, else return the raw_data as-is.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def structured_data_converter(
-    raw_data: str,
-    command: str,
-    platform: str,
-    use_textfsm: bool = False,
-    use_ttp: bool = False,
-    use_genie: bool = False,
-    textfsm_template: Optional[str] = None,
-    ttp_template: Optional[str] = None,
-) -&gt; Union[str, List[Any], Dict[str, Any]]:
-    &#34;&#34;&#34;
-    Try structured data converters in the following order: TextFSM, TTP, Genie.
-
-    Return the first structured data found, else return the raw_data as-is.
-    &#34;&#34;&#34;
-    command = command.strip()
-    if use_textfsm:
-        structured_output_tfsm = get_structured_data_textfsm(
-            raw_data, platform=platform, command=command, template=textfsm_template
-        )
-        if not isinstance(structured_output_tfsm, str):
-            return structured_output_tfsm
-
-    if use_ttp:
-        if ttp_template is None:
-            msg = &#34;&#34;&#34;
-The argument &#39;ttp_template=/path/to/template.ttp&#39; must be set when use_ttp=True
-&#34;&#34;&#34;
-            raise ValueError(msg)
-        else:
-            structured_output_ttp = get_structured_data_ttp(
-                raw_data, template=ttp_template
-            )
-
-        if not isinstance(structured_output_ttp, str):
-            return structured_output_ttp
-
-    if use_genie:
-        structured_output_genie = get_structured_data_genie(
-            raw_data, platform=platform, command=command
-        )
-        if not isinstance(structured_output_genie, str):
-            return structured_output_genie
-    return raw_data</code></pre>
-</details>
+<p>Return the first structured data found, else return the raw_data as-is unless
+<code>raise_parsing_error</code> is True, then bubble up the exception to the caller.</p></div>
 </dd>
 <dt id="netmiko.utilities.write_bytes"><code class="name flex">
 <span>def <span class="ident">write_bytes</span></span>(<span>out_data: ~AnyStr, encoding: str = 'utf-8') ‑> bytes</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Ensure output is properly encoded bytes.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def write_bytes(out_data: AnyStr, encoding: str = &#34;utf-8&#34;) -&gt; bytes:
-    &#34;&#34;&#34;Ensure output is properly encoded bytes.&#34;&#34;&#34;
-    if isinstance(out_data, str):
-        return out_data.encode(encoding)
-    elif isinstance(out_data, bytes):
-        return out_data
-    msg = f&#34;Invalid value for out_data neither unicode nor byte string: {str(out_data)}&#34;
-    raise ValueError(msg)</code></pre>
-</details>
 </dd>
 <dt id="netmiko.utilities.write_tmp_file"><code class="name flex">
 <span>def <span class="ident">write_tmp_file</span></span>(<span>device_name: str, output: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def write_tmp_file(device_name: str, output: str) -&gt; str:
-    file_name = obtain_netmiko_filename(device_name)
-    with open(file_name, &#34;w&#34;) as f:
-        f.write(output)
-    return file_name</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -1537,7 +225,6 @@ The argument &#39;ttp_template=/path/to/template.ttp&#39; must be set when use_t
 </section>
 </article>
 <nav id="sidebar">
-<h1>Index</h1>
 <div class="toc">
 <ul></ul>
 </div>
@@ -1563,6 +250,7 @@ The argument &#39;ttp_template=/path/to/template.ttp&#39; must be set when use_t
 <li><code><a title="netmiko.utilities.get_structured_data_ttp" href="#netmiko.utilities.get_structured_data_ttp">get_structured_data_ttp</a></code></li>
 <li><code><a title="netmiko.utilities.get_template_dir" href="#netmiko.utilities.get_template_dir">get_template_dir</a></code></li>
 <li><code><a title="netmiko.utilities.load_devices" href="#netmiko.utilities.load_devices">load_devices</a></code></li>
+<li><code><a title="netmiko.utilities.load_netmiko_yml" href="#netmiko.utilities.load_netmiko_yml">load_netmiko_yml</a></code></li>
 <li><code><a title="netmiko.utilities.load_yaml_file" href="#netmiko.utilities.load_yaml_file">load_yaml_file</a></code></li>
 <li><code><a title="netmiko.utilities.m_exec_time" href="#netmiko.utilities.m_exec_time">m_exec_time</a></code></li>
 <li><code><a title="netmiko.utilities.nokia_context_filter" href="#netmiko.utilities.nokia_context_filter">nokia_context_filter</a></code></li>
@@ -1579,7 +267,7 @@ The argument &#39;ttp_template=/path/to/template.ttp&#39; must be set when use_t
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
 </footer>
 </body>
 </html>
