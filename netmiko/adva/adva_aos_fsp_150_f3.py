@@ -54,7 +54,9 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         Prepare the session after the connection has been established.
         Handles devices with security prompt enabled
         """
-        data = self.read_until_pattern(pattern=r"Do you wish to continue \[Y\|N\]-->|-->")
+        data = self.read_until_pattern(
+            pattern=r"Do you wish to continue \[Y\|N\]-->|-->"
+        )
 
         if "continue" in data:
             self.write_channel(f"y{self.RETURN}")
@@ -80,7 +82,9 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         """Method to disable paging on the Adva, multi-line configuration command required."""
 
         if command:
-            raise ValueError(f"Unexpected value for command in disable_paging() method: {command}")
+            raise ValueError(
+                f"Unexpected value for command in disable_paging() method: {command}"
+            )
 
         commands = [
             "configure user-security",
@@ -140,12 +144,14 @@ class AdvaAosFsp150F3SSH(NoEnable, NoConfig, CiscoSSHConnection):
         cmd_verify: bool = True,
         enter_config_mode: bool = False,
         error_pattern: str = "",
-        terminator: str = None,
+        terminator: str = r"-->",
         bypass_commands: Optional[str] = None,
     ) -> str:
 
         if bypass_commands is None:
-            categories = r"(?:superuser|crypto|maintenance|provisioning|retrieve|test-user)"
+            categories = (
+                r"(?:superuser|crypto|maintenance|provisioning|retrieve|test-user)"
+            )
             bypass_commands = rf"(?:add\s+\S+\s+\S+\s+\S+\s+{categories}|secret.*)"
 
         return super().send_config_set(

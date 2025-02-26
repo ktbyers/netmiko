@@ -44,7 +44,9 @@ class AdvaAosFsp150F2SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
         Handles devices with security prompt enabled
         """
-        data = self.read_until_pattern(pattern=r"Do you wish to continue \[Y\|N\]-->|-->")
+        data = self.read_until_pattern(
+            pattern=r"Do you wish to continue \[Y\|N\]-->|-->"
+        )
         if "continue" in data:
             self.write_channel(f"y{self.RETURN}")
         else:
@@ -88,4 +90,3 @@ class AdvaAosFsp150F2SSH(NoEnable, NoConfig, CiscoSSHConnection):
     def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
         return super().cleanup(command=command)
-
