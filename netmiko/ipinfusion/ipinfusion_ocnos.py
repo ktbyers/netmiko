@@ -1,5 +1,5 @@
 import time
-from typing import Any, Optional, Union, Sequence, Iterator, TextIO
+from typing import Any, Optional
 from socket import socket
 
 from netmiko._telnetlib.telnetlib import (
@@ -34,7 +34,7 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def send_config_set(self, *args, **kwargs) -> str:
+    def send_config_set(self, *args: Any, **kwargs: Any) -> str:
         """Send config command(s). Requires separate calling of commit to apply."""
 
         # Do not exit config mode - it won't allow until you commit or abort transaction
@@ -42,11 +42,13 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
         error_markers = [
             "% Invalid input detected at '^' marker.",
             "% Parameter not configured",
-            "% Ambiguous command:"
+            "% Ambiguous command:",
         ]
         for error_marker in error_markers:
             if error_marker in output:
-                raise ValueError(f"Send config set failed with the following errors:\n\n{output}")
+                raise ValueError(
+                    f"Send config set failed with the following errors:\n\n{output}"
+                )
         return output
 
     def commit(
@@ -54,7 +56,7 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
         confirm: bool = False,
         confirm_delay: Optional[int] = None,
         description: str = "",
-        read_timeout: float = 120.0
+        read_timeout: float = 120.0,
     ) -> str:
         """
         Commit the candidate configuration.
@@ -68,13 +70,17 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
 
         failed commit message example:
         % Failed to commit .. As error(s) encountered during commit operation...
-        Uncommitted configurations are retained in the current transaction session, check 'show transaction current'.
+        Uncommitted configurations are retained in the current transaction session,
+        check 'show transaction current'.
         Correct the reason for the failure and re-issue the commit.
-        Use 'abort transaction' to terminate current transaction session and discard all uncommitted changes.
+        Use 'abort transaction' to terminate current transaction session and discard
+        all uncommitted changes.
         """
 
         if confirm_delay and not confirm:
-            raise ValueError("Invalid arguments supplied to commit: confirm_delay specified without confirm")
+            raise ValueError(
+                "Invalid arguments supplied to commit: confirm_delay specified without confirm"
+            )
 
         error_marker = "Failed to commit"
 
@@ -103,10 +109,7 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
 
         return output
 
-    def confirm_commit(
-            self,
-            read_timeout: float = 120.0
-    ) -> str:
+    def confirm_commit(self, read_timeout: float = 120.0) -> str:
         """Confirm the commit that was previously issued with 'commit confirmed' command"""
 
         # Enter config mode (if necessary)
@@ -124,20 +127,20 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
         )
         output += new_data
         if "Error" in new_data:
-            raise ValueError(f"Confirm commit operation failed with the following errors:\n\n{output}")
+            raise ValueError(
+                f"Confirm commit operation failed with the following errors:\n\n{output}"
+            )
 
         return output
 
-    def abort_transaction(
-            self,
-            read_timeout: float = 120.0
-    ) -> str:
+    def abort_transaction(self, read_timeout: float = 120.0) -> str:
         """Abort transaction, thus cancelling the commit"""
 
         if not self.check_config_mode():
             raise ValueError("Device is not in config mode")
         command_string = "abort transaction"
-        # If output is empty, it worked; this is usually so (if transaction is empty, it still works)
+        # If output is empty, it worked; this is usually so (note: if
+        # transaction is empty, it still works)
         output = self._send_command_str(
             command_string,
             expect_string=r"#",
