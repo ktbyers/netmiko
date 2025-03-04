@@ -109,7 +109,7 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
 
         return output
 
-    def confirm_commit(self, read_timeout: float = 120.0) -> str:
+    def _confirm_commit(self, read_timeout: float = 120.0) -> str:
         """Confirm the commit that was previously issued with 'commit confirmed' command"""
 
         # Enter config mode (if necessary)
@@ -133,8 +133,32 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
 
         return output
 
-    def abort_transaction(self, read_timeout: float = 120.0) -> str:
-        """Abort transaction, thus cancelling the commit"""
+    def _cancel_commit(self, read_timeout: float = 120.0) -> str:
+        """Cancel ongoing confirmed commit"""
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        command_string = "cancel-commit"
+        # If output is empty, cancel-commit worked, an error looks like this:
+        # Error: No confirm-commit in progress OR commit-history feature is Disabled
+        new_data = self._send_command_str(
+            command_string,
+            expect_string=r"(#|Error)",
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        output += new_data
+        if "Error" in new_data:
+            raise ValueError(
+                f"Cancel commit operation failed with the following errors:\n\n{output}"
+            )
+
+        return output
+
+    def _abort_transaction(self, read_timeout: float = 120.0) -> str:
+        """Abort transaction, thus cancelling the pending changes rather than committing them"""
 
         if not self.check_config_mode():
             raise ValueError("Device is not in config mode")
