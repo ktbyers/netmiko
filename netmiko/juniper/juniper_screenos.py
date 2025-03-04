@@ -8,6 +8,9 @@ class JuniperScreenOsSSH(NoEnable, NoConfig, BaseConnection):
     Implement methods for interacting with Juniper ScreenOS devices.
     """
 
+    def _try_session_preparation(self, force_data: bool = False) -> None:
+        return super()._try_session_preparation(force_data=force_data)
+
     def session_preparation(self) -> None:
         """
         ScreenOS can be configured to require: Accept this agreement y/[n]
