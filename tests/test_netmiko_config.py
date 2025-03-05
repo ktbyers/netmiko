@@ -19,9 +19,6 @@ def test_enable_mode(net_connect, commands, expected_responses):
 
     Catch exception for devices that don't support enable
     """
-    # aviatrix_wtm does not support enable mode
-    if "aviat_wtm" in net_connect.device_type:
-        assert pytest.skip("Platform doesn't support enable mode.")
     try:
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()

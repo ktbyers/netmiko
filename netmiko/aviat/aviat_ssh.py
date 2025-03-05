@@ -1,14 +1,12 @@
-from netmiko.cisco_base_connection import CiscoSSHConnection
-import re
-from netmiko import log
 from typing import Optional
+import re
+from netmiko.no_enable import NoEnable
+from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko import log
 
 
-class AviatWTMSSH(CiscoSSHConnection):
+class AviatWTMSSH(NoEnable, CiscoSSHConnection):
     """Aviat WTM Outdoor Radio support"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def session_preparation(self) -> None:
         self._test_channel_read()
@@ -17,13 +15,13 @@ class AviatWTMSSH(CiscoSSHConnection):
 
     def disable_paging(
         self,
-        commands: list = ["session paginate false"],
+        command: str = "session paginate false",
         delay_factor: Optional[float] = None,
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
         return self.send_config_set(
-            config_commands=commands,
+            config_commands=command,
         )
 
     def find_prompt(self, delay_factor: float = 1.0, pattern: str = r"[$>#]") -> str:
@@ -32,8 +30,7 @@ class AviatWTMSSH(CiscoSSHConnection):
     def exit_config_mode(
         self,
         exit_config: str = "end",
-        pattern: str = r"Uncommitted changes.*CANCEL\]",
-        confirm: str = "yes",
+        pattern: str = r"(?:Uncommitted changes.*CANCEL|#)",
     ) -> str:
         """
         Exits from configuration mode. Overwritten from base class because the device
@@ -41,23 +38,21 @@ class AviatWTMSSH(CiscoSSHConnection):
         If 'Uncommitted changes found' is detected in the output, the function sends a 'confirm'
         command.
         """
+        confirm: str = "yes"
         output = ""
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(
-                    pattern=re.escape(exit_config.strip())
-                )
+                output += self.read_until_pattern(pattern=exit_config)
             # Read until we detect the uncommitted changes pattern or the usual prompt pattern
-            output += self.read_until_pattern(pattern=pattern + "|#")
+            output += self.read_until_pattern(pattern=pattern)
             # If uncommitted changes were found, confirm them
             if "Uncommitted changes found" in output:
                 self.write_channel(self.normalize_cmd(confirm))
                 output += self.read_until_pattern(pattern=r"[$>#]")
             if self.check_config_mode():
                 raise ValueError("Failed to exit configuration mode")
-        log.debug(f"exit_config_mode: {output}")
         return output
 
     def config_mode(
@@ -69,17 +64,6 @@ class AviatWTMSSH(CiscoSSHConnection):
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
-
-    def enable(
-        self,
-        cmd: str = "",
-        pattern: str = "ssword",
-        enable_pattern: Optional[str] = None,
-        check_state: bool = True,
-        re_flags: int = re.IGNORECASE,
-    ) -> str:
-        """Aviat WTM Outdoor Radio does not have an enable mode"""
-        raise NotImplementedError
 
     def save_config(
         self, cmd: str = "", confirm: bool = False, confirm_response: str = ""

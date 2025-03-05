@@ -366,9 +366,6 @@ def test_enable_mode(net_connect, commands, expected_responses):
     # testuser on pynetqa does not have root access
     if net_connect.username == "testuser" and net_connect.host == "3.15.148.177":
         assert pytest.skip()
-    # aviatrix_wtm does not support enable mode
-    if "aviat_wtm" in net_connect.device_type:
-        assert pytest.skip("Platform doesn't support enable mode.")
     try:
         net_connect.enable()
         enable_prompt = net_connect.find_prompt()
