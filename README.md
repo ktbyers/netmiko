@@ -170,7 +170,16 @@ If you find an issue with Netmiko, then you can open an issue on this projects i
 
 If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace. To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/zt-km2k3upf-AkWHY4YEx3sI1R5irMmc7Q). Once you have entered the workspace, then you can join the #netmiko channel.
 
+## Sponsors 2025
 
+Special thanks to organizations and people that have helped support Netmiko development. In particular, these organizations have made meaningful contributions that help Netmiko keep moving forward:
+
+[![Slurp'it Logo](https://raw.githubusercontent.com/netmiko/blob/develop/images/slurpit.png)](https://slurpit.io/)
+[![Netpicker Logo](https://raw.githubusercontent.com/netmiko/blob/develop/images/netpicker.png)](https://netpicker.io/)
+
+
+
+<br />
 ---
 Kirk Byers  
 Python for Network Engineers  
