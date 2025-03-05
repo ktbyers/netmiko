@@ -1,8 +1,6 @@
 from typing import Optional
-import re
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko import log
 
 
 class AviatWTMSSH(NoEnable, CiscoSSHConnection):
@@ -24,7 +22,9 @@ class AviatWTMSSH(NoEnable, CiscoSSHConnection):
             config_commands=command,
         )
 
-    def find_prompt(self, delay_factor: float = 1.0, pattern: str = r"[$>#]") -> str:
+    def find_prompt(
+        self, delay_factor: float = 1.0, pattern: Optional[str] = r"[$>#]"
+    ) -> str:
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def exit_config_mode(
