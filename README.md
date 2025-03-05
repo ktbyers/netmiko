@@ -176,12 +176,8 @@ If you have questions or would like to discuss Netmiko, a #netmiko channel exist
 
 Special thanks to organizations and people that have helped support Netmiko development. In particular, these organizations have made meaningful contributions that help Netmiko keep moving forward:
 
-<a href="https://slurpit.io/">
-  <img src="https://github.com/ktbyers/netmiko/blob/develop/images/slurpit.png" width="200" alt="Slurp'it Logo">
-</a>
-<a href="https://netpicker.io/">
-  <img src="https://github.com/ktbyers/netmiko/blob/develop/images/netpicker.png" width="200" alt="Netpicker Logo">
-</a>
+<a href="https://slurpit.io/"><img src="https://github.com/ktbyers/netmiko/blob/develop/images/slurpit.png" width="200" alt="Slurp'it Logo"></a>
+<a href="https://netpicker.io/"><img src="https://github.com/ktbyers/netmiko/blob/develop/images/netpicker.png" width="200" alt="Netpicker Logo"></a>
 
 <br />
 <br />
