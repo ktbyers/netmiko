@@ -29,7 +29,7 @@ def test_verify_space_available_put(scp_fixture):
     ssh_conn, scp_transfer = scp_fixture
     assert scp_transfer.verify_space_available() is True
     # intentional make there not be enough space available
-    scp_transfer.file_size = 100_000_000_000
+    scp_transfer.file_size = 200_000_000_000
     assert scp_transfer.verify_space_available() is False
 
 

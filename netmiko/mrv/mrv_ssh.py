@@ -1,4 +1,5 @@
 """MRV Communications Driver (OptiSwitch)."""
+
 import time
 import re
 from typing import Optional

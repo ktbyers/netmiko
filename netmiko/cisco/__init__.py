@@ -17,6 +17,7 @@ from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_s300 import CiscoS300Telnet
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
 from netmiko.cisco.cisco_viptela import CiscoViptelaSSH
+from netmiko.cisco.cisco_apic import CiscoApicSSH
 
 __all__ = [
     "CiscoIosSSH",
@@ -40,4 +41,5 @@ __all__ = [
     "CiscoNxosFileTransfer",
     "CiscoIosSerial",
     "CiscoXrFileTransfer",
+    "CiscoApicSSH",
 ]

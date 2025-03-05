@@ -191,7 +191,7 @@ class CiscoXrBase(CiscoBaseConnection):
             # Read until we detect either an Uncommitted change or the end prompt
             if not re.search(r"(Uncommitted|#$)", output):
                 output += self.read_until_pattern(pattern=r"(Uncommitted|#$)")
-            if "Uncommitted changes found" in output:
+            if "Uncommitted" in output:
                 self.write_channel(self.normalize_cmd("no\n"))
                 output += self.read_until_pattern(pattern=r"[>#]")
             if not re.search(pattern, output, flags=re.M):
