@@ -176,14 +176,14 @@ If you have questions or would like to discuss Netmiko, a #netmiko channel exist
 
 Special thanks to organizations and people that have helped support Netmiko development. In particular, these organizations have made meaningful contributions that help Netmiko keep moving forward:
 
-[![Slurp'it Logo](https://github.com/ktbyers/netmiko/blob/develop/images/slurpit.png)](https://slurpit.io/)
-[![Netpicker Logo](https://github.com/ktbyers/netmiko/blob/develop/images/netpicker.png)](https://netpicker.io/)
-
+[![Slurp'it Logo](https://github.com/ktbyers/netmiko/blob/develop/images/slurpit.png){:width="200"}](https://slurpit.io/)
+[![Netpicker Logo](https://github.com/ktbyers/netmiko/blob/develop/images/netpicker.png){:width="200"}](https://netpicker.io/)
 
 
 <br />
 <br />
----
+## ​
 Kirk Byers <br />
 Python for Network Engineers <br />
 https://pynet.twb-tech.com  <br />
+<br />
