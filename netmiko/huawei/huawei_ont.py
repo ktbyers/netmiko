@@ -1,12 +1,12 @@
 import re
+from typing import Optional
 
-from netmiko.no_enable import NoEnable
 from netmiko.no_config import NoConfig
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.exceptions import NetmikoAuthenticationException
 
 
-class HuaweiONTBase(NoEnable, NoConfig, CiscoBaseConnection):
+class HuaweiONTBase(NoConfig, CiscoBaseConnection):
     prompt_pattern = r"WAP>"
     su_prompt_pattern = r"SU_WAP>"
 
@@ -22,36 +22,40 @@ class HuaweiONTBase(NoEnable, NoConfig, CiscoBaseConnection):
         """In Huawei ONTs, there is no save command. All changes are immediate."""
         raise NotImplementedError("Save config is not supported on Huawei ONTs.")
 
-    def check_enable_mode(self) -> bool:
+    def check_enable_mode(self, check_string: str = r"SU_WAP\>") -> bool:
         """Check if the device is in su mode."""
-        current_prompt = self.find_prompt()
-        return bool(re.search(self.su_prompt_pattern, current_prompt))
+        return super().check_enable_mode(check_string=check_string)
 
     def enable(
-        self, cmd: str = "su", pattern: str = "", re_flags: int = re.IGNORECASE
+        self,
+        cmd: str = "su",
+        pattern: str = "",
+        enable_pattern: Optional[str] = r"WAP\>",
+        check_state: bool = True,
+        re_flags: int = re.IGNORECASE,
     ) -> str:
         """Attempt to become super user."""
-        output = ""
-        if not self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            self.read_until_pattern(pattern="success!", re_flags=re.IGNORECASE)
-            output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
-        return output
+        return super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
 
-    def exit_enable_mode(
-        self, cmd: str = "quit", pattern: str = "", re_flags: int = re.IGNORECASE
-    ) -> str:
+    def exit_enable_mode(self, exit_command: str = "quit") -> str:
         """Exit super user mode."""
-        output = ""
-        if self.check_enable_mode():
-            self.write_channel(self.normalize_cmd(cmd))
-            self.read_until_pattern(pattern="success!", re_flags=re.IGNORECASE)
-            output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
-        return output
+        return super().exit_enable_mode(exit_command=exit_command)
 
     def cleanup(self, command: str = "logout") -> None:
         """Attempt to logout."""
         return super().cleanup(command=command)
+
+
+class HuaweiONTSSH(HuaweiONTBase):
+    """Huawei SSH driver."""
+
+    pass
 
 
 class HuaweiONTTelnet(HuaweiONTBase):

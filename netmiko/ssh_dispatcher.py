@@ -93,6 +93,7 @@ from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet, HuaweiONTTelnet
 from netmiko.huawei import HuaweiSmartAXSSH
+from netmiko.huawei import HuaweiONTSSH
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
@@ -251,6 +252,7 @@ CLASS_MAPPER_BASE = {
     "huawei_olt": HuaweiSmartAXSSH,
     "huawei_vrp": HuaweiSSH,
     "huawei_vrpv8": HuaweiVrpv8SSH,
+    "huawei_ont": HuaweiONTSSH,
     "ipinfusion_ocnos": IpInfusionOcNOSSSH,
     "juniper": JuniperSSH,
     "juniper_junos": JuniperSSH,
