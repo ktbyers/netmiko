@@ -87,7 +87,7 @@ from netmiko.f5 import F5LinuxSSH
 from netmiko.fiberstore import FiberstoreFsosSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
-from netmiko.fs import FSOSSSH, FSOSTelnet
+from netmiko.fs import FSOSSSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
