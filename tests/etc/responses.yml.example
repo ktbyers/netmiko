@@ -455,3 +455,12 @@ fiberstore_fsos:
   version_banner: "Loader Version   :"
   multiple_line_output: "! System Description: "
   save_config: 'Success'
+
+fs_os:
+  base_prompt: FS
+  router_prompt: FS>
+  enable_prompt: FS#
+  interface_ip: 10.1.11.200
+  version_banner: "FS Data Center Switch"
+  multiple_line_output: "Building configuration..."
+  save_config: '[OK]'
