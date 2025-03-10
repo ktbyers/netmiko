@@ -209,16 +209,19 @@ def test_clear_msg(net_connect, commands, expected_responses):
     Do you wish to proceed with this commit anyway? [no]: yes
 
     Clear it
+
+    Doesn't look like this generally occurs during testing. You can make
+    it happen, by doing a commit in another session while this test is
+    in configuration mode.
     """
     # Setup the initial config state
     config_commands, support_commit, config_verify = retrieve_commands(commands)
 
     if net_connect.device_type == "cisco_xr":
-        output = net_connect.send_config_set(config_commands)
-        output += net_connect.send_command_expect(
-            "commit", expect_string=r"Do you wish to"
-        )
-        output += net_connect.send_command_expect("yes", auto_find_prompt=False)
+        output = net_connect.config_mode()
+        output += net_connect.send_config_set(config_commands)
+        output += net_connect.commit()
+
     assert True
 
 
