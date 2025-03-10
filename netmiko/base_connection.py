@@ -6,6 +6,7 @@ platforms (Cisco and non-Cisco).
 
 Also defines methods that should generally be supported by child classes
 """
+
 from typing import (
     Optional,
     Callable,
@@ -27,7 +28,6 @@ from types import TracebackType
 import io
 import re
 import socket
-import telnetlib
 import time
 from collections import deque
 from os import path
@@ -50,6 +50,7 @@ from netmiko.exceptions import (
     ReadException,
     ReadTimeout,
 )
+from netmiko._telnetlib import telnetlib
 from netmiko.channel import Channel, SSHChannel, TelnetChannel, SerialChannel
 from netmiko.session_log import SessionLog
 from netmiko.utilities import (
@@ -175,6 +176,8 @@ class BaseConnection:
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
+        # For telnet 'conn_timeout' is mapped to main telnet timeout (which is used for both the
+        # telnet connection and for other blocking operations).
         conn_timeout: int = 10,
         # Timeout to wait for authentication response
         auth_timeout: Optional[int] = None,
@@ -388,7 +391,8 @@ class BaseConnection:
         if self.secret:
             no_log["secret"] = self.secret
         # Always sanitize username and password
-        log.addFilter(SecretsFilter(no_log=no_log))
+        self._secrets_filter = SecretsFilter(no_log=no_log)
+        log.addFilter(self._secrets_filter)
 
         # Netmiko will close the session_log if we open the file
         if session_log is not None:
@@ -470,15 +474,18 @@ class BaseConnection:
             self.system_host_keys = system_host_keys
             self.alt_host_keys = alt_host_keys
             self.alt_key_file = alt_key_file
+            self.disabled_algorithms = disabled_algorithms
 
-            if disabled_algorithms:
-                self.disabled_algorithms = disabled_algorithms
-            else:
-                self.disabled_algorithms = (
-                    {"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]}
-                    if disable_sha2_fix
-                    else {}
-                )
+            if disable_sha2_fix:
+                sha2_pubkeys = ["rsa-sha2-256", "rsa-sha2-512"]
+                if self.disabled_algorithms is None:
+                    self.disabled_algorithms = {"pubkeys": sha2_pubkeys}
+                else:
+                    # Merge sha2_pubkeys into pubkeys and prevent duplicates
+                    current_pubkeys = self.disabled_algorithms.get("pubkeys", [])
+                    self.disabled_algorithms["pubkeys"] = list(
+                        set(current_pubkeys + sha2_pubkeys)
+                    )
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -598,7 +605,7 @@ key_file: {self.key_file}
                 log.debug("Sending IAC + NOP")
                 # Need to send multiple times to test connection
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                telnet_socket = self.remote_conn.get_socket()
+                telnet_socket = self.remote_conn.get_socket()  # type: ignore
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
                 telnet_socket.sendall(telnetlib.IAC + telnetlib.NOP)
@@ -1113,12 +1120,12 @@ You can look at the Netmiko session_log or debug log for more information.
                 self.remote_conn = telnet_proxy.Telnet(
                     self.host,
                     port=self.port,
-                    timeout=self.timeout,
+                    timeout=self.conn_timeout,
                     proxy_dict=self.sock_telnet,
                 )
             else:
-                self.remote_conn = telnetlib.Telnet(
-                    self.host, port=self.port, timeout=self.timeout
+                self.remote_conn = telnetlib.Telnet(  # type: ignore
+                    self.host, port=self.port, timeout=self.conn_timeout
                 )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
@@ -1514,6 +1521,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = False,
+        raise_parsing_error: bool = False,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
         used for show commands.
@@ -1551,6 +1559,8 @@ A paramiko SSHException occurred during connection creation:
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
+
+        :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         """
         if delay_factor is not None or max_loops is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
@@ -1584,6 +1594,7 @@ A paramiko SSHException occurred during connection creation:
             use_genie=use_genie,
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
+            raise_parsing_error=raise_parsing_error,
         )
         return return_data
 
@@ -1664,6 +1675,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
+        raise_parsing_error: bool = False,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
         used for show commands. By default this method will keep waiting to receive data until the
@@ -1703,6 +1715,8 @@ A paramiko SSHException occurred during connection creation:
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
 
         :param cmd_verify: Verify command echo before proceeding (default: True).
+
+        :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         """
 
         # Time to delay in each read loop
@@ -1838,6 +1852,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             use_genie=use_genie,
             textfsm_template=textfsm_template,
             ttp_template=ttp_template,
+            raise_parsing_error=raise_parsing_error,
         )
         return return_val
 
@@ -2342,7 +2357,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         http://en.wikipedia.org/wiki/ANSI_escape_code
 
         Note: this does not capture ALL possible ANSI Escape Codes only the ones
-        I have encountered
+        that have been encountered
 
         Current codes that are filtered:
         ESC = '\x1b' or chr(27)
@@ -2360,9 +2375,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         ESC[6n       Get cursor position
         ESC[1D       Move cursor position leftward by x characters (1 in this case)
         ESC[9999B    Move cursor down N-lines (very large value is attempt to move to the
-                     very bottom of the screen).
-
-        HP ProCurve and Cisco SG300 require this (possible others).
+                     very bottom of the screen)
+        ESC[c        Query Device (used by MikroTik in 'Safe-Mode')
+        ESC[2004h    Enable bracketed paste mode
+        ESC[2004l    Disable bracketed paste mode
 
         :param string_buffer: The string to be processed to remove ANSI escape codes
         :type string_buffer: str
@@ -2387,6 +2403,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
+        code_graphics_mode5 = chr(27) + r"\[\d;\d\dm"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_attrs_off = chr(27) + r"\[0m"
@@ -2396,7 +2413,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_cursor_up = chr(27) + r"\[\d*A"
         code_cursor_down = chr(27) + r"\[\d*B"
         code_wrap_around = chr(27) + r"\[\?7h"
-        code_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_enable_bracketed_paste_mode = chr(27) + r"\[\?2004h"
+        code_disable_bracketed_paste_mode = chr(27) + r"\[\?2004l"
+        code_underline = chr(27) + r"\[4m"
+        code_query_device = chr(27) + r"\[c"
 
         code_set = [
             code_position_cursor,
@@ -2415,6 +2435,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_graphics_mode2,
             code_graphics_mode3,
             code_graphics_mode4,
+            code_graphics_mode5,
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,
@@ -2426,7 +2447,10 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_cursor_down,
             code_cursor_forward,
             code_wrap_around,
-            code_bracketed_paste_mode,
+            code_enable_bracketed_paste_mode,
+            code_disable_bracketed_paste_mode,
+            code_underline,
+            code_query_device,
         ]
 
         output = string_buffer
@@ -2468,7 +2492,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 self.paramiko_cleanup()
             elif self.protocol == "telnet":
                 assert isinstance(self.remote_conn, telnetlib.Telnet)
-                self.remote_conn.close()
+                self.remote_conn.close()  # type: ignore
             elif self.protocol == "serial":
                 assert isinstance(self.remote_conn, serial.Serial)
                 self.remote_conn.close()
@@ -2480,6 +2504,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.remote_conn = None
             if self.session_log:
                 self.session_log.close()
+            log.removeFilter(self._secrets_filter)
 
     def commit(self) -> str:
         """Commit method for platforms that support this."""

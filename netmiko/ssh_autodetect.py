@@ -38,6 +38,7 @@ Examples
 >>> remote_device['device_type'] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
+
 from typing import Any, List, Optional, Union, Dict
 import re
 import time
@@ -82,6 +83,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "aruba_aoscx": {
+        "cmd": "show version",
+        "search_patterns": [r"ArubaOS-CX"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "ciena_saos": {
         "cmd": "software show",
         "search_patterns": [r"saos"],
@@ -94,13 +101,19 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cisco_ftd": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco Firepower"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_ios": {
         "cmd": "show version",
         "search_patterns": [
             "Cisco IOS Software",
             "Cisco Internetwork Operating System Software",
         ],
-        "priority": 99,
+        "priority": 95,
         "dispatch": "_autodetect_std",
     },
     "cisco_xe": {
@@ -299,6 +312,18 @@ SSH_MAPPER_DICT = {
     "oneaccess_oneos": {
         "cmd": "show version",
         "search_patterns": [r"OneOS"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "netgear_prosafe": {
+        "cmd": "show version",
+        "search_patterns": [r"ProSAFE"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "huawei_smartax": {
+        "cmd": "display version",
+        "search_patterns": [r"Huawei Integrated Access Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -524,6 +549,7 @@ class SSHDetect(object):
             r"command not found",
             r"Syntax Error: unexpected argument",
             r"% Unrecognized command found at",
+            r"% Unknown command, the error locates at",
         ]
         if not cmd or not search_patterns:
             return 0
