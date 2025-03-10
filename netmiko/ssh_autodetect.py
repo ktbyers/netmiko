@@ -95,6 +95,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "ciena_waveserver": {
+        "cmd": "software show",
+        "search_patterns": [r"WAVESERVER"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_asa": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
