@@ -1,5 +1,6 @@
 """A10 support."""
 
+import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
