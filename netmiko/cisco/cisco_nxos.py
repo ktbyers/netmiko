@@ -6,7 +6,7 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
 
 
-class CiscoNxosSSH(CiscoSSHConnection):
+class CiscoNxosBase(CiscoSSHConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
@@ -64,6 +64,14 @@ class CiscoNxosSSH(CiscoSSHConnection):
                 read_timeout=100,
             )
         return output
+
+
+class CiscoNxosSSH(CiscoNxosBase):
+    pass
+
+
+class CiscoNxosTelnet(CiscoNxosBase):
+    pass
 
 
 class CiscoNxosFileTransfer(CiscoFileTransfer):
