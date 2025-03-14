@@ -14,9 +14,9 @@ class InfineraBase(CiscoBaseConnection):
         self.clear_buffer()
 
 
-class InfineraSSH(InfineraBase):
+class InfineraPacketSSH(InfineraBase):
     pass
 
 
-class InfineraTelnet(InfineraBase):
+class InfineraPacketTelnet(InfineraBase):
     pass
