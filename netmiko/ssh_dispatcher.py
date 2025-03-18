@@ -70,6 +70,7 @@ from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
 from netmiko.digi import DigiTransportSSH
 from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
+from netmiko.ekinops import EkinopsEk360SSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
@@ -228,6 +229,7 @@ CLASS_MAPPER_BASE = {
     "dlink_ds": DlinkDSSSH,
     "digi_transport": DigiTransportSSH,
     "endace": EndaceSSH,
+    "ekinops_ek360": EkinopsEk360SSH,
     "eltex": EltexSSH,
     "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
