@@ -1,12 +1,18 @@
 import re
-import time
 from typing import Any, Optional
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
+# Example Prompts:
+# - User:   `DEVNAME % `
+# - Config: `DEVNAME* % `
+
+USER_PROMPT: str = " %"
 CONFIG_PROMPT: str = "* %"
-USER_MODE_REGEX: str = r"\s%"  # `DEVNAME % `
-CONFIG_MODE_REGEX: str = r"\*\s%"  # `DEVNAME* % `
+# The user prompt regex needs to exclude matches with the '*'
+# Otherwise, it will also match the config prompt.
+USER_MODE_REGEX: str = r"[^\*]\s%"
+CONFIG_MODE_REGEX: str = r"\*\s%"
 
 
 class AvaraSSH(CiscoSSHConnection):
@@ -38,8 +44,6 @@ class AvaraSSH(CiscoSSHConnection):
         Returns:
             str: Output of entering enable mode
         """
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
 
         return super().enable(
             cmd=cmd,
@@ -49,6 +53,33 @@ class AvaraSSH(CiscoSSHConnection):
             re_flags=re_flags,
         )
 
+    def exit_enable_mode(self, exit_command: str = "disable") -> str:
+        """Exit enable mode.
+
+        :param exit_command: Command that exits the session from privileged mode
+        :type exit_command: str
+        """
+        """Exit from configuration mode.
+
+        :param exit_config: Command to exit configuration mode
+        :type exit_config: str
+        """
+
+        output = ""
+        self.write_channel(self.normalize_cmd(exit_command))
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(pattern=re.escape(exit_command.strip()))
+
+        output += self.read_until_pattern(pattern=USER_MODE_REGEX)
+
+        if not self.check_config_mode(
+            check_string=USER_PROMPT, pattern=USER_MODE_REGEX
+        ):
+            # If we are here, we did not make it back to user mode.
+            raise ValueError("Failed to exit configuration mode")
+        return output
+
     def check_config_mode(
         # self, check_string=CONFIG_PROMPT, pattern=CONFIG_MODE_REGEX
         self,
@@ -57,22 +88,13 @@ class AvaraSSH(CiscoSSHConnection):
         force_regex: bool = True,
     ) -> bool:
         """Check if the device is in configuration mode"""
+
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
-    # def config_mode(
-    #     self, config_command="enable", pattern=CONFIG_MODE_REGEX
-    # ) -> str:
-    #     """Enter configuration mode."""
-    #     return super().config_mode(config_command=config_command, pattern=pattern)
-
-    def exit_config_mode(self, exit_config="disable", pattern=USER_MODE_REGEX) -> str:
-        """Exit configuration mode"""
-        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
-
     def send_config_set(
-        self, config_commands: Any = None, exit_config_mode: bool = True, **kwargs: Any
+        self, config_commands: Any = None, exit_config_mode: bool = False, **kwargs: Any
     ) -> str:
         """Send configuration commands to the device."""
         return super().send_config_set(
