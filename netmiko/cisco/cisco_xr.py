@@ -131,9 +131,14 @@ class CiscoXrBase(CiscoBaseConnection):
 
         # IOS-XR might do this:
         # This could be a few minutes if your config is large. Confirm? [y/n][confirm]
+        # Or this:
+        # Do you wish to proceed with this commit anyway? [no]
+        large_config = "onfirm"
+        other_changes = "Do you wish to proceed"
+        pattern = rf"(?:#|{large_config}|{other_changes})"
         new_data = self._send_command_str(
             command_string,
-            expect_string=r"(#|onfirm)",
+            expect_string=pattern,
             strip_prompt=False,
             strip_command=False,
             read_timeout=read_timeout,

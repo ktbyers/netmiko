@@ -222,6 +222,17 @@ aruba_os:
     - "location location2"
   config_verification: "show location"
 
+aruba_aoscx:
+  version: "show version"
+  basic: "show int mgmt"
+  basic_textfsm: "show system"
+  extended_output: "show run"
+  config: 
+    - 'snmp-server community public'
+    - 'no snmp-server community public'
+    - 'snmp-server community public'
+  config_verification: "show run"
+
 ubiquiti_edge:
   version: "show version"
   basic: "show network"
@@ -550,6 +561,11 @@ audiocode_shell:
   save_config_response: 'Configuration has been saved'
   config_mode_command: "conf"         # only use if needed
 
+bintec_boss_telnet:
+  version: "show rev"
+  basic: "ifconfig 1000"
+  extended_output: "show rev"
+
 digi_transport:
   version: "type version"
   basic: "type config.da0"
@@ -603,3 +619,13 @@ fiberstore_fsos:
     - 'logging buffered severity 3'
   config_verification: "show run"
 
+fs_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show run"
+  config:
+    - "logging buffered 4096"
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'
