@@ -70,6 +70,7 @@ from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
 from netmiko.digi import DigiTransportSSH
 from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
+from netmiko.ekinops import EkinopsEk360SSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
 from netmiko.enterasys import EnterasysSSH
@@ -121,6 +122,7 @@ from netmiko.nokia import (
     NokiaSrlSSH,
 )
 from netmiko.netgear import NetgearProSafeSSH
+from netmiko.nec import NecIxSSH, NecIxTelnet
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.optilink import OptilinkEOLT9702Telnet
 from netmiko.optilink import OptilinkEOLT11444Telnet
@@ -229,6 +231,7 @@ CLASS_MAPPER_BASE = {
     "dlink_ds": DlinkDSSSH,
     "digi_transport": DigiTransportSSH,
     "endace": EndaceSSH,
+    "ekinops_ek360": EkinopsEk360SSH,
     "eltex": EltexSSH,
     "eltex_esr": EltexEsrSSH,
     "enterasys": EnterasysSSH,
@@ -277,6 +280,7 @@ CLASS_MAPPER_BASE = {
     "mellanox_mlnxos": MellanoxMlnxosSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
+    "nec_ix": NecIxSSH,
     "netapp_cdot": NetAppcDotSSH,
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
@@ -379,6 +383,7 @@ CLASS_MAPPER["infinera_packet_telnet"] = InfineraPacketTelnet
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
 CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
+CLASS_MAPPER["nec_ix_telnet"] = NecIxTelnet
 CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["optilink_eolt9702_telnet"] = OptilinkEOLT9702Telnet

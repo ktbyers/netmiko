@@ -333,6 +333,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "nec_ix": {
+        "cmd": "show hardware",
+        "search_patterns": [r"IX Series"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 # Sort SSH_MAPPER_DICT such that the most common commands are first
