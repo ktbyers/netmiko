@@ -88,7 +88,7 @@ class NecIxBase(BaseConnection):
             if self.base_prompt not in output:
                 output += self.read_until_prompt(read_entire_line=True)
             if self.check_enable_mode():
-                raise ValueError("Failed to exit enable mode.")
+                raise ValueError("Failed to exit enable/config mode.")
         return output
 
     def config_mode(
@@ -109,22 +109,13 @@ class NecIxBase(BaseConnection):
         force_regex: bool = False,
     ) -> bool:
         """Checks if the device is in Configuration mode or not."""
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
-    def exit_config_mode(
-        self, exit_config: str = "configure", pattern: str = ""
-    ) -> str:
-        """
-        When you exit configuration mode, the show commands available to you are limited.
-        Therefore, use the configure command to go to the top menu.
-        """
-        output = ""
-        if self.check_config_mode():
-            self.write_channel(self.normalize_cmd(exit_config))
-            time.sleep(1)
-            if self.base_prompt not in output:
-                output += self.read_until_prompt(read_entire_line=True)
-        return output
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
+        """Exit from configuration mode."""
+        return self.exit_enable_mode()
 
     def save_config(
         self,
