@@ -36,6 +36,7 @@ from netmiko.centec import CentecOSSSH, CentecOSTelnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import (
     CienaSaosSSH,
+    CienaSaos10SSH,
     CienaWaveserverSSH,
     CienaSaosTelnet,
     CienaSaosFileTransfer,
@@ -203,6 +204,7 @@ CLASS_MAPPER_BASE = {
     "cdot_cros": CdotCrosSSH,
     "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
+    "ciena_saos10": CienaSaos10SSH,
     "ciena_waveserver": CienaWaveserverSSH,
     "cisco_asa": CiscoAsaSSH,
     "cisco_apic": CiscoApicSSH,
