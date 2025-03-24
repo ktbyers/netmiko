@@ -228,7 +228,7 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
     "digi_transport": DigiTransportSSH,
-    "edgecore_linux": EdgecoreSonicSSH,
+    "edgecore_sonic": EdgecoreSonicSSH,
     "endace": EndaceSSH,
     "eltex": EltexSSH,
     "eltex_esr": EltexEsrSSH,
