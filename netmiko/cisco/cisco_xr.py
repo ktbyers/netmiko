@@ -75,16 +75,14 @@ class CiscoXrBase(CiscoBaseConnection):
             command_string = commit label <label>
         comment:
             command_string = commit comment <comment>
+        replace:
+            command_string = commit replace
+        best_effort:
+            command_string = commit best-effort
+        force:
+            command_string = commit force
 
         delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
-
-        supported combinations
-        label and confirm:
-            command_string = commit label <label> confirmed <confirm_delay>
-        label and comment:
-            command_string = commit label <label> comment <comment>
-
-        All other combinations will result in an exception.
 
         failed commit message:
         % Failed to commit one or more configuration items during a pseudo-atomic operation. All
