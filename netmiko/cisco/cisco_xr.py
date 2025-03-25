@@ -127,7 +127,6 @@ class CiscoXrBase(CiscoBaseConnection):
         # Enter config mode (if necessary)
         output = self.config_mode()
 
-        # breakpoint()
         if replace:
             new_data = self._send_command_str(
                 " ".join(commit_kws),
