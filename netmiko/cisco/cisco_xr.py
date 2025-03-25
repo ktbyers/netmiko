@@ -56,10 +56,13 @@ class CiscoXrBase(CiscoBaseConnection):
         self,
         confirm: bool = False,
         confirm_delay: Optional[int] = None,
-        comment: str = "",
-        label: str = "",
+        comment: Optional[str] = None,
+        label: Optional[str] = None,
         read_timeout: float = 120.0,
         delay_factor: Optional[float] = None,
+        replace: bool = False,
+        best_effort: bool = False,
+        force: bool = False,
     ) -> str:
         """
         Commit the candidate configuration.
@@ -105,55 +108,73 @@ class CiscoXrBase(CiscoBaseConnection):
         if comment and confirm:
             raise ValueError("Invalid arguments supplied to XR commit")
 
-        label = str(label)
         error_marker = "Failed to"
         alt_error_marker = "One or more commits have occurred from other"
 
         # Select proper command string based on arguments provided
+        commit_kws = ["commit"]
+        if replace:
+            commit_kws.append("replace")
+        if best_effort:
+            commit_kws.append("best-effort")
+        if force:
+            commit_kws.append("force")
+        if confirm:
+            commit_kws.extend(["confirmed", str(confirm_delay)])
         if label:
-            if comment:
-                command_string = f"commit label {label} comment {comment}"
-            elif confirm:
-                command_string = "commit label {} confirmed {}".format(
-                    label, str(confirm_delay)
-                )
-            else:
-                command_string = f"commit label {label}"
-        elif confirm:
-            command_string = f"commit confirmed {str(confirm_delay)}"
-        elif comment:
-            command_string = f"commit comment {comment}"
-        else:
-            command_string = "commit"
+            commit_kws.extend(["label", label])
+        if comment:
+            commit_kws.extend(["comment", comment])
 
         # Enter config mode (if necessary)
         output = self.config_mode()
 
-        # IOS-XR might do this:
-        # This could be a few minutes if your config is large. Confirm? [y/n][confirm]
-        # Or this:
-        # Do you wish to proceed with this commit anyway? [no]
-        large_config = "onfirm"
-        other_changes = "Do you wish to proceed"
-        pattern = rf"(?:#|{large_config}|{other_changes})"
-        new_data = self._send_command_str(
-            command_string,
-            expect_string=pattern,
-            strip_prompt=False,
-            strip_command=False,
-            read_timeout=read_timeout,
-        )
-        if "onfirm" in new_data:
-            output += new_data
+        # breakpoint()
+        if replace:
             new_data = self._send_command_str(
-                "y",
-                expect_string=r"#",
+                " ".join(commit_kws),
+                expect_string=r"This commit will replace or remove the entire running configuration",
                 strip_prompt=False,
                 strip_command=False,
                 read_timeout=read_timeout,
-                cmd_verify=False,
             )
-        output += new_data
+            output += new_data
+            if "This commit will replace or remove the entire running configuration" in new_data:
+                new_data = self._send_command_str(
+                    "yes",
+                    expect_string=r"#",
+                    strip_prompt=False,
+                    strip_command=False,
+                    read_timeout=read_timeout,
+                )
+                output += new_data
+        else:
+            # IOS-XR might do this:
+            # This could be a few minutes if your config is large. Confirm? [y/n][confirm]
+            # Or this:
+            # Do you wish to proceed with this commit anyway? [no]
+            large_config = "onfirm"
+            other_changes = "Do you wish to proceed"
+            pattern = rf"(?:#|{large_config}|{other_changes})"
+            new_data = self._send_command_str(
+                " ".join(commit_kws),
+                expect_string=pattern,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=read_timeout,
+            )
+            output += new_data
+            if "onfirm" in new_data:
+                new_data = self._send_command_str(
+                    "y",
+                    expect_string=r"#",
+                    strip_prompt=False,
+                    strip_command=False,
+                    read_timeout=read_timeout,
+                    cmd_verify=False,
+                )
+                output += new_data
+
         if error_marker in output:
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         if alt_error_marker in output:
