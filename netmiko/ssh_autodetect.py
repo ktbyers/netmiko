@@ -95,6 +95,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "ciena_waveserver": {
+        "cmd": "software show",
+        "search_patterns": [r"WAVESERVER"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "cisco_asa": {
         "cmd": "show version",
         "search_patterns": [r"Cisco Adaptive Security Appliance", r"Cisco ASA"],
@@ -324,6 +330,12 @@ SSH_MAPPER_DICT = {
     "huawei_smartax": {
         "cmd": "display version",
         "search_patterns": [r"Huawei Integrated Access Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "nec_ix": {
+        "cmd": "show hardware",
+        "search_patterns": [r"IX Series"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
