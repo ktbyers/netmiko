@@ -295,7 +295,10 @@ class BaseFileTransfer(object):
             return int(file_size)
 
     def _remote_file_size_unix(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
+        self,
+        remote_cmd: str = "",
+        remote_file: Optional[str] = None,
+        search_pattern: str = "",
     ) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
@@ -306,10 +309,12 @@ class BaseFileTransfer(object):
         remote_file = f"{self.file_system}/{remote_file}"
         if not remote_cmd:
             remote_cmd = f"/bin/ls -l {remote_file}"
+        if not search_pattern:
+            search_pattern = r"[\$#]"
 
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan._send_command_str(
-            remote_cmd, expect_string=r"[\$#]"
+            remote_cmd, expect_string=search_pattern
         )
         self.ssh_ctl_chan._return_cli()
 
@@ -325,9 +330,7 @@ class BaseFileTransfer(object):
             file_size = line.split()[4]
             return int(file_size)
 
-        raise ValueError(
-            "Search pattern not found for remote file size during SCP transfer."
-        )
+        raise ValueError("Pattern not found for remote file size during SCP transfer.")
 
     def file_md5(self, file_name: str, add_newline: bool = False) -> str:
         """Compute MD5 hash of file.

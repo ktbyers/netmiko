@@ -203,8 +203,11 @@ class LinuxFileTransfer(CiscoFileTransfer):
         self, remote_cmd: str = "", remote_file: Optional[str] = None
     ) -> int:
         """Get the file size of the remote file."""
+        search_pattern = self.prompt_pattern
         return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
+            remote_cmd=remote_cmd,
+            remote_file=remote_file,
+            search_pattern=search_pattern,
         )
 
     def remote_md5(
