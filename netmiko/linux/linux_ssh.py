@@ -167,6 +167,8 @@ class LinuxFileTransfer(CiscoFileTransfer):
     Mostly for testing purposes.
     """
 
+    prompt_pattern = rf"[{re.escape(LINUX_PROMPT_PRI)}{re.escape(LINUX_PROMPT_ALT)}]"
+
     def __init__(
         self,
         ssh_conn: "BaseConnection",
@@ -187,11 +189,15 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
+        search_pattern = self.prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
-        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+        search_pattern = self.prompt_pattern
+        return self._check_file_exists_unix(
+            remote_cmd=remote_cmd, search_pattern=search_pattern
+        )
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None

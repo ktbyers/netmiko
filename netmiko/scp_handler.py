@@ -161,10 +161,12 @@ class BaseFileTransfer(object):
 
     def _remote_space_available_unix(self, search_pattern: str = "") -> int:
         """Return space available on *nix system (BSD/Linux)."""
+        if not search_pattern:
+            search_pattern = r"[\$#]"
         self.ssh_ctl_chan._enter_shell()
         remote_cmd = f"/bin/df -k {self.file_system}"
         remote_output = self.ssh_ctl_chan._send_command_str(
-            remote_cmd, expect_string=r"[\$#]"
+            remote_cmd, expect_string=search_pattern
         )
 
         # Try to ensure parsing is correct:
@@ -240,13 +242,17 @@ class BaseFileTransfer(object):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def _check_file_exists_unix(self, remote_cmd: str = "") -> bool:
+    def _check_file_exists_unix(
+        self, remote_cmd: str = "", search_pattern: str = ""
+    ) -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
+            if not search_pattern:
+                search_pattern = r"[\$#]"
             self.ssh_ctl_chan._enter_shell()
             remote_cmd = f"/bin/ls {self.file_system}/{self.dest_file} 2> /dev/null"
             remote_out = self.ssh_ctl_chan._send_command_str(
-                remote_cmd, expect_string=r"[\$#]"
+                remote_cmd, expect_string=search_pattern
             )
             self.ssh_ctl_chan._return_cli()
             return self.dest_file in remote_out
