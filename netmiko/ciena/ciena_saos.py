@@ -68,6 +68,14 @@ class CienaSaosSSH(CienaSaosBase):
     pass
 
 
+class CienaSaos10SSH(NoEnable, BaseConnection):
+
+    def session_preparation(self) -> None:
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.disable_paging(command="set session more off")
+
+
 class CienaSaosTelnet(CienaSaosBase):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")
