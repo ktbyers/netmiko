@@ -185,7 +185,7 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "h3c": {
+    "h3c_comware": {
         "cmd": "display version",
         "search_patterns": ["H3C Comware Software"],
         "priority": 99,
