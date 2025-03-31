@@ -33,7 +33,7 @@ class AvaraSSH(CiscoSSHConnection):
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
-        """Enter enable mode.
+        """Enter enable mode, which is configuration mode on Avara devices.
 
         Args:
             cmd: Command to enter enable mode
@@ -44,7 +44,6 @@ class AvaraSSH(CiscoSSHConnection):
         Returns:
             str: Output of entering enable mode
         """
-
         return super().enable(
             cmd=cmd,
             pattern=pattern,
@@ -58,11 +57,6 @@ class AvaraSSH(CiscoSSHConnection):
 
         :param exit_command: Command that exits the session from privileged mode
         :type exit_command: str
-        """
-        """Exit from configuration mode.
-
-        :param exit_config: Command to exit configuration mode
-        :type exit_config: str
         """
 
         output = ""
@@ -81,7 +75,6 @@ class AvaraSSH(CiscoSSHConnection):
         return output
 
     def check_config_mode(
-        # self, check_string=CONFIG_PROMPT, pattern=CONFIG_MODE_REGEX
         self,
         check_string: str = CONFIG_PROMPT,
         pattern: str = CONFIG_MODE_REGEX,
@@ -104,7 +97,26 @@ class AvaraSSH(CiscoSSHConnection):
     def save_config(
         self, cmd: str = "save flash", confirm: bool = False, confirm_response: str = ""
     ) -> str:
-        """Save the configuration to non-volatile memory."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        """Saves Config."""
+        if confirm:
+            output = self._send_command_timing_str(
+                command_string=cmd, strip_prompt=False, strip_command=False
+            )
+            if confirm_response:
+                output += self._send_command_timing_str(
+                    confirm_response, strip_prompt=False, strip_command=False
+                )
+            else:
+                # Send enter by default
+                output += self._send_command_timing_str(
+                    self.RETURN, strip_prompt=False, strip_command=False
+                )
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self._send_command_str(
+                command_string=cmd,
+                strip_prompt=False,
+                strip_command=False,
+                read_timeout=100.0,
+            )
+        return output
