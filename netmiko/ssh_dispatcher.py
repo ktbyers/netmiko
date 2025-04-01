@@ -262,6 +262,7 @@ CLASS_MAPPER_BASE = {
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
+    "h3c_comware": HPComwareSSH,
     "hillstone_stoneos": HillstoneStoneosSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
