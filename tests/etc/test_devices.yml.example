@@ -275,6 +275,7 @@ nokia_srl:
   ip: clab-srltest-srl1
   username: admin
   password: 'admin'
+  use_keys: "True"
   
 audiocode_72:
   device_type: audiocode_72
@@ -321,3 +322,9 @@ hillstone:
   ip: 192.168.100.234
   username: hillstone
   password: Hillstone
+
+fs_os:
+  device_type: fs_os
+  ip: 10.1.11.200
+  username: admin
+  password: admin
