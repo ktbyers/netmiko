@@ -21,15 +21,12 @@ class AvaraSSH(CiscoSSHConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=USER_MODE_REGEX)
-        # Clear the read buffer
-        # time.sleep(0.3 * self.global_delay_factor)
-        # self.clear_buffer()
 
     def enable(
         self,
         cmd: str = "enable",
         pattern: str = "",
-        enable_pattern: Optional[str] = r"[Pp]assword:",
+        enable_pattern: Optional[str] = CONFIG_MODE_REGEX,
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
@@ -44,13 +41,15 @@ class AvaraSSH(CiscoSSHConnection):
         Returns:
             str: Output of entering enable mode
         """
-        return super().enable(
-            cmd=cmd,
-            pattern=pattern,
-            enable_pattern=enable_pattern,
-            check_state=check_state,
-            re_flags=re_flags,
-        )
+        if not self.check_config_mode():
+            return super().enable(
+                cmd=cmd,
+                pattern=pattern,
+                enable_pattern=enable_pattern,
+                check_state=check_state,
+                re_flags=re_flags,
+            )
+        return "Config mode already enabled."
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
         """Exit enable mode.
@@ -67,9 +66,7 @@ class AvaraSSH(CiscoSSHConnection):
 
         output += self.read_until_pattern(pattern=USER_MODE_REGEX)
 
-        if not self.check_config_mode(
-            check_string=USER_PROMPT, pattern=USER_MODE_REGEX
-        ):
+        if not self.check_config_mode(check_string=USER_PROMPT):
             # If we are here, we did not make it back to user mode.
             raise ValueError("Failed to exit configuration mode")
         return output
@@ -77,14 +74,14 @@ class AvaraSSH(CiscoSSHConnection):
     def check_config_mode(
         self,
         check_string: str = CONFIG_PROMPT,
-        pattern: str = CONFIG_MODE_REGEX,
-        force_regex: bool = True,
+        pattern: str = "",
+        force_regex: bool = False,
     ) -> bool:
         """Check if the device is in configuration mode"""
 
-        return super().check_config_mode(
-            check_string=check_string, pattern=pattern, force_regex=force_regex
-        )
+        self.write_channel(self.RETURN)
+        output = self.read_channel_timing(read_timeout=0.5)
+        return check_string in output
 
     def send_config_set(
         self, config_commands: Any = None, exit_config_mode: bool = False, **kwargs: Any
@@ -97,26 +94,8 @@ class AvaraSSH(CiscoSSHConnection):
     def save_config(
         self, cmd: str = "save flash", confirm: bool = False, confirm_response: str = ""
     ) -> str:
-        """Saves Config."""
-        if confirm:
-            output = self._send_command_timing_str(
-                command_string=cmd, strip_prompt=False, strip_command=False
-            )
-            if confirm_response:
-                output += self._send_command_timing_str(
-                    confirm_response, strip_prompt=False, strip_command=False
-                )
-            else:
-                # Send enter by default
-                output += self._send_command_timing_str(
-                    self.RETURN, strip_prompt=False, strip_command=False
-                )
-        else:
-            # Some devices are slow so match on trailing-prompt if you can
-            output = self._send_command_str(
-                command_string=cmd,
-                strip_prompt=False,
-                strip_command=False,
-                read_timeout=100.0,
-            )
-        return output
+        return super().save_config(
+            cmd=cmd,
+            confirm=confirm,
+            confirm_response=confirm_response,
+        )
