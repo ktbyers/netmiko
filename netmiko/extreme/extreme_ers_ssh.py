@@ -11,7 +11,13 @@ CTRL_C = "\x63"
 
 
 class ExtremeErsSSH(CiscoSSHConnection):
-    """Netmiko support for Extreme Ethernet Routing Switch."""
+    """Netmiko support for Extreme Ethernet Routing Switch.
+
+    Note, ExtremeVspSSH inherits from this class to re-use 'special_login_handler'
+    so be careful about adding extra methods here (i.e. make sure no negative side
+    effects to VSP class.
+
+    """
 
     prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
 

@@ -41,7 +41,7 @@ Netmiko aims to accomplish both of these operations and to do it across a very b
 
 ## Supported Platforms
 
-[PLATFORMS](PLATFORMS.md)
+[PLATFORMS](https://github.com/ktbyers/netmiko/blob/develop/PLATFORMS.md)
 
 <br />
 
@@ -64,7 +64,7 @@ $ pip install netmiko
 
 ## Common Issues/FAQ
 
-Answers to some [common questions](COMMON_ISSUES.md)
+Answers to some [common_questions](https://github.com/ktbyers/netmiko/blob/develop/COMMON_ISSUES.md)
 
 <br />
 
@@ -158,7 +158,7 @@ Contributors are welcome.
 
 You can contribute to Netmiko in a variety of ways: answering questions on Slack (see below in Questions/Discussions), responding to issues, adding to the common issues, reporting/fixing bugs, or even adding your own device type.
 
-Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion. To add a vendor/platform you can follow the outline [here](VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](TESTING.md).
+Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion. To add a vendor/platform you can follow the outline [here](https://github.com/ktbyers/netmiko/blob/develop/VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](https://github.com/ktbyers/netmiko/blob/develop/TESTING.md).
 
 For all code contributions, please ensure that you have ran `black` against the code or your code will fail the Travis CI build.
 
