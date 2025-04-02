@@ -18,9 +18,6 @@ from typing import (
 )
 
 
-import threading
-import time
-
 if TYPE_CHECKING:
     from os import PathLike
 
@@ -29,33 +26,6 @@ class AsterfusionBase(NoEnable, CiscoSSHConnection):
     def __init__(self, cli_mode: str = "klish", **kwargs: Any) -> None:
         self.cli_mode = cli_mode
         super().__init__(**kwargs)
-        self.close_thread_alive_check = False
-        self.thread_alive()
-
-    def thread_alive(self) -> None:
-        check_alive_time = 120  # 120s send is_alive chr
-
-        def send_alive() -> None:
-            time.sleep(check_alive_time)  # wait connection is initialised
-            while True:
-                if self.close_thread_alive_check:
-                    log.info(f"{self} session is close ,exit --  ")
-                    break
-                alive = self.is_alive()
-                log.debug(f"[]check alive {self} {alive}")
-                if (not alive) and (self.close_thread_alive_check):  # check 3 times
-                    log.info(
-                        f"{self} is not alive and close thread alive check , exit --"
-                    )
-                    break
-                time.sleep(check_alive_time)  # alive check time
-            return
-
-        th = threading.Thread(target=send_alive, daemon=True)
-        th.start()
-
-    def close_alive_thread(self) -> None:
-        self.close_thread_alive_check = True
 
     def session_preparation(self) -> None:
         self._test_channel_read(pattern=r"[>$#]")
