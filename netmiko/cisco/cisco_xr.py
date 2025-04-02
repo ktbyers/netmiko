@@ -61,8 +61,6 @@ class CiscoXrBase(CiscoBaseConnection):
         read_timeout: float = 120.0,
         delay_factor: Optional[float] = None,
         replace: bool = False,
-        best_effort: bool = False,
-        force: bool = False,
     ) -> str:
         """
         Commit the candidate configuration.
@@ -77,10 +75,6 @@ class CiscoXrBase(CiscoBaseConnection):
             command_string = commit comment <comment>
         replace:
             command_string = commit replace
-        best_effort:
-            command_string = commit best-effort
-        force:
-            command_string = commit force
 
         delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
 
@@ -113,10 +107,6 @@ class CiscoXrBase(CiscoBaseConnection):
         commit_kws = ["commit"]
         if replace:
             commit_kws.append("replace")
-        if best_effort:
-            commit_kws.append("best-effort")
-        if force:
-            commit_kws.append("force")
         if confirm:
             commit_kws.extend(["confirmed", str(confirm_delay)])
         if label:
