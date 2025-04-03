@@ -1423,7 +1423,8 @@ A paramiko SSHException occurred during connection creation:
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
 
-        :param pattern: Regular expression pattern to determine whether prompt is valid
+        :param pattern: Regular expression pattern to read until (not used in
+        most situations).
         """
         delay_factor = self.select_delay_factor(delay_factor)
         sleep_time = delay_factor * 0.25
