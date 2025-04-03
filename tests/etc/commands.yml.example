@@ -618,3 +618,14 @@ fiberstore_fsos:
     - 'no logging console'
     - 'logging buffered severity 3'
   config_verification: "show run"
+
+fs_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show run"
+  config:
+    - "logging buffered 4096"
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'

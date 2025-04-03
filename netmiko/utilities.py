@@ -565,6 +565,7 @@ def get_structured_data_genie(
         "cisco_nxos": "nxos",
         "cisco_asa": "asa",
         "linux": "linux",
+        "corelight_linux": "linux",
         "f5_linux": "linux",
         "ovs_linux": "linux",
     }
