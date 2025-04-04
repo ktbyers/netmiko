@@ -166,6 +166,7 @@ class CiscoBaseConnection(BaseConnection):
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
+                    time.sleep(0.5 * delay_factor)
                     i += 1
 
                 except EOFError:
