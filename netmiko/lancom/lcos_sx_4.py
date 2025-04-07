@@ -1,5 +1,5 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
-import re
+
 
 class LancomLcosSx4SSH(CiscoSSHConnection):
     promt_pattern = r"[#$]"
@@ -9,7 +9,7 @@ class LancomLcosSx4SSH(CiscoSSHConnection):
         check_string: str = "(config)#",
         pattern: str = "#",
         force_regex: bool = False,
-        ) -> bool:
+    ) -> bool:
         """
         Checks if the device is in configuration mode or not.
 
@@ -25,9 +25,7 @@ class LancomLcosSx4SSH(CiscoSSHConnection):
         :return: True if in configuration mode, False if not
         """
         return super().check_config_mode(
-            check_string=check_string, 
-            pattern=pattern, 
-            force_regex=force_regex
+            check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
     def cleanup(self, command: str = "logout") -> None:
@@ -39,21 +37,20 @@ class LancomLcosSx4SSH(CiscoSSHConnection):
         """
         if self.check_config_mode():
             command = "do " + command
-        return super().cleanup(command)   
+        return super().cleanup(command)
 
     def save_config(
-        self, 
-        cmd: str = "copy running-config startup-config", 
-        confirm: bool = False, 
+        self,
+        cmd: str = "copy running-config startup-config",
+        confirm: bool = False,
         confirm_response: str = "",
-        output_pattern: str = "Saving \d+ bytes to flash:startup-config"
-        ) -> str:
+    ) -> str:
         """
         Save the running Config.
-        
+
         :param cmd: The command to send to the device to save the configuration
         :type cmd: str
-        
+
         :param confirm: Whether to confirm the save or not
         :type confirm: bool
 
@@ -69,9 +66,6 @@ class LancomLcosSx4SSH(CiscoSSHConnection):
             cmd = "do " + cmd
         save_config_result = self._send_command_str(cmd)
 
-        if not re.search(output_pattern, save_config_result):
-            raise ValueError(
-                f"Saving configuration was unsuccessful. Device said: {save_config_result}"
-            )
         return save_config_result
+
     pass
