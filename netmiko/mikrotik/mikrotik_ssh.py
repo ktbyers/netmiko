@@ -62,6 +62,20 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         """Mikrotik does not have paging by default."""
         return ""
 
+    def _prompt_handler(self, auto_find_prompt: bool) -> str:
+        """Prompt regex for MikroTik is generated to match
+        only if the prompt string is at the end of the string
+        (with no more printable characters printed after it)
+        """
+        if auto_find_prompt:
+            try:
+                prompt = self.find_prompt()
+            except ValueError:
+                prompt = self.base_prompt
+        else:
+            prompt = self.base_prompt
+        return re.escape(prompt.strip()) + r"[ \t]*$"
+
     def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
 

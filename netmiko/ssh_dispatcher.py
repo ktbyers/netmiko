@@ -36,6 +36,7 @@ from netmiko.centec import CentecOSSSH, CentecOSTelnet
 from netmiko.checkpoint import CheckPointGaiaSSH
 from netmiko.ciena import (
     CienaSaosSSH,
+    CienaSaos10SSH,
     CienaWaveserverSSH,
     CienaSaosTelnet,
     CienaSaosFileTransfer,
@@ -70,6 +71,7 @@ from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
 from netmiko.digi import DigiTransportSSH
 from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
+from netmiko.edgecore import EdgecoreSonicSSH
 from netmiko.ekinops import EkinopsEk360SSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
 from netmiko.endace import EndaceSSH
@@ -204,6 +206,7 @@ CLASS_MAPPER_BASE = {
     "cdot_cros": CdotCrosSSH,
     "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
+    "ciena_saos10": CienaSaos10SSH,
     "ciena_waveserver": CienaWaveserverSSH,
     "cisco_asa": CiscoAsaSSH,
     "cisco_apic": CiscoApicSSH,
@@ -230,6 +233,7 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
     "digi_transport": DigiTransportSSH,
+    "edgecore_sonic": EdgecoreSonicSSH,
     "endace": EndaceSSH,
     "ekinops_ek360": EkinopsEk360SSH,
     "eltex": EltexSSH,
@@ -258,6 +262,7 @@ CLASS_MAPPER_BASE = {
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
+    "h3c_comware": HPComwareSSH,
     "hillstone_stoneos": HillstoneStoneosSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
