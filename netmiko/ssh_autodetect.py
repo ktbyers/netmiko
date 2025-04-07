@@ -146,6 +146,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cumulus_vx": {
+        "cmd": "uname -a",
+        "search_patterns": [r"cumulus"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "dell_force10": {
         "cmd": "show version",
         "search_patterns": [r"Real Time Operating System Software"],
@@ -226,7 +232,7 @@ SSH_MAPPER_DICT = {
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
-        "priority": 99,
+        "priority": 95,
         "dispatch": "_autodetect_std",
     },
     "ericsson_ipos": {

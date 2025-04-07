@@ -61,6 +61,7 @@ from netmiko.citrix import NetscalerSSH
 from netmiko.cloudgenix import CloudGenixIonSSH
 from netmiko.corelight import CorelightLinuxSSH
 from netmiko.coriant import CoriantSSH
+from netmiko.cumulus import CumulusVXSSH
 from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
 from netmiko.dell import DellForce10SSH
@@ -222,6 +223,7 @@ CLASS_MAPPER_BASE = {
     "cloudgenix_ion": CloudGenixIonSSH,
     "corelight_linux": CorelightLinuxSSH,
     "coriant": CoriantSSH,
+    "cumulus_vx": CumulusVXSSH,
     "dell_dnos9": DellForce10SSH,
     "dell_force10": DellForce10SSH,
     "dell_os6": DellDNOS6SSH,
