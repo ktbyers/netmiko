@@ -2,7 +2,6 @@
 AsterNOS platforms running Enterprise SONiC Distribution by AsterFusion Co.
 """
 
-from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.no_enable import NoEnable
 from typing import (
@@ -49,15 +48,12 @@ class AsterfusionBase(NoEnable, CiscoSSHConnection):
         )
 
     def _enter_shell(self) -> str:
-        log.debug(f"Host {self.host} {self.cli_mode} Enter sonic-cli shell")
         return self._send_command_str("sonic-cli", expect_string=r"\#")
 
     def _enter_bash_cli(self) -> str:
-        log.debug(f"Host {self.host} {self.cli_mode} Enter bash shell")
         return self._send_command_str("system bash", expect_string=r"\$")
 
     def _enter_vtysh(self) -> str:
-        log.debug(f"Host {self.host} {self.cli_mode} Enter vtysh shell")
         return self._send_command_str("vtysh", expect_string=r"\#")
 
     def disable_paging(
@@ -98,11 +94,6 @@ class AsterfusionSSH(AsterfusionBase):
         cmd_verify: bool = True,
         raise_parsing_error: bool = True,
     ) -> Union[str, List[Any], Dict[str, Any]]:
-        log.debug(
-            "Host [{}], run cmd [{}] , find prompt: {} ".format(
-                self.host, command_string, self.find_prompt()
-            )
-        )
         try:
             output = super().send_command(
                 command_string,
@@ -124,9 +115,6 @@ class AsterfusionSSH(AsterfusionBase):
             )
             return output
         except Exception as e:
-            log.debug(
-                f"send_sonic_command got Exception, host:{self.host} , self: {self}"
-            )
             return str(e)
 
     def send_config_set(
@@ -134,11 +122,6 @@ class AsterfusionSSH(AsterfusionBase):
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         **kwargs: Any,
     ) -> str:
-        log.debug(
-            "Host [{}], run cmd [{}] , find prompt: {} ".format(
-                self.host, config_commands, self.find_prompt()
-            )
-        )
         output = super().send_config_set(config_commands, **kwargs)
         return output
 
@@ -157,10 +140,5 @@ class AsterfusionSSH(AsterfusionBase):
 
         :param kwargs: params to be sent to send_config_set method
         """
-        log.debug(
-            "Host [{!r}] run cmd from file [{!r}] , find prompt: {!r} ".format(
-                self.host, config_file, self.find_prompt()
-            )
-        )
         output = super().send_config_from_file(config_file, **kwargs)
         return output
