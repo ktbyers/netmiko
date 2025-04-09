@@ -21,7 +21,7 @@ class DellForce10SSH(CiscoSSHConnection):
         # switch>
         #
         if re.search(r"y\/n", data):
-            self.write_channel(f"y\r{self.RETURN}")
+            self.write_channel(f"y{self.RETURN}")
 
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()
