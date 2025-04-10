@@ -94,7 +94,7 @@ from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
 from netmiko.f5 import F5LinuxSSH
-from netmiko.fiberstore import FiberstoreFsosSSH
+from netmiko.fiberstore import FiberstoreFsosSSH, FiberstoreNetworkOSSSH
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.fs import FSOSSSH
@@ -141,6 +141,7 @@ from netmiko.raisecom import RaisecomRoapTelnet
 from netmiko.ruckus import RuckusFastironSSH
 from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
+from netmiko.silverpeak import SilverPeakVXOASSH
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
 from netmiko.teldat import TeldatCITSSH, TeldatCITTelnet
@@ -257,6 +258,7 @@ CLASS_MAPPER_BASE = {
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
     "fiberstore_fsos": FiberstoreFsosSSH,
+    "fiberstore_networkos": FiberstoreNetworkOSSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
     "fs_os": FSOSSSH,
@@ -301,6 +303,7 @@ CLASS_MAPPER_BASE = {
     "raisecom_roap": RaisecomRoapSSH,
     "ruckus_fastiron": RuckusFastironSSH,
     "ruijie_os": RuijieOSSSH,
+    "silverpeak_vxoa": SilverPeakVXOASSH,
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
     "supermicro_smis": SmciSwitchSmisSSH,
