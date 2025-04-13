@@ -1522,6 +1522,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = False,
+        cmd_verify_timeout: float = 10.0,
         raise_parsing_error: bool = False,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a delay-based mechanism. Generally
@@ -1561,6 +1562,8 @@ A paramiko SSHException occurred during connection creation:
 
         :param cmd_verify: Verify command echo before proceeding (default: False).
 
+        :param cmd_verify_timeout: Maximum time to wait looking for echo. (Default: 10.0).
+
         :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         """
         if delay_factor is not None or max_loops is not None:
@@ -1574,7 +1577,7 @@ A paramiko SSHException occurred during connection creation:
 
         cmd = command_string.strip()
         if cmd and cmd_verify:
-            new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
+            new_data = self.command_echo_read(cmd=cmd, read_timeout=cmd_verify_timeout)
         output += new_data
         output += self.read_channel_timing(
             last_read=last_read, read_timeout=read_timeout
@@ -1676,6 +1679,7 @@ A paramiko SSHException occurred during connection creation:
         ttp_template: Optional[str] = None,
         use_genie: bool = False,
         cmd_verify: bool = True,
+        cmd_verify_timeout: float = 10.0,
         raise_parsing_error: bool = False,
     ) -> Union[str, List[Any], Dict[str, Any]]:
         """Execute command_string on the SSH channel using a pattern-based mechanism. Generally
@@ -1716,6 +1720,8 @@ A paramiko SSHException occurred during connection creation:
         :param use_genie: Process command output through PyATS/Genie parser (default: False).
 
         :param cmd_verify: Verify command echo before proceeding (default: True).
+
+        :param cmd_verify_timeout: Maximum time to wait looking for echo (default: 10.0).
 
         :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         """
@@ -1786,7 +1792,7 @@ before timing out.\n"""
 
         cmd = command_string.strip()
         if cmd and cmd_verify:
-            new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
+            new_data = self.command_echo_read(cmd=cmd, read_timeout=cmd_verify_timeout)
 
         MAX_CHARS = 2_000_000
         DEQUE_SIZE = 20
