@@ -345,6 +345,17 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "fiberstore_fsosv2": {
+        "cmd": "show version",
+        "search_patterns": [
+            (
+                r"Fiberstore Co., Limited Internetwork Operating System "
+                r"Software[\s\S]*Version 2.[0-9]*.[0-9]*[\s\S]*"
+            )
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
 }
 
 # Sort SSH_MAPPER_DICT such that the most common commands are first
