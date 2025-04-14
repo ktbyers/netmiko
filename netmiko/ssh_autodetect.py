@@ -349,7 +349,7 @@ SSH_MAPPER_DICT = {
         "cmd": "show version",
         "search_patterns": [
             (
-                r"Fiberstore Co., Limited Internetwork Operating System"
+                r"Fiberstore Co., Limited Internetwork Operating System "
                 r"Software[\s\S]*Version 2.[0-9]*.[0-9]*[\s\S]*"
             )
         ],
