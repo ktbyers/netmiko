@@ -1,7 +1,7 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class LancomLcosSx4SSH(CiscoSSHConnection):
+class LancomLCOSSX4SSH(CiscoSSHConnection):
     promt_pattern = r"[#$]"
 
     def check_config_mode(
@@ -64,8 +64,4 @@ class LancomLcosSx4SSH(CiscoSSHConnection):
         # LANCOM does not allow running "Exec" commands in configuration mode
         if self.check_config_mode():
             cmd = "do " + cmd
-        save_config_result = self._send_command_str(cmd)
-
-        return save_config_result
-
-    pass
+        return self._send_command_str(cmd)

@@ -1,3 +1,3 @@
-from netmiko.lancom.lcos_sx_4 import LancomLcosSx4SSH
+from netmiko.lancom.lancom_lcossx4 import LancomLCOSSX4SSH
 
-__all__ = ["LancomLcosSx4SSH"]
+__all__ = ["LancomLCOSSX4SSH"]
