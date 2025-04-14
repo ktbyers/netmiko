@@ -1,7 +1,7 @@
 from netmiko.linux.linux_ssh import LinuxSSH
 
 
-class CumulusVXSSH(LinuxSSH):
+class CumulusLinuxSSH(LinuxSSH):
 
     def save_config(
         self,

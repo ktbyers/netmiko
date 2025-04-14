@@ -146,9 +146,9 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "cumulus_vx": {
+    "cumulus_linux": {
         "cmd": "uname -a",
-        "search_patterns": [r"cumulus"],
+        "search_patterns": [r"Linux cumulus"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },

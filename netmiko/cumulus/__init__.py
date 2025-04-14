@@ -1,3 +1,3 @@
-from netmiko.cumulus.cumulus_vx_ssh import CumulusVXSSH
+from netmiko.cumulus.cumulus_linux_ssh import CumulusLinuxSSH
 
-__all__ = ["CumulusVXSSH"]
+__all__ = ["CumulusLinuxSSH"]
