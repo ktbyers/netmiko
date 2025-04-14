@@ -61,6 +61,7 @@ from netmiko.citrix import NetscalerSSH
 from netmiko.cloudgenix import CloudGenixIonSSH
 from netmiko.corelight import CorelightLinuxSSH
 from netmiko.coriant import CoriantSSH
+from netmiko.cumulus import CumulusLinuxSSH
 from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
 from netmiko.dell import DellForce10SSH
@@ -93,10 +94,14 @@ from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
 from netmiko.f5 import F5LinuxSSH
-from netmiko.fiberstore import FiberstoreFsosSSH
+from netmiko.fiberstore import (
+    FiberstoreFsosSSH,
+    FiberstoreFsosV2SSH,
+    FiberstoreFsosV2Telnet,
+    FiberstoreNetworkOSSSH,
+)
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
-from netmiko.fs import FSOSSSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
@@ -224,6 +229,7 @@ CLASS_MAPPER_BASE = {
     "cloudgenix_ion": CloudGenixIonSSH,
     "corelight_linux": CorelightLinuxSSH,
     "coriant": CoriantSSH,
+    "cumulus_linux": CumulusLinuxSSH,
     "dell_dnos9": DellForce10SSH,
     "dell_force10": DellForce10SSH,
     "dell_os6": DellDNOS6SSH,
@@ -257,9 +263,10 @@ CLASS_MAPPER_BASE = {
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
     "fiberstore_fsos": FiberstoreFsosSSH,
+    "fiberstore_fsosv2": FiberstoreFsosV2SSH,
+    "fiberstore_networkos": FiberstoreNetworkOSSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
-    "fs_os": FSOSSSH,
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
@@ -380,6 +387,7 @@ CLASS_MAPPER["dlink_ds_telnet"] = DlinkDSTelnet
 CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
+CLASS_MAPPER["fiberstore_fsosv2_telnet"] = FiberstoreFsosV2Telnet
 CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["genexis_solt33_telnet"] = GenexisSOLT33Telnet
