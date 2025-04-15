@@ -2,7 +2,7 @@
 This module is used to auto-detect the type of a device in order to automatically create a
 Netmiko connection.
 
-The will avoid to hard coding the 'device_type' when using the ConnectHandler factory function
+This avoids hard coding the 'device_type' when using the ConnectHandler factory function
 from Netmiko.
 
 Example:
