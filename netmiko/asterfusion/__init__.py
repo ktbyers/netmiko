@@ -1,3 +1,3 @@
-from netmiko.asterfusion.asterfusion import AsterfusionSSH
+from netmiko.asterfusion.asterfusion import AsterfusionAsterNOSSSH
 
-__all__ = ["AsterfusionSSH"]
+__all__ = ["AsterfusionAsterNOSSSH"]
