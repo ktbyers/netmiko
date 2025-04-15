@@ -94,28 +94,25 @@ class AsterfusionSSH(AsterfusionBase):
         cmd_verify: bool = True,
         raise_parsing_error: bool = True,
     ) -> Union[str, List[Any], Dict[str, Any]]:
-        try:
-            output = super().send_command(
-                command_string,
-                expect_string,
-                read_timeout=read_timeout,
-                delay_factor=delay_factor,
-                max_loops=max_loops,
-                auto_find_prompt=auto_find_prompt,
-                strip_prompt=strip_prompt,
-                strip_command=strip_command,
-                normalize=normalize,
-                use_textfsm=use_textfsm,
-                textfsm_template=textfsm_template,
-                use_ttp=use_ttp,
-                ttp_template=ttp_template,
-                use_genie=use_genie,
-                cmd_verify=cmd_verify,
-                raise_parsing_error=raise_parsing_error,
-            )
-            return output
-        except Exception as e:
-            return str(e)
+        output = super().send_command(
+            command_string,
+            expect_string,
+            read_timeout=read_timeout,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+            auto_find_prompt=auto_find_prompt,
+            strip_prompt=strip_prompt,
+            strip_command=strip_command,
+            normalize=normalize,
+            use_textfsm=use_textfsm,
+            textfsm_template=textfsm_template,
+            use_ttp=use_ttp,
+            ttp_template=ttp_template,
+            use_genie=use_genie,
+            cmd_verify=cmd_verify,
+            raise_parsing_error=raise_parsing_error,
+        )
+        return output
 
     def send_config_set(
         self,
