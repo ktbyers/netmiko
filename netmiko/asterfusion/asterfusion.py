@@ -1,9 +1,6 @@
 """
 AsterNOS platforms running Enterprise SONiC Distribution by AsterFusion Co.
 """
-
-from netmiko.cisco_base_connection import CiscoSSHConnection
-from netmiko.no_enable import NoEnable
 from typing import (
     Optional,
     Any,
@@ -15,27 +12,28 @@ from typing import (
     Union,
     TYPE_CHECKING,
 )
-
+from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.no_enable import NoEnable
 
 if TYPE_CHECKING:
     from os import PathLike
 
 
-class AsterfusionBase(NoEnable, CiscoSSHConnection):
-    def __init__(self, cli_mode: str = "klish", **kwargs: Any) -> None:
-        self.cli_mode = cli_mode
+class AsterfusionAsterNOSSSH(NoEnable, CiscoSSHConnection):
+    prompt_pattern = r"[>$#]"
+
+    def __init__(self, _cli_mode: str = "klish", **kwargs: Any) -> None:
+        self._cli_mode = _cli_mode
         super().__init__(**kwargs)
 
     def session_preparation(self) -> None:
-        self._test_channel_read(pattern=r"[>$#]")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt(alt_prompt_terminator="$")
         if self.cli_mode == "klish":
             self._enter_shell()
             self.disable_paging()
         elif self.cli_mode == "bash":
             self._enter_bash_cli()
-        else:
-            pass
 
     def config_mode(
         self,
@@ -70,11 +68,36 @@ class AsterfusionBase(NoEnable, CiscoSSHConnection):
             pattern=pattern,
         )
 
-    def write_config(self) -> str:
-        return super().save_config(cmd="write", confirm=True, confirm_response="y")
+    def save_config(
+        self,
+        cmd: str = "write",
+        confirm: bool = True,
+        confirm_response: str = "y",
+    ) -> str:
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
-class AsterfusionSSH(AsterfusionBase):
+1664     def send_command(
+1665         self,
+1666         command_string: str,
+1667         expect_string: Optional[str] = None,
+1668         read_timeout: float = 10.0,
+1669         delay_factor: Optional[float] = None,
+1670         max_loops: Optional[int] = None,
+1671         auto_find_prompt: bool = True,
+1672         strip_prompt: bool = True,
+1673         strip_command: bool = True,
+1674         normalize: bool = True,
+1675         use_textfsm: bool = False,
+1676         textfsm_template: Optional[str] = None,
+1677         use_ttp: bool = False,
+1678         ttp_template: Optional[str] = None,
+1679         use_genie: bool = False,
+1680         cmd_verify: bool = True,
+1681         raise_parsing_error: bool = False,
+1682     ) -> Union[str, List[Any], Dict[str, Any]]:
+
+
     def send_command(
         self,
         command_string: str,
