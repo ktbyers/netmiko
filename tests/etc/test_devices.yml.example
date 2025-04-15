@@ -328,3 +328,10 @@ fs_os:
   ip: 10.1.11.200
   username: admin
   password: admin
+
+avara_oap:
+  device_type: avara_oap
+  ip: 192.168.1.1
+  username: admin
+  password: admin
+  secret: admin
