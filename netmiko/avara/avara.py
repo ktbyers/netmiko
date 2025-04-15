@@ -94,6 +94,10 @@ class AvaraSSH(CiscoSSHConnection):
     def save_config(
         self, cmd: str = "save flash", confirm: bool = False, confirm_response: str = ""
     ) -> str:
+        # Apply Edits
+        self.send_command(command_string="apply", expect_string="Edits applied.")
+
+        # Save configuration to flash
         return super().save_config(
             cmd=cmd,
             confirm=confirm,
