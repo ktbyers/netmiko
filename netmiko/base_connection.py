@@ -1395,7 +1395,7 @@ A paramiko SSHException occurred during connection creation:
             if pri_prompt_terminator and alt_prompt_terminator:
                 pri_term = re.escape(pri_prompt_terminator)
                 alt_term = re.escape(alt_prompt_terminator)
-                pattern = rf"({pri_term}|{alt_term})"
+                pattern = rf"(?:{pri_term}|{alt_term})"
             elif pri_prompt_terminator:
                 pattern = re.escape(pri_prompt_terminator)
             elif alt_prompt_terminator:
