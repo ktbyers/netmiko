@@ -42,7 +42,6 @@ def test_disable_paging(net_connect, commands, expected_responses):
         net_connect.send_command("clear logging logfile")
 
     if net_connect.device_type == "audiocode_shell":
-        # Not supported.
         assert pytest.skip("Disable Paging not supported on this platform")
     else:
         multiple_line_output = net_connect.send_command(
