@@ -147,7 +147,7 @@ class FiberstoreFsosV2Base(CiscoBaseConnection):
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
-    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#.*") -> str:
+    def exit_config_mode(self, exit_config: str = "end", pattern: str = r"#.*") -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
 
