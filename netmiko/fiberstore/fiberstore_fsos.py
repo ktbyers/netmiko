@@ -139,7 +139,7 @@ class FiberstoreFsosV2Base(CiscoBaseConnection):
 
     def check_config_mode(
         self,
-        check_string: str = "config#",
+        check_string: str = "config",
         pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
