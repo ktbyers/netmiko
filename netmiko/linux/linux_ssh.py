@@ -152,8 +152,16 @@ permissions.
         return output
 
     def cleanup(self, command: str = "exit") -> None:
-        """Try to Gracefully exit the SSH session."""
-        return super().cleanup(command=command)
+        """Gracefully exit the SSH session."""
+        try:
+            if self.username != "root" and self.check_config_mode():
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final 'exit' (command)
+        if self.session_log:
+            self.session_log.fin = True
+        self.write_channel(command + self.RETURN)
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
