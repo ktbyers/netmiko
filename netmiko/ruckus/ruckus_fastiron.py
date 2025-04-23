@@ -23,7 +23,7 @@ class RuckusFastironBase(CiscoSSHConnection):
     def enable(
         self,
         cmd: str = "enable",
-        pattern: str = r"(ssword|User Name|Login)",
+        pattern: str = r"(?:ssword|User Name|Login|No password has been assigned)",
         enable_pattern: Optional[str] = None,
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
@@ -59,6 +59,8 @@ class RuckusFastironBase(CiscoSSHConnection):
                 output += new_data
                 if not re.search(r"error.*incorrect.*password", new_data, flags=re.I):
                     break
+            if "No password has been assigned" in new_data:
+                break
 
             time.sleep(1)
             i += 1
