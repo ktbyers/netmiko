@@ -128,15 +128,16 @@ class CiscoXrBase(CiscoBaseConnection):
         output = self.config_mode()
 
         if replace:
+            replace_msg = "This commit will replace or remove the entire running configuration"
             new_data = self._send_command_str(
                 " ".join(commit_kws),
-                expect_string=r"This commit will replace or remove the entire running configuration",
+                expect_string=replace_msg,
                 strip_prompt=False,
                 strip_command=False,
                 read_timeout=read_timeout,
             )
             output += new_data
-            if "This commit will replace or remove the entire running configuration" in new_data:
+            if replace_msg in new_data:
                 new_data = self._send_command_str(
                     "yes",
                     expect_string=r"#",
