@@ -118,7 +118,9 @@ class CiscoXrBase(CiscoBaseConnection):
         output = self.config_mode()
 
         if replace:
-            replace_msg = "This commit will replace or remove the entire running configuration"
+            replace_msg = (
+                "This commit will replace or remove the entire running configuration"
+            )
             new_data = self._send_command_str(
                 " ".join(commit_kws),
                 expect_string=replace_msg,
