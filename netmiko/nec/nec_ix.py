@@ -23,12 +23,11 @@ class NecIxBase(BaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self.set_base_prompt()
-        self.enable()
-        time.sleep(0.3 * self.global_delay_factor)
         self.config_mode()
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
         self.disable_paging(command=self.RETURN + "terminal length 0")
+        self.exit_config_mode()
 
     def set_base_prompt(
         self,
@@ -65,66 +64,58 @@ class NecIxBase(BaseConnection):
         enable-config   -- Enter configuration mode
         configure       -- Enter configuration mode
         """
-        return super().enable(
+        output = super().enable(
             cmd=cmd,
             pattern=pattern,
             enable_pattern=enable_pattern,
             check_state=check_state,
             re_flags=re_flags,
         )
+        # ensure at top-level of config/enable mode.
+        output += self._send_command_str(
+            command_string="configure", expect_string=r"\)\#"
+        )
+        return output
 
     def check_enable_mode(self, check_string: str = ")#") -> bool:
         return super().check_enable_mode(check_string=check_string)
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
-        """Exits enable mode."""
+        """Exits 'svintr-config' mode."""
         output = ""
         if self.check_enable_mode():
+            # ensure at top-level of config/enable mode.
+            output += self._send_command_str(
+                command_string="configure", expect_string=r"\)\#"
+            )
             self.write_channel(self.normalize_cmd(exit_command))
             time.sleep(1)
-            output = self.read_channel()
-            if ")#" in output:
-                self.write_channel("exit")
-            if self.base_prompt not in output:
-                output += self.read_until_prompt(read_entire_line=True)
+            output += self.read_channel()
             if self.check_enable_mode():
-                raise ValueError("Failed to exit enable mode.")
+                raise ValueError("Failed to exit enable/config mode.")
         return output
 
     def config_mode(
         self,
-        config_command: str = "configure",
+        config_command: str = "",
         pattern: str = "",
         re_flags: int = re.IGNORECASE,
     ) -> str:
-        """configure command is used to go to the top menu in configuration mode."""
-        return super().config_mode(
-            config_command=config_command, pattern=pattern, re_flags=re_flags
-        )
+        """Enable and config-mode both behave the same."""
+        return self.enable()
 
     def check_config_mode(
         self,
-        check_string: str = "(config)#",
+        check_string: str = "",
         pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
-        """Checks if the device is in Configuration mode or not."""
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        """Enable and config-mode both behave the same."""
+        return self.check_enable_mode()
 
-    def exit_config_mode(
-        self, exit_config: str = "configure", pattern: str = ""
-    ) -> str:
-        """
-        When you exit configuration mode, the show commands available to you are limited.
-        Therefore, use the configure command to go to the top menu.
-        """
-        output = ""
-        if self.check_config_mode():
-            self.write_channel(self.normalize_cmd(exit_config))
-            time.sleep(1)
-            if self.base_prompt not in output:
-                output += self.read_until_prompt(read_entire_line=True)
-        return output
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = "") -> str:
+        """Enable and config-mode both behave the same."""
+        return self.exit_enable_mode()
 
     def save_config(
         self,
