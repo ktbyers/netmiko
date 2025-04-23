@@ -7,9 +7,18 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class RuijieOSBase(CiscoBaseConnection):
+    prompt_pattern = r"[>#]"
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
-        self._test_channel_read(pattern=r"[>#]")
+
+        pwd_change_msg = r"Do you want to change the password"
+        data = self.read_until_pattern(
+            pattern=rf"(?:{pwd_change_msg}|{self.prompt_pattern})"
+        )
+        if pwd_change_msg in data:
+            self._send_command_str("n", expect_string=self.prompt_pattern)
+
         self.set_base_prompt()
         """Ruijie OS requires enable mode to set terminal width"""
         self.enable()

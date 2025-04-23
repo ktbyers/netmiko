@@ -152,8 +152,16 @@ permissions.
         return output
 
     def cleanup(self, command: str = "exit") -> None:
-        """Try to Gracefully exit the SSH session."""
-        return super().cleanup(command=command)
+        """Gracefully exit the SSH session."""
+        try:
+            if self.username != "root" and self.check_config_mode():
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final 'exit' (command)
+        if self.session_log:
+            self.session_log.fin = True
+        self.write_channel(command + self.RETURN)
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
@@ -166,6 +174,8 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     Mostly for testing purposes.
     """
+
+    prompt_pattern = rf"[{re.escape(LINUX_PROMPT_PRI)}{re.escape(LINUX_PROMPT_ALT)}]"
 
     def __init__(
         self,
@@ -187,18 +197,25 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
+        search_pattern = self.prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
-        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+        search_pattern = self.prompt_pattern
+        return self._check_file_exists_unix(
+            remote_cmd=remote_cmd, search_pattern=search_pattern
+        )
 
     def remote_file_size(
         self, remote_cmd: str = "", remote_file: Optional[str] = None
     ) -> int:
         """Get the file size of the remote file."""
+        search_pattern = self.prompt_pattern
         return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
+            remote_cmd=remote_cmd,
+            remote_file=remote_file,
+            search_pattern=search_pattern,
         )
 
     def remote_md5(

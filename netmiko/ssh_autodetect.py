@@ -146,6 +146,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cumulus_linux": {
+        "cmd": "uname -a",
+        "search_patterns": [r"Linux cumulus"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "dell_force10": {
         "cmd": "show version",
         "search_patterns": [r"Real Time Operating System Software"],
@@ -185,6 +191,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "h3c_comware": {
+        "cmd": "display version",
+        "search_patterns": ["H3C Comware Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "hp_comware": {
         "cmd": "display version",
         "search_patterns": ["HPE Comware", "HP Comware"],
@@ -220,7 +232,7 @@ SSH_MAPPER_DICT = {
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
-        "priority": 99,
+        "priority": 95,
         "dispatch": "_autodetect_std",
     },
     "ericsson_ipos": {
@@ -336,6 +348,23 @@ SSH_MAPPER_DICT = {
     "nec_ix": {
         "cmd": "show hardware",
         "search_patterns": [r"IX Series"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "fiberstore_fsosv2": {
+        "cmd": "show version",
+        "search_patterns": [
+            (
+                r"Fiberstore Co., Limited Internetwork Operating System "
+                r"Software[\s\S]*Version 2.[0-9]*.[0-9]*[\s\S]*"
+            )
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "telcosystems_binos": {
+        "cmd": "show version",
+        "search_patterns": [r"BiNOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
