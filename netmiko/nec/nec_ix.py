@@ -36,18 +36,13 @@ class NecIxBase(BaseConnection):
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
-        """
-        Cisco IOS/IOS-XE abbreviates the prompt at 20-chars in config mode.
-        Consequently, abbreviate the base_prompt
-        """
-        base_prompt = super().set_base_prompt(
+
+        return super().set_base_prompt(
             pri_prompt_terminator=pri_prompt_terminator,
             alt_prompt_terminator=alt_prompt_terminator,
             delay_factor=delay_factor,
             pattern=pattern,
         )
-        self.base_prompt = base_prompt[:16]
-        return self.base_prompt
 
     def enable(
         self,
