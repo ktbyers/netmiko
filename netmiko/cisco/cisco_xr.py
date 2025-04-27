@@ -107,10 +107,10 @@ class CiscoXrBase(CiscoBaseConnection):
         commit_kws = ["commit"]
         if replace:
             commit_kws.append("replace")
-        if confirm:
-            commit_kws.extend(["confirmed", str(confirm_delay)])
         if label:
             commit_kws.extend(["label", label])
+        if confirm:
+            commit_kws.extend(["confirmed", str(confirm_delay)])
         if comment:
             commit_kws.extend(["comment", comment])
 
