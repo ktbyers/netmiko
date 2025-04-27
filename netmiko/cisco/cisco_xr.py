@@ -52,7 +52,9 @@ class CiscoXrBase(CiscoBaseConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def _commit_handler(self, command_string: str, expect_string: str, read_timeout: float) -> str
+    def _commit_handler(
+        self, command_string: str, expect_string: str, read_timeout: float
+    ) -> str:
         """Wrapper for commit call to simplify code and arguments."""
         return self._send_command_str(
             command_string,
@@ -131,16 +133,18 @@ Other commits occurred during this configuration operation--commit aborted!
 """
 
         if replace:
-            command_string = f"commit replace"
+            command_string = "commit replace"
         else:
-            command_string = f"commit"
+            command_string = "commit"
 
         # Select proper command string based on arguments provided
         if label:
             if comment:
                 command_string = f"{command_string} label {label} comment {comment}"
             elif confirm:
-                command_string = f"{command_string} label {label} confirmed {confirm_delay}"
+                command_string = (
+                    f"{command_string} label {label} confirmed {confirm_delay}"
+                )
             else:
                 command_string = f"{command_string} label {label}"
         elif confirm:
@@ -151,46 +155,35 @@ Other commits occurred during this configuration operation--commit aborted!
         # Enter config mode (if necessary)
         output = self.config_mode()
 
+        # IOS-XR might do this:
+        # "This could be a few minutes if your config is large. Confirm? [y/n][confirm]"
+        # Or this:
+        # One or more commits have occurred from other
+        # configuration sessions since this session started
+        # ...
+        # Do you wish to proceed with this commit anyway? [no]
+        large_config = "onfirm"
+        other_changes = "Do you wish to proceed"
+        pattern = rf"(?:#|{large_config}|{other_changes})"
+
         if replace:
             replace_msg = (
                 "This commit will replace or remove the entire running configuration"
             )
-            new_data = self._commit_handler(command_string, replace_msg, read_timeout)
-            output += new_data
-            # Don't proceed if other commits have happened.
-            if alt_error_marker in output:
-                output += self._commit_handler("n", r"#", read_timeout)
-                raise ValueError(other_commits_msg)
-            elif replace_msg in new_data:
-                output += self._commit_handler("yes", r"#", read_timeout)
+            pattern = rf"(?:#|{large_config}|{other_changes}|{replace_msg})"
 
-        else:
-            # IOS-XR might do this:
-            # "This could be a few minutes if your config is large. Confirm? [y/n][confirm]"
-            # Or this:
-            # One or more commits have occurred from other
-            # configuration sessions since this session started
-            # ...
-            # Do you wish to proceed with this commit anyway? [no]
-            large_config = "onfirm"
-            other_changes = "Do you wish to proceed"
-            pattern = rf"(?:#|{large_config}|{other_changes})"
-            new_data = self._commit_handler(command_string, pattern, read_timeout)
-            output += new_data
-            # Don't proceed if other commits have happened.
-            if alt_error_marker in output:
-                output += self._commit_handler("n", r"#", read_timeout)
-                raise ValueError(other_commits_msg)
-            elif "onfirm" in new_data:
-                output += self._commit_handler("y", r"#", read_timeout)
+        new_data = self._commit_handler(command_string, pattern, read_timeout)
+        output += new_data
+        # Don't proceed if other commits have happened.
+        if alt_error_marker in output:
+            output += self._commit_handler("n", r"#", read_timeout)
+            raise ValueError(other_commits_msg)
+        elif replace and replace_msg in new_data:
+            output += self._commit_handler("yes", r"#", read_timeout)
+        elif "onfirm" in new_data:
+            output += self._commit_handler("y", r"#", read_timeout)
 
         if error_marker in output:
-            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
-        if alt_error_marker in output:
-            # Other commits occurred, don't proceed with commit
-            output += self._send_command_timing_str(
-                "no", strip_prompt=False, strip_command=False, cmd_verify=False
-            )
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
