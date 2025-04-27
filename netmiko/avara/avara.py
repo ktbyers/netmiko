@@ -2,6 +2,7 @@ import re
 from typing import Any, Optional
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.exceptions import NetmikoTimeoutException
 
 # Example Prompts:
 # - User:   `DEVNAME % `
@@ -21,13 +22,14 @@ class AvaraSSH(CiscoSSHConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=USER_MODE_REGEX)
+        self.base_prompt = self.find_prompt()
 
     def enable(
         self,
         cmd: str = "enable",
-        pattern: str = "",
-        enable_pattern: Optional[str] = CONFIG_MODE_REGEX,
-        check_state: bool = True,
+        pattern: str = "assword",
+        enable_pattern: Optional[str] = None,
+        check_state: bool = False,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """Enter enable mode, which is configuration mode on Avara devices.
@@ -41,14 +43,37 @@ class AvaraSSH(CiscoSSHConnection):
         Returns:
             str: Output of entering enable mode
         """
+        error_msg = (
+            "Failed to enter enable mode. Please ensure you pass "
+            "the 'secret' argument to ConnectHandler."
+        )
+        output = ""
         if not self.check_config_mode():
-            return super().enable(
-                cmd=cmd,
-                pattern=pattern,
-                enable_pattern=enable_pattern,
-                check_state=check_state,
-                re_flags=re_flags,
-            )
+            try:
+                # Send "enable" mode command
+                self.write_channel(self.normalize_cmd(cmd))
+
+                # Read the command echo
+                if self.global_cmd_verify is not False:
+                    output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
+
+                # Search for trailing prompt or password pattern
+                output += self.read_until_prompt_or_pattern(
+                    pattern=pattern, re_flags=re_flags
+                )
+
+                # Send the "secret" in response to password pattern
+                if re.search(pattern, output):
+                    self.write_channel(self.normalize_cmd(self.secret))
+                    output += self.read_channel_timing(read_timeout=0)
+
+                    if not self.check_config_mode():
+                        raise ValueError(error_msg)
+
+            except NetmikoTimeoutException:
+                raise ValueError(error_msg)
+
+            return output
         return "Config mode already enabled."
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
@@ -103,3 +128,14 @@ class AvaraSSH(CiscoSSHConnection):
             confirm=confirm,
             confirm_response=confirm_response,
         )
+
+    # def disconnect(self) -> None:
+    #     """Try to gracefully close the session."""
+    #     try:
+    #         self.remote_conn.close()
+    #         print("HERE0")
+    #     except Exception:
+    #         # There was an error closing the connection
+    #         pass
+    #     finally:
+    #         self.session_log.close()
