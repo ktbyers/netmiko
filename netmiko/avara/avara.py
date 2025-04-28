@@ -129,13 +129,19 @@ class AvaraSSH(CiscoSSHConnection):
             confirm_response=confirm_response,
         )
 
-    # def disconnect(self) -> None:
-    #     """Try to gracefully close the session."""
-    #     try:
-    #         self.remote_conn.close()
-    #         print("HERE0")
-    #     except Exception:
-    #         # There was an error closing the connection
-    #         pass
-    #     finally:
-    #         self.session_log.close()
+    def disconnect(self) -> None:
+        """
+        Try to gracefully close the session.
+        """
+        try:
+            if self.remote_conn:
+                self.remote_conn.close()
+            if self.remote_conn_pre:
+                self.remote_conn_pre.close()
+        except Exception:
+            pass
+        finally:
+            self.remote_conn_pre = None
+            self.remote_conn = None
+            if self.session_log:
+                self.session_log.close()
