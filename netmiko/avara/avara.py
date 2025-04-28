@@ -20,7 +20,11 @@ class AvaraSSH(CiscoSSHConnection):
     """Avara SSH Driver for Netmiko."""
 
     def session_preparation(self) -> None:
-        """Prepare the session after the connection has been established."""
+        """Prepare the session after the connection has been established.
+
+        Returns:
+            None
+        """
         self._test_channel_read(pattern=USER_MODE_REGEX)
         self.base_prompt = self.find_prompt()
 
@@ -77,10 +81,16 @@ class AvaraSSH(CiscoSSHConnection):
         return "Config mode already enabled."
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
-        """Exit enable mode.
+        """
+        Exit from enable mode.
+        Args:
+            exit_command: Command to exit enable mode
 
-        :param exit_command: Command that exits the session from privileged mode
-        :type exit_command: str
+        Returns:
+            str: Output of the exit command
+
+        Raises:
+            ValueError: If unable to exit enable mode
         """
 
         output = ""
@@ -102,7 +112,17 @@ class AvaraSSH(CiscoSSHConnection):
         pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
-        """Check if the device is in configuration mode"""
+        """
+        Check if the device is in configuration mode.
+
+        Args:
+            check_string: String pattern to check for configuration mode. Defaults to CONFIG_PROMPT.
+            pattern: Additional pattern to check for configuration mode. Defaults to empty string.
+            force_regex: Whether to use regex for matching. Defaults to False.
+
+        Returns:
+            bool: True if device is in configuration mode, False otherwise.
+        """
 
         self.write_channel(self.RETURN)
         output = self.read_channel_timing(read_timeout=0.5)
@@ -111,7 +131,17 @@ class AvaraSSH(CiscoSSHConnection):
     def send_config_set(
         self, config_commands: Any = None, exit_config_mode: bool = False, **kwargs: Any
     ) -> str:
-        """Send configuration commands to the device."""
+        """
+        Send configuration commands to the device.
+
+        Args:
+            config_commands: A string or list of strings containing configuration commands.
+            exit_config_mode: If True, exit configuration mode when complete.
+            **kwargs: Additional arguments to pass to send_config_set method.
+
+        Returns:
+            str: The output of the configuration commands.
+        """
         return super().send_config_set(
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
@@ -119,6 +149,20 @@ class AvaraSSH(CiscoSSHConnection):
     def save_config(
         self, cmd: str = "save flash", confirm: bool = False, confirm_response: str = ""
     ) -> str:
+        """
+        Save the configuration to flash memory.
+        This method first applies any pending configuration edits using the "apply" command,
+        and then saves the configuration to flash memory using the parent class's save_config method.
+
+        Args:
+            cmd: The command to save the configuration. Default is "save flash".
+            confirm: Whether confirmation is required or not. Default is False.
+            confirm_response: The response to confirmation prompt. Default is empty string.
+
+        Returns:
+            str: The output of the save configuration command.
+        """
+
         # Apply Edits
         self.send_command(command_string="apply", expect_string="Edits applied.")
 
@@ -131,8 +175,13 @@ class AvaraSSH(CiscoSSHConnection):
 
     def disconnect(self) -> None:
         """
-        Try to gracefully close the session.
+        Attempts to gracefully close the SSH connection to the device
+        and the log files. Any exceptions during closure are suppressed.
+
+        Returns:
+            None
         """
+
         try:
             if self.remote_conn:
                 self.remote_conn.close()
