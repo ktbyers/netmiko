@@ -464,3 +464,14 @@ fs_os:
   version_banner: "FS Data Center Switch"
   multiple_line_output: "Building configuration..."
   save_config: '[OK]'
+
+avara_oap:
+  base_prompt: "7D8558361 %"
+  router_prompt: "7D8558361 %"
+  enable_prompt: "7D8558361* %"
+  interface_ip: 192.168.1.1
+  version_banner: "Version Information:"
+  multiple_line_output: ""
+  cmd_response_init: "disable"
+  cmd_response_final: "enable"
+  save_config: 'Config saved to flash.'

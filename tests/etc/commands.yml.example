@@ -629,3 +629,18 @@ fs_os:
   save_config_cmd: 'write'
   save_config_confirm: False
   save_config_response: 'OK'
+
+avara_oap:
+  version: "show version"
+  basic: "show status system"
+  extended_output: ""
+  config:
+    - config eth state disable 6
+    - config eth state enable 6
+  config_verification: "show edits eth 6"
+  enter_config_mode: False
+  exit_config_mode: False
+  support_commit: False
+  save_config_cmd: 'apply'
+  save_config_confirm: False
+  save_config_response: 'Edits applied.'

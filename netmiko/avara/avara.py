@@ -80,6 +80,10 @@ class AvaraSSH(CiscoSSHConnection):
             return output
         return "Config mode already enabled."
 
+    def config_mode(self):
+        """Redirect config mode to enable mode"""
+        return self.enable()
+
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
         """
         Exit from enable mode.
@@ -92,19 +96,7 @@ class AvaraSSH(CiscoSSHConnection):
         Raises:
             ValueError: If unable to exit enable mode
         """
-
-        output = ""
-        self.write_channel(self.normalize_cmd(exit_command))
-        # Make sure you read until you detect the command echo (avoid getting out of sync)
-        if self.global_cmd_verify is not False:
-            output += self.read_until_pattern(pattern=re.escape(exit_command.strip()))
-
-        output += self.read_until_pattern(pattern=USER_MODE_REGEX)
-
-        if not self.check_config_mode(check_string=USER_PROMPT):
-            # If we are here, we did not make it back to user mode.
-            raise ValueError("Failed to exit configuration mode")
-        return output
+        return self.exit_config_mode(exit_config=exit_command)
 
     def check_config_mode(
         self,
@@ -123,13 +115,20 @@ class AvaraSSH(CiscoSSHConnection):
         Returns:
             bool: True if device is in configuration mode, False otherwise.
         """
+        # Silence warnings
+        _pattern = pattern
+        _force_regex = force_regex
 
         self.write_channel(self.RETURN)
         output = self.read_channel_timing(read_timeout=0.5)
         return check_string in output
 
     def send_config_set(
-        self, config_commands: Any = None, exit_config_mode: bool = False, **kwargs: Any
+        self,
+        config_commands: Any = None,
+        exit_config_mode: bool = False,
+        terminator: str = "%",
+        **kwargs: Any,
     ) -> str:
         """
         Send configuration commands to the device.
@@ -142,9 +141,29 @@ class AvaraSSH(CiscoSSHConnection):
         Returns:
             str: The output of the configuration commands.
         """
+        # if not self.check_config_mode():
+        #     self.enable()
+
         return super().send_config_set(
-            config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
+            config_commands=config_commands,
+            exit_config_mode=exit_config_mode,
+            terminator=terminator,
+            **kwargs,
         )
+
+    def exit_config_mode(
+        self, exit_config: str = "disable", pattern: str = r"Edit mode exited\."
+    ) -> str:
+        """Exit from configuration mode.
+
+        Args:
+            exit_config: Command to exit configuration mode
+            pattern: Pattern to terminate reading of channel
+
+        Returns:
+            str: The output of the exit configuration commands.
+        """
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
         self, cmd: str = "save flash", confirm: bool = False, confirm_response: str = ""
