@@ -17,6 +17,7 @@ from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaOsSSH, ArubaCxSSH
+from netmiko.asterfusion import AsterfusionAsterNOSSSH
 from netmiko.audiocode import (
     Audiocode72SSH,
     Audiocode66SSH,
@@ -150,8 +151,8 @@ from netmiko.silverpeak import SilverPeakVXOASSH
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
 from netmiko.teldat import TeldatCITSSH, TeldatCITTelnet
-from netmiko.terminal_server import TerminalServerSSH
-from netmiko.terminal_server import TerminalServerTelnet
+from netmiko.telcosystems import TelcoSystemsBinosSSH, TelcoSystemsBinosTelnet
+from netmiko.terminal_server import TerminalServerSSH, TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
 from netmiko.ubiquiti import UbiquitiEdgeRouterSSH, UbiquitiEdgeRouterFileTransfer
 from netmiko.ubiquiti import UbiquitiEdgeSSH
@@ -193,6 +194,7 @@ CLASS_MAPPER_BASE = {
     "aruba_aoscx": ArubaCxSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
+    "asterfusion_asternos": AsterfusionAsterNOSSSH,
     "audiocode_72": Audiocode72SSH,
     "audiocode_66": Audiocode66SSH,
     "audiocode_shell": AudiocodeShellSSH,
@@ -314,6 +316,7 @@ CLASS_MAPPER_BASE = {
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
     "supermicro_smis": SmciSwitchSmisSSH,
+    "telcosystems_binos": TelcoSystemsBinosSSH,
     "teldat_cit": TeldatCITSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     # ubiquiti_airos - Placeholder agreed to with NTC (if this driver is created in future)
@@ -411,6 +414,7 @@ CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
+CLASS_MAPPER["telcosystems_binos_telnet"] = TelcoSystemsBinosTelnet
 CLASS_MAPPER["teldat_cit_telnet"] = TeldatCITTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
