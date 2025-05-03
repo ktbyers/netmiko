@@ -1,5 +1,5 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
-
+from typing import Any
 
 class LancomLCOSSX5SSH(CiscoSSHConnection):
     def session_preparation(self) -> None:
@@ -19,7 +19,7 @@ class LancomLCOSSX5SSH(CiscoSSHConnection):
         super().disable_paging()
         self.clear_buffer()
 
-    def set_terminal_width(self, *args, **kwargs) -> str:
+    def set_terminal_width(self, *args: Any, **kwargs: Any) -> str:
         """
         LCOS SX 5 does not support 'terminal width', therefore skip it.
         """
