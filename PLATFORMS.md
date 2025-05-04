@@ -100,6 +100,7 @@
 - F5 TMSH
 - F5 Linux
 - Fortinet
+- Fsas Technologies (Fujitsu) Si-R
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
 - MRV Communications OptiSwitch
@@ -203,6 +204,7 @@
 - fiberstore_fsos
 - flexvnf
 - fortinet
+- fsas_sir
 - garderos_grs
 - generic
 - generic_termserver
