@@ -723,7 +723,10 @@ parenthesis completely wrap the pattern '(pattern)'"""
                     pattern = f"({pattern})"
                     results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
-                if len(results) != 3:
+                if len(results) == 3:
+                    output, match_str, buffer = results
+
+                if len(results) != 3 or match_str is None:
                     # well, we tried
                     msg = f"""Unable to successfully split output based on pattern:
 pattern={pattern}
@@ -734,7 +737,6 @@ results={results}
 
                 # Process such that everything before and including pattern is return.
                 # Everything else is retained in the _read_buffer
-                output, match_str, buffer = results
                 output = output + match_str
                 if buffer:
                     self._read_buffer += buffer
@@ -1393,7 +1395,7 @@ A paramiko SSHException occurred during connection creation:
             if pri_prompt_terminator and alt_prompt_terminator:
                 pri_term = re.escape(pri_prompt_terminator)
                 alt_term = re.escape(alt_prompt_terminator)
-                pattern = rf"({pri_term}|{alt_term})"
+                pattern = rf"(?:{pri_term}|{alt_term})"
             elif pri_prompt_terminator:
                 pattern = re.escape(pri_prompt_terminator)
             elif alt_prompt_terminator:

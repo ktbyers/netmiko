@@ -17,6 +17,7 @@ from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaOsSSH, ArubaCxSSH
+from netmiko.asterfusion import AsterfusionAsterNOSSSH
 from netmiko.audiocode import (
     Audiocode72SSH,
     Audiocode66SSH,
@@ -61,6 +62,7 @@ from netmiko.citrix import NetscalerSSH
 from netmiko.cloudgenix import CloudGenixIonSSH
 from netmiko.corelight import CorelightLinuxSSH
 from netmiko.coriant import CoriantSSH
+from netmiko.cumulus import CumulusLinuxSSH
 from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
 from netmiko.dell import DellForce10SSH
@@ -93,10 +95,14 @@ from netmiko.extreme import ExtremeVspSSH
 from netmiko.extreme import ExtremeWingSSH
 from netmiko.f5 import F5TmshSSH
 from netmiko.f5 import F5LinuxSSH
-from netmiko.fiberstore import FiberstoreFsosSSH, FiberstoreNetworkOSSSH
+from netmiko.fiberstore import (
+    FiberstoreFsosSSH,
+    FiberstoreFsosV2SSH,
+    FiberstoreFsosV2Telnet,
+    FiberstoreNetworkOSSSH,
+)
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
-from netmiko.fs import FSOSSSH
 from netmiko.fsas import FsasSirSSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
@@ -109,6 +115,7 @@ from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
+from netmiko.lancom import LancomLCOSSX4SSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.maipu import MaipuSSH
 from netmiko.maipu import MaipuTelnet
@@ -145,8 +152,8 @@ from netmiko.silverpeak import SilverPeakVXOASSH
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
 from netmiko.teldat import TeldatCITSSH, TeldatCITTelnet
-from netmiko.terminal_server import TerminalServerSSH
-from netmiko.terminal_server import TerminalServerTelnet
+from netmiko.telcosystems import TelcoSystemsBinosSSH, TelcoSystemsBinosTelnet
+from netmiko.terminal_server import TerminalServerSSH, TerminalServerTelnet
 from netmiko.tplink import TPLinkJetStreamSSH, TPLinkJetStreamTelnet
 from netmiko.ubiquiti import UbiquitiEdgeRouterSSH, UbiquitiEdgeRouterFileTransfer
 from netmiko.ubiquiti import UbiquitiEdgeSSH
@@ -188,6 +195,7 @@ CLASS_MAPPER_BASE = {
     "aruba_aoscx": ArubaCxSSH,
     "aruba_osswitch": HPProcurveSSH,
     "aruba_procurve": HPProcurveSSH,
+    "asterfusion_asternos": AsterfusionAsterNOSSSH,
     "audiocode_72": Audiocode72SSH,
     "audiocode_66": Audiocode66SSH,
     "audiocode_shell": AudiocodeShellSSH,
@@ -224,6 +232,7 @@ CLASS_MAPPER_BASE = {
     "cloudgenix_ion": CloudGenixIonSSH,
     "corelight_linux": CorelightLinuxSSH,
     "coriant": CoriantSSH,
+    "cumulus_linux": CumulusLinuxSSH,
     "dell_dnos9": DellForce10SSH,
     "dell_force10": DellForce10SSH,
     "dell_os6": DellDNOS6SSH,
@@ -257,10 +266,10 @@ CLASS_MAPPER_BASE = {
     "f5_tmsh": F5TmshSSH,
     "f5_linux": F5LinuxSSH,
     "fiberstore_fsos": FiberstoreFsosSSH,
+    "fiberstore_fsosv2": FiberstoreFsosV2SSH,
     "fiberstore_networkos": FiberstoreNetworkOSSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
-    "fs_os": FSOSSSH,
     "fsas_sir": FsasSirSSH,
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
@@ -281,6 +290,7 @@ CLASS_MAPPER_BASE = {
     "juniper_screenos": JuniperScreenOsSSH,
     "keymile": KeymileSSH,
     "keymile_nos": KeymileNOSSSH,
+    "lancom_lcossx4": LancomLCOSSX4SSH,
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
     "mikrotik_switchos": MikrotikSwitchOsSSH,
@@ -307,6 +317,7 @@ CLASS_MAPPER_BASE = {
     "sixwind_os": SixwindOSSSH,
     "sophos_sfos": SophosSfosSSH,
     "supermicro_smis": SmciSwitchSmisSSH,
+    "telcosystems_binos": TelcoSystemsBinosSSH,
     "teldat_cit": TeldatCITSSH,
     "tplink_jetstream": TPLinkJetStreamSSH,
     # ubiquiti_airos - Placeholder agreed to with NTC (if this driver is created in future)
@@ -381,6 +392,7 @@ CLASS_MAPPER["dlink_ds_telnet"] = DlinkDSTelnet
 CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
+CLASS_MAPPER["fiberstore_fsosv2_telnet"] = FiberstoreFsosV2Telnet
 CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["genexis_solt33_telnet"] = GenexisSOLT33Telnet
@@ -403,6 +415,7 @@ CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
+CLASS_MAPPER["telcosystems_binos_telnet"] = TelcoSystemsBinosTelnet
 CLASS_MAPPER["teldat_cit_telnet"] = TeldatCITTelnet
 CLASS_MAPPER["tplink_jetstream_telnet"] = TPLinkJetStreamTelnet
 CLASS_MAPPER["yamaha_telnet"] = YamahaTelnet
