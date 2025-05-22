@@ -247,7 +247,7 @@ SSH_MAPPER_DICT = {
     },
     "extreme_exos": {
         "cmd": "show version",
-        "search_patterns": [r"ExtremeXOS"],
+        "search_patterns": [r"ExtremeXOS", "EXOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
