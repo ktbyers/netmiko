@@ -103,6 +103,7 @@ from netmiko.fiberstore import (
 )
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
+from netmiko.fsas import FsasSirSSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
@@ -269,6 +270,7 @@ CLASS_MAPPER_BASE = {
     "fiberstore_networkos": FiberstoreNetworkOSSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
+    "fsas_sir": FsasSirSSH,
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
