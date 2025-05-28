@@ -161,15 +161,19 @@ SSH_MAPPER_DICT = {
     "dell_os9": {
         "cmd": "show system",
         "search_patterns": [
-            r"Dell Application Software Version:  9",
-            r"Dell Networking OS Version : 9",
+            r"Dell Application Software Version\s*:\s*9",
+            r"Dell Networking OS Version\s*:\s*9",
+            r"Dell EMC Networking OS Version\s*:\s*9",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     "dell_os10": {
         "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10.Enterprise"],
+        "search_patterns": [
+            r"Dell EMC Networking OS10.Enterprise",
+            r"Dell SmartFabric OS10[\s*|-]Enterprise",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -243,7 +247,7 @@ SSH_MAPPER_DICT = {
     },
     "extreme_exos": {
         "cmd": "show version",
-        "search_patterns": [r"ExtremeXOS"],
+        "search_patterns": [r"ExtremeXOS", "EXOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
