@@ -131,3 +131,25 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
+    def cleanup(self, command: str = "quit") -> None:
+        """
+        Gracefully exit the SSH session.
+        If mmi-mode is activated the session is automatically logged out.
+        """
+        timeout: int = 30
+        super().cleanup(command=command)
+        start_time = time.time()
+        output: str = ""
+        # If after 20 seconds the device hasn't logged out, force it
+        while time.time() - start_time < timeout:
+            output += self.read_channel()
+            if output.endswith("Are you sure to log out? (y/n)[n]:"):
+                self.write_channel("y" + self.RETURN)
+                output = ""
+            elif output.endswith(
+                "Configuration console exit, please retry to log on\n"
+            ):
+                return
+            time.sleep(0.01)
+        raise ValueError("Failed to log out of the device")
