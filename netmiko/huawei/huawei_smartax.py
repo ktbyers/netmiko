@@ -133,10 +133,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         )
 
     def cleanup(self, command: str = "quit") -> None:
-        """
-        Gracefully exit the SSH session.
-        If mmi-mode is activated the session is automatically logged out.
-        """
+        """Gracefully exit the SSH session."""
         timeout: int = 30
         super().cleanup(command=command)
         start_time = time.time()
