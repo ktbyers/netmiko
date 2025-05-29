@@ -45,9 +45,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
     def __send_command(
         self, command: str, delay_factor: float = 1.0, mode: Mode = Mode.BASE
     ) -> None:
-        """
-        Send a command on startup to disable the automatic paging.
-        """
+        """ Send a command during startup """
         if mode in [Mode.ENABLE, Mode.CONFIG]:
             self.enable()
         if mode == Mode.CONFIG:
