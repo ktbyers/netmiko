@@ -138,15 +138,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         super().cleanup(command=command)
         start_time = time.time()
         output: str = ""
-        # If after 20 seconds the device hasn't logged out, force it
+        # If after 30 seconds the device hasn't logged out, force it
         while time.time() - start_time < timeout:
             output += self.read_channel()
-            if output.endswith("Are you sure to log out? (y/n)[n]:"):
+            if "Are you sure to log out? (y/n)[n]:" in output:
                 self.write_channel("y" + self.RETURN)
                 output = ""
-            elif output.endswith(
-                "Configuration console exit, please retry to log on\n"
-            ):
+            elif "Configuration console exit, please retry to log on" in output:
                 return
             time.sleep(0.01)
         raise ValueError("Failed to log out of the device")
