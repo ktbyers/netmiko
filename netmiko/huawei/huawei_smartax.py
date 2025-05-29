@@ -23,6 +23,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
         self.set_base_prompt()
         self._disable_smart_interaction()
+        self._disable_infoswitch_cli()
         self.disable_paging()
 
     def strip_ansi_escape_codes(self, string_buffer: str) -> str:
@@ -40,6 +41,18 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug(f"new_output = {output}")
         log.debug(f"repr = {repr(output)}")
         return super().strip_ansi_escape_codes(output)
+
+    def _disable_infoswitch_cli(self, command: str = "infoswitch cli OFF") -> None:
+        """SmartAX sends debugging output to the terminal by default--disable this."""
+        priv_escalation = False
+        # infoswitch cli OFF requires enable mode
+        if self.check_enable_mode():
+            self.enable()
+            priv_escalation = True
+        pattern = re.escape(self.base_prompt)
+        self._send_command_str(command, expect_string=rf"{pattern}#")
+        if priv_escalation:
+            self.exit_enable_mode()
 
     def _disable_smart_interaction(
         self, command: str = "undo smart", delay_factor: float = 1.0
