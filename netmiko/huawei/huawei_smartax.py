@@ -9,6 +9,7 @@ from netmiko import log
 
 class Mode(Enum):
     """Define the mode of the device."""
+
     BASE = "base"
     ENABLE = "enable"
     CONFIG = "config"
@@ -42,9 +43,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         )
 
     def __send_command(
-        self, command: str,
-        delay_factor: float = 1.0,
-        mode: Mode = Mode.BASE
+        self, command: str, delay_factor: float = 1.0, mode: Mode = Mode.BASE
     ) -> None:
         """
         Send a command on startup to disable the automatic paging.
