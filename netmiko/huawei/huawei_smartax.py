@@ -1,10 +1,17 @@
 import time
 import re
 from typing import Optional
+from enum import Enum
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
 
+class Mode(Enum):
+    """Define the mode of the device."""
+
+    BASE = "base"
+    ENABLE = "enable"
+    CONFIG = "config"
 
 class HuaweiSmartAXSSH(CiscoBaseConnection):
     """Supports Huawei SmartAX and OLT."""
@@ -22,8 +29,44 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             self._test_channel_read(pattern=self.prompt_pattern)
 
         self.set_base_prompt()
-        self._disable_smart_interaction()
+
+        # Disables the { <cr> } prompt to avoid having to sent a 2nd return after each command
+        self.__send_command("undo smart")
+        # Disable the automatic paging
         self.disable_paging()
+        # Disable the alarms send by the device during the session
+        self.__send_command(
+            command="infoswitch cli OFF",
+            mode=Mode.ENABLE,
+        )
+
+
+    def __send_command(
+        self, command: str,
+        delay_factor: float = 1.0,
+        mode: Mode = Mode.BASE
+    ) -> None:
+        """
+        Send a command on startup to disable the automatic paging.
+        """
+        if mode in [Mode.ENABLE, Mode.CONFIG]:
+            self.enable()
+        if mode == Mode.CONFIG:
+            self.config_mode()
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+        command = self.normalize_cmd(command)
+        log.debug("Command: %s", command)
+        self.write_channel(command)
+        if self.global_cmd_verify is not False:
+            output = self.read_until_pattern(pattern=re.escape(command.strip()))
+        output = self.read_until_prompt(read_entire_line=True)
+        log.debug("%s", output)
+        if mode == Mode.CONFIG:
+            self.exit_config_mode()
+        if mode in [Mode.ENABLE, Mode.CONFIG]:
+            self.exit_enable_mode()
 
     def strip_ansi_escape_codes(self, string_buffer: str) -> str:
         """
@@ -37,28 +80,9 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         output = re.sub(pattern, "", output)
 
         log.debug("Stripping ANSI escape codes")
-        log.debug(f"new_output = {output}")
-        log.debug(f"repr = {repr(output)}")
+        log.debug("new_output = %s", output)
+        log.debug("repr = %s", repr(output))
         return super().strip_ansi_escape_codes(output)
-
-    def _disable_smart_interaction(
-        self, command: str = "undo smart", delay_factor: float = 1.0
-    ) -> None:
-        """Disables the { <cr> } prompt to avoid having to sent a 2nd return after each command"""
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-        command = self.normalize_cmd(command)
-        log.debug("In disable_smart_interaction")
-        log.debug(f"Command: {command}")
-        self.write_channel(command)
-        if self.global_cmd_verify is not False:
-            output = self.read_until_pattern(pattern=re.escape(command.strip()))
-            output = self.read_until_prompt(read_entire_line=True)
-        else:
-            output = self.read_until_prompt(read_entire_line=True)
-        log.debug(f"{output}")
-        log.debug("Exiting disable_smart_interaction")
 
     def disable_paging(
         self,
