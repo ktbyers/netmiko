@@ -6,12 +6,13 @@ from enum import Enum
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko import log
 
+
 class Mode(Enum):
     """Define the mode of the device."""
-
     BASE = "base"
     ENABLE = "enable"
     CONFIG = "config"
+
 
 class HuaweiSmartAXSSH(CiscoBaseConnection):
     """Supports Huawei SmartAX and OLT."""
@@ -39,7 +40,6 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             command="infoswitch cli OFF",
             mode=Mode.ENABLE,
         )
-
 
     def __send_command(
         self, command: str,
