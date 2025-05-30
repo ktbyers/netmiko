@@ -46,7 +46,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         """SmartAX sends debugging output to the terminal by default--disable this."""
         priv_escalation = False
         # infoswitch cli OFF requires enable mode
-        if self.check_enable_mode():
+        if not self.check_enable_mode():
             self.enable()
             priv_escalation = True
         pattern = re.escape(self.base_prompt)
