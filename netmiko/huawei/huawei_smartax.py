@@ -144,3 +144,23 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
+
+    def cleanup(self, command: str = "quit") -> None:
+        """Gracefully exit the SSH session."""
+        timeout: int = 30
+        super().cleanup(command=command)
+        start_time = time.time()
+        output: str = ""
+        # If after 30 seconds the device hasn't logged out, force it
+        while time.time() - start_time < timeout:
+            # Check if SSH session is even alive
+            if not self.is_alive():
+                return
+            output += self.read_channel()
+            if "Are you sure to log out? (y/n)[n]:" in output:
+                self.write_channel("y" + self.RETURN)
+                output = ""
+            elif "Configuration console exit, please retry to log on" in output:
+                return
+            time.sleep(0.01)
+        raise ValueError("Failed to log out of the device")
