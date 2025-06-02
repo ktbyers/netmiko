@@ -153,6 +153,9 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         output: str = ""
         # If after 30 seconds the device hasn't logged out, force it
         while time.time() - start_time < timeout:
+            # Check if SSH session is even alive
+            if not self.is_alive():
+                return
             output += self.read_channel()
             if "Are you sure to log out? (y/n)[n]:" in output:
                 self.write_channel("y" + self.RETURN)
