@@ -88,21 +88,25 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         )
 
     def config_mode(
-        self, config_command: str = "config", pattern: str = "", re_flags: int = 0
+        self, config_command: str = "config", pattern: str = r"\)#", re_flags: int = 0
     ) -> str:
         return super().config_mode(
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def check_config_mode(
-        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
+        self, check_string: str = "\\)#", pattern: str = "[#>]", force_regex: bool = True,
     ) -> bool:
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(
+            check_string=check_string,
+            pattern=pattern,
+            force_regex=force_regex
+        )
 
     def exit_config_mode(
         self, exit_config: str = "return", pattern: str = r"#.*"
     ) -> str:
-        return super().exit_config_mode(exit_config=exit_config)
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
         return super().check_enable_mode(check_string=check_string)
