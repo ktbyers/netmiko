@@ -95,12 +95,13 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         )
 
     def check_config_mode(
-        self, check_string: str = "\\)#", pattern: str = "[#>]", force_regex: bool = True,
+        self,
+        check_string: str = "\\)#",
+        pattern: str = "[#>]",
+        force_regex: bool = True,
     ) -> bool:
         return super().check_config_mode(
-            check_string=check_string,
-            pattern=pattern,
-            force_regex=force_regex
+            check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
     def exit_config_mode(
