@@ -220,7 +220,6 @@ def test_send_command_genie(net_connect, commands, expected_responses):
 
 
 def test_send_multiline_timing(net_connect):
-
     debug = False
 
     if (
@@ -237,7 +236,6 @@ def test_send_multiline_timing(net_connect):
 
 
 def test_send_multiline(net_connect):
-
     debug = False
     if (
         "cisco_ios" not in net_connect.device_type

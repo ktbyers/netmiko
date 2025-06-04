@@ -21,6 +21,7 @@
 - ARRIS CER
 - Aruba OS Switch
 - AudioCodes Gateways & Controllers
+- Aviat WTM Outdoor Radio
 - Broadcom ICOS
 - Calix B6
 - Casa Systems CMTS

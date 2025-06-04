@@ -26,7 +26,7 @@ from netmiko.audiocode import (
     Audiocode66Telnet,
     AudiocodeShellTelnet,
 )
-
+from netmiko.aviat import AviatWTMSSH
 from netmiko.bintec import BintecBossSSH, BintecBossTelnet
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
@@ -150,6 +150,8 @@ from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.silverpeak import SilverPeakVXOASSH
 from netmiko.sixwind import SixwindOSSSH
 from netmiko.sophos import SophosSfosSSH
+from netmiko.supermicro import SmciSwitchSmisSSH
+from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.teldat import TeldatCITSSH, TeldatCITTelnet
 from netmiko.telcosystems import TelcoSystemsBinosSSH, TelcoSystemsBinosTelnet
 from netmiko.terminal_server import TerminalServerSSH, TerminalServerTelnet
@@ -164,8 +166,6 @@ from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
 from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
-from netmiko.supermicro import SmciSwitchSmisSSH
-from netmiko.supermicro import SmciSwitchSmisTelnet
 from netmiko.zyxel import ZyxelSSH
 
 if TYPE_CHECKING:
@@ -200,6 +200,7 @@ CLASS_MAPPER_BASE = {
     "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
+    "aviat_wtm": AviatWTMSSH,
     "bintec_boss": BintecBossSSH,
     "broadcom_icos": BroadcomIcosSSH,
     "brocade_fos": BrocadeFOSSSH,
