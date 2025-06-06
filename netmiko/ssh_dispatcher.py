@@ -16,7 +16,7 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
-from netmiko.aruba import ArubaOsSSH, ArubaCxSSH
+from netmiko.aruba import ArubaOsSSH, ArubaCxSSH, ArubaOsFileTransfer
 from netmiko.asterfusion import AsterfusionAsterNOSSSH
 from netmiko.audiocode import (
     Audiocode72SSH,
@@ -334,6 +334,7 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
+    "aruba_os": ArubaOsFileTransfer,
     "arista_eos": AristaFileTransfer,
     "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
