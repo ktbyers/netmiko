@@ -114,7 +114,6 @@ from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
-from netmiko.kontron import KontronOSSSH
 from netmiko.lancom import LancomLCOSSX4SSH
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.maipu import MaipuSSH
@@ -289,7 +288,6 @@ CLASS_MAPPER_BASE = {
     "juniper_screenos": JuniperScreenOsSSH,
     "keymile": KeymileSSH,
     "keymile_nos": KeymileNOSSSH,
-    "kontron_os": KontronOSSSH,
     "lancom_lcossx4": LancomLCOSSX4SSH,
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
