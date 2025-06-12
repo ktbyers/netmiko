@@ -42,6 +42,42 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         log.debug(f"repr = {repr(output)}")
         return super().strip_ansi_escape_codes(output)
 
+    def _enter_mmi_mode(self, command: str = "mmi-mode enable") -> None:
+        """SmartAX enters a faster mode for machine to machine interactions."""
+        priv_escalation_enable = False
+        priv_escalation_config = False
+        # mmi-mode requires config mode
+        if not self.check_enable_mode():
+            self.enable()
+            priv_escalation_enable = True
+        if not self.check_config_mode():
+            self.config_mode()
+            priv_escalation_config = True
+        pattern = re.escape(self.base_prompt)
+        self._send_command_str(command, expect_string=rf"{pattern}\(config\)#")
+        if priv_escalation_config:
+            self.exit_config_mode()
+        if priv_escalation_enable:
+            self.exit_enable_mode()
+
+    def _disable_mmi_mode(self, command: str = "mmi-mode disable") -> None:
+        """SmartAX exits a faster mode for machine to machine interactions."""
+        priv_escalation_enable = False
+        priv_escalation_config = False
+        # mmi-mode requires config mode
+        if not self.check_enable_mode():
+            self.enable()
+            priv_escalation_enable = True
+        if not self.check_config_mode():
+            self.check_config_mode()
+            priv_escalation_config = True
+        pattern = re.escape(self.base_prompt)
+        self._send_command_str(command, expect_string=rf"{pattern}(config)#")
+        if priv_escalation_config:
+            self.exit_config_mode()
+        if priv_escalation_enable:
+            self.exit_enable_mode()
+
     def _disable_infoswitch_cli(self, command: str = "infoswitch cli OFF") -> None:
         """SmartAX sends debugging output to the terminal by default--disable this."""
         priv_escalation = False
@@ -152,6 +188,8 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
     def cleanup(self, command: str = "quit") -> None:
         """Gracefully exit the SSH session."""
+        if self.check_config_mode():
+            self._send_command_str("quit")
         timeout: int = 30
         super().cleanup(command=command)
         start_time = time.time()
@@ -169,3 +207,15 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
                 return
             time.sleep(0.01)
         raise ValueError("Failed to log out of the device")
+
+
+class HuaweiSmartAXSSHMMI(HuaweiSmartAXSSH):
+
+    def session_preparation(self) -> None:
+        super().session_preparation()
+        self._enter_mmi_mode()
+
+    def cleanup(self, command: str = "quit") -> None:
+        if self.check_config_mode():
+            self._send_command_str("quit")
+        self._send_command_str("quit")
