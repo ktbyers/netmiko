@@ -121,6 +121,7 @@ class AristaTelnet(AristaBase):
 
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
+
     prompt_pattern = r"[$>#]"
 
     def __init__(
