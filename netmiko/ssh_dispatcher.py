@@ -108,7 +108,7 @@ from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
-from netmiko.huawei import HuaweiSmartAXSSH
+from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
 from netmiko.infinera import InfineraPacketSSH, InfineraPacketTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
@@ -278,6 +278,7 @@ CLASS_MAPPER_BASE = {
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
+    "huawei_smartaxmmi": HuaweiSmartAXSSHMMI,
     "huawei_smartax": HuaweiSmartAXSSH,
     "huawei_olt": HuaweiSmartAXSSH,
     "huawei_vrp": HuaweiSSH,

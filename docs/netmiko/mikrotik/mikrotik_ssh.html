@@ -98,6 +98,20 @@ hljs.highlightAll();
         &#34;&#34;&#34;Mikrotik does not have paging by default.&#34;&#34;&#34;
         return &#34;&#34;
 
+    def _prompt_handler(self, auto_find_prompt: bool) -&gt; str:
+        &#34;&#34;&#34;Prompt regex for MikroTik is generated to match
+        only if the prompt string is at the end of the string
+        (with no more printable characters printed after it)
+        &#34;&#34;&#34;
+        if auto_find_prompt:
+            try:
+                prompt = self.find_prompt()
+            except ValueError:
+                prompt = self.base_prompt
+        else:
+            prompt = self.base_prompt
+        return re.escape(prompt.strip()) + r&#34;[ \t]*$&#34;
+
     def strip_prompt(self, a_string: str) -&gt; str:
         &#34;&#34;&#34;Strip the trailing router prompt from the output.
 

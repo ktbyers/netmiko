@@ -323,6 +323,7 @@ hljs.highlightAll();
                     ) or re.search(alt_prompt_terminator, output, flags=re.M):
                         return return_msg
 
+                    time.sleep(0.5 * delay_factor)
                     i += 1
 
                 except EOFError:
@@ -428,22 +429,31 @@ hljs.highlightAll();
 <ul class="hlist">
 <li><a title="netmiko.adtran.adtran.AdtranOSBase" href="adtran/adtran.html#netmiko.adtran.adtran.AdtranOSBase">AdtranOSBase</a></li>
 <li><a title="netmiko.allied_telesis.allied_telesis_awplus.AlliedTelesisAwplusBase" href="allied_telesis/allied_telesis_awplus.html#netmiko.allied_telesis.allied_telesis_awplus.AlliedTelesisAwplusBase">AlliedTelesisAwplusBase</a></li>
+<li><a title="netmiko.bintec.bintec_boss.BintecBossBase" href="bintec/bintec_boss.html#netmiko.bintec.bintec_boss.BintecBossBase">BintecBossBase</a></li>
 <li><a title="netmiko.cdot.cdot_cros_ssh.CdotCrosSSH" href="cdot/cdot_cros_ssh.html#netmiko.cdot.cdot_cros_ssh.CdotCrosSSH">CdotCrosSSH</a></li>
 <li><a title="netmiko.centec.centec_os.CentecOSBase" href="centec/centec_os.html#netmiko.centec.centec_os.CentecOSBase">CentecOSBase</a></li>
 <li><a title="netmiko.cisco.cisco_ios.CiscoIosBase" href="cisco/cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosBase">CiscoIosBase</a></li>
 <li><a title="netmiko.cisco.cisco_xr.CiscoXrBase" href="cisco/cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrBase">CiscoXrBase</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell/dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
+<li><a title="netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH" href="fiberstore/fiberstore_fsos.html#netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH">FiberstoreFsosSSH</a></li>
+<li><a title="netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosV2Base" href="fiberstore/fiberstore_fsos.html#netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosV2Base">FiberstoreFsosV2Base</a></li>
+<li><a title="netmiko.fiberstore.fiberstore_networkos.FiberstoreNetworkOSSSH" href="fiberstore/fiberstore_networkos.html#netmiko.fiberstore.fiberstore_networkos.FiberstoreNetworkOSSSH">FiberstoreNetworkOSSSH</a></li>
+<li><a title="netmiko.genexis.genexis_solt33.GenexisSOLT33Base" href="genexis/genexis_solt33.html#netmiko.genexis.genexis_solt33.GenexisSOLT33Base">GenexisSOLT33Base</a></li>
 <li><a title="netmiko.hillstone.hillstone.HillstoneStoneosBase" href="hillstone/hillstone.html#netmiko.hillstone.hillstone.HillstoneStoneosBase">HillstoneStoneosBase</a></li>
 <li><a title="netmiko.huawei.huawei.HuaweiBase" href="huawei/huawei.html#netmiko.huawei.huawei.HuaweiBase">HuaweiBase</a></li>
 <li><a title="netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH" href="huawei/huawei_smartax.html#netmiko.huawei.huawei_smartax.HuaweiSmartAXSSH">HuaweiSmartAXSSH</a></li>
+<li><a title="netmiko.infinera.infinera_packet.InfineraBase" href="infinera/infinera_packet.html#netmiko.infinera.infinera_packet.InfineraBase">InfineraBase</a></li>
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="ipinfusion/ipinfusion_ocnos.html#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
 <li><a title="netmiko.maipu.maipu.MaipuBase" href="maipu/maipu.html#netmiko.maipu.maipu.MaipuBase">MaipuBase</a></li>
 <li><a title="netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase" href="oneaccess/oneaccess_oneos.html#netmiko.oneaccess.oneaccess_oneos.OneaccessOneOSBase">OneaccessOneOSBase</a></li>
+<li><a title="netmiko.optilink.op_eolt11444.OptilinkEOLT11444Base" href="optilink/op_eolt11444.html#netmiko.optilink.op_eolt11444.OptilinkEOLT11444Base">OptilinkEOLT11444Base</a></li>
+<li><a title="netmiko.optilink.op_eolt9702.OptilinkEOLT9702Base" href="optilink/op_eolt9702.html#netmiko.optilink.op_eolt9702.OptilinkEOLT9702Base">OptilinkEOLT9702Base</a></li>
 <li><a title="netmiko.raisecom.raisecom_roap.RaisecomRoapBase" href="raisecom/raisecom_roap.html#netmiko.raisecom.raisecom_roap.RaisecomRoapBase">RaisecomRoapBase</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="ruijie/ruijie_os.html#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></li>
 <li><a title="netmiko.sixwind.sixwind_os.SixwindOSBase" href="sixwind/sixwind_os.html#netmiko.sixwind.sixwind_os.SixwindOSBase">SixwindOSBase</a></li>
 <li><a title="netmiko.supermicro.smci_smis.SmciSwitchSmisBase" href="supermicro/smci_smis.html#netmiko.supermicro.smci_smis.SmciSwitchSmisBase">SmciSwitchSmisBase</a></li>
+<li><a title="netmiko.telcosystems.telcosystems_binos.TelcoSystemsBinosBase" href="telcosystems/telcosystems_binos.html#netmiko.telcosystems.telcosystems_binos.TelcoSystemsBinosBase">TelcoSystemsBinosBase</a></li>
 <li><a title="netmiko.zte.zte_zxros.ZteZxrosBase" href="zte/zte_zxros.html#netmiko.zte.zte_zxros.ZteZxrosBase">ZteZxrosBase</a></li>
 </ul>
 <h3>Methods</h3>
@@ -566,7 +576,7 @@ hljs.highlightAll();
 <li><a title="netmiko.arista.arista.AristaFileTransfer" href="arista/arista.html#netmiko.arista.arista.AristaFileTransfer">AristaFileTransfer</a></li>
 <li><a title="netmiko.cisco.cisco_asa_ssh.CiscoAsaFileTransfer" href="cisco/cisco_asa_ssh.html#netmiko.cisco.cisco_asa_ssh.CiscoAsaFileTransfer">CiscoAsaFileTransfer</a></li>
 <li><a title="netmiko.cisco.cisco_ios.CiscoIosFileTransfer" href="cisco/cisco_ios.html#netmiko.cisco.cisco_ios.CiscoIosFileTransfer">CiscoIosFileTransfer</a></li>
-<li><a title="netmiko.cisco.cisco_nxos_ssh.CiscoNxosFileTransfer" href="cisco/cisco_nxos_ssh.html#netmiko.cisco.cisco_nxos_ssh.CiscoNxosFileTransfer">CiscoNxosFileTransfer</a></li>
+<li><a title="netmiko.cisco.cisco_nxos.CiscoNxosFileTransfer" href="cisco/cisco_nxos.html#netmiko.cisco.cisco_nxos.CiscoNxosFileTransfer">CiscoNxosFileTransfer</a></li>
 <li><a title="netmiko.cisco.cisco_xr.CiscoXrFileTransfer" href="cisco/cisco_xr.html#netmiko.cisco.cisco_xr.CiscoXrFileTransfer">CiscoXrFileTransfer</a></li>
 <li><a title="netmiko.linux.linux_ssh.LinuxFileTransfer" href="linux/linux_ssh.html#netmiko.linux.linux_ssh.LinuxFileTransfer">LinuxFileTransfer</a></li>
 </ul>
@@ -745,13 +755,14 @@ hljs.highlightAll();
 <li><a title="netmiko.arris.arris_cer.ArrisCERBase" href="arris/arris_cer.html#netmiko.arris.arris_cer.ArrisCERBase">ArrisCERBase</a></li>
 <li><a title="netmiko.aruba.aruba_aoscx.ArubaCxSSH" href="aruba/aruba_aoscx.html#netmiko.aruba.aruba_aoscx.ArubaCxSSH">ArubaCxSSH</a></li>
 <li><a title="netmiko.aruba.aruba_os.ArubaOsSSH" href="aruba/aruba_os.html#netmiko.aruba.aruba_os.ArubaOsSSH">ArubaOsSSH</a></li>
+<li><a title="netmiko.asterfusion.asterfusion.AsterfusionAsterNOSSSH" href="asterfusion/asterfusion.html#netmiko.asterfusion.asterfusion.AsterfusionAsterNOSSSH">AsterfusionAsterNOSSSH</a></li>
 <li><a title="netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH" href="broadcom/broadcom_icos_ssh.html#netmiko.broadcom.broadcom_icos_ssh.BroadcomIcosSSH">BroadcomIcosSSH</a></li>
 <li><a title="netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH" href="brocade/brocade_fos_ssh.html#netmiko.brocade.brocade_fos_ssh.BrocadeFOSSSH">BrocadeFOSSSH</a></li>
 <li><a title="netmiko.calix.calix_b6.CalixB6Base" href="calix/calix_b6.html#netmiko.calix.calix_b6.CalixB6Base">CalixB6Base</a></li>
 <li><a title="netmiko.casa.casa_cmts.CasaCMTSBase" href="casa/casa_cmts.html#netmiko.casa.casa_cmts.CasaCMTSBase">CasaCMTSBase</a></li>
 <li><a title="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH" href="cisco/cisco_asa_ssh.html#netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH">CiscoAsaSSH</a></li>
 <li><a title="netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH" href="cisco/cisco_ftd_ssh.html#netmiko.cisco.cisco_ftd_ssh.CiscoFtdSSH">CiscoFtdSSH</a></li>
-<li><a title="netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH" href="cisco/cisco_nxos_ssh.html#netmiko.cisco.cisco_nxos_ssh.CiscoNxosSSH">CiscoNxosSSH</a></li>
+<li><a title="netmiko.cisco.cisco_nxos.CiscoNxosBase" href="cisco/cisco_nxos.html#netmiko.cisco.cisco_nxos.CiscoNxosBase">CiscoNxosBase</a></li>
 <li><a title="netmiko.cisco.cisco_s200.CiscoS200Base" href="cisco/cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base">CiscoS200Base</a></li>
 <li><a title="netmiko.cisco.cisco_s300.CiscoS300Base" href="cisco/cisco_s300.html#netmiko.cisco.cisco_s300.CiscoS300Base">CiscoS300Base</a></li>
 <li><a title="netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH" href="cisco/cisco_tp_tcce.html#netmiko.cisco.cisco_tp_tcce.CiscoTpTcCeSSH">CiscoTpTcCeSSH</a></li>
@@ -773,13 +784,12 @@ hljs.highlightAll();
 <li><a title="netmiko.extreme.extreme_nos_ssh.ExtremeNosSSH" href="extreme/extreme_nos_ssh.html#netmiko.extreme.extreme_nos_ssh.ExtremeNosSSH">ExtremeNosSSH</a></li>
 <li><a title="netmiko.extreme.extreme_slx_ssh.ExtremeSlxSSH" href="extreme/extreme_slx_ssh.html#netmiko.extreme.extreme_slx_ssh.ExtremeSlxSSH">ExtremeSlxSSH</a></li>
 <li><a title="netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH" href="extreme/extreme_tierraos_ssh.html#netmiko.extreme.extreme_tierraos_ssh.ExtremeTierraSSH">ExtremeTierraSSH</a></li>
-<li><a title="netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH" href="extreme/extreme_vsp_ssh.html#netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH">ExtremeVspSSH</a></li>
 <li><a title="netmiko.extreme.extreme_wing_ssh.ExtremeWingSSH" href="extreme/extreme_wing_ssh.html#netmiko.extreme.extreme_wing_ssh.ExtremeWingSSH">ExtremeWingSSH</a></li>
-<li><a title="netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH" href="fiberstore/fiberstore_fsos.html#netmiko.fiberstore.fiberstore_fsos.FiberstoreFsosSSH">FiberstoreFsosSSH</a></li>
 <li><a title="netmiko.fortinet.fortinet_ssh.FortinetSSH" href="fortinet/fortinet_ssh.html#netmiko.fortinet.fortinet_ssh.FortinetSSH">FortinetSSH</a></li>
 <li><a title="netmiko.garderos.garderos_grs.GarderosGrsSSH" href="garderos/garderos_grs.html#netmiko.garderos.garderos_grs.GarderosGrsSSH">GarderosGrsSSH</a></li>
 <li><a title="netmiko.hp.hp_comware.HPComwareBase" href="hp/hp_comware.html#netmiko.hp.hp_comware.HPComwareBase">HPComwareBase</a></li>
 <li><a title="netmiko.hp.hp_procurve.HPProcurveBase" href="hp/hp_procurve.html#netmiko.hp.hp_procurve.HPProcurveBase">HPProcurveBase</a></li>
+<li><a title="netmiko.lancom.lancom_lcossx4.LancomLCOSSX4SSH" href="lancom/lancom_lcossx4.html#netmiko.lancom.lancom_lcossx4.LancomLCOSSX4SSH">LancomLCOSSX4SSH</a></li>
 <li><a title="netmiko.linux.linux_ssh.LinuxSSH" href="linux/linux_ssh.html#netmiko.linux.linux_ssh.LinuxSSH">LinuxSSH</a></li>
 <li><a title="netmiko.mellanox.mellanox_mlnxos_ssh.MellanoxMlnxosSSH" href="mellanox/mellanox_mlnxos_ssh.html#netmiko.mellanox.mellanox_mlnxos_ssh.MellanoxMlnxosSSH">MellanoxMlnxosSSH</a></li>
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="mikrotik/mikrotik_ssh.html#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></li>
@@ -788,6 +798,7 @@ hljs.highlightAll();
 <li><a title="netmiko.netgear.netgear_prosafe_ssh.NetgearProSafeSSH" href="netgear/netgear_prosafe_ssh.html#netmiko.netgear.netgear_prosafe_ssh.NetgearProSafeSSH">NetgearProSafeSSH</a></li>
 <li><a title="netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH" href="quanta/quanta_mesh_ssh.html#netmiko.quanta.quanta_mesh_ssh.QuantaMeshSSH">QuantaMeshSSH</a></li>
 <li><a title="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase" href="ruckus/ruckus_fastiron.html#netmiko.ruckus.ruckus_fastiron.RuckusFastironBase">RuckusFastironBase</a></li>
+<li><a title="netmiko.silverpeak.silverpeak_vxoa_ssh.SilverPeakVXOASSH" href="silverpeak/silverpeak_vxoa_ssh.html#netmiko.silverpeak.silverpeak_vxoa_ssh.SilverPeakVXOASSH">SilverPeakVXOASSH</a></li>
 <li><a title="netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH" href="sophos/sophos_sfos_ssh.html#netmiko.sophos.sophos_sfos_ssh.SophosSfosSSH">SophosSfosSSH</a></li>
 <li><a title="netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase" href="tplink/tplink_jetstream.html#netmiko.tplink.tplink_jetstream.TPLinkJetStreamBase">TPLinkJetStreamBase</a></li>
 <li><a title="netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH" href="ubiquiti/edge_ssh.html#netmiko.ubiquiti.edge_ssh.UbiquitiEdgeSSH">UbiquitiEdgeSSH</a></li>

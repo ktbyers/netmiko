@@ -179,7 +179,7 @@ hljs.highlightAll();
         self.clear_buffer()
 
     def check_enable_mode(self, check_string: str = &#34;&gt;&gt;&#34;) -&gt; bool:
-        &#34;&#34;&#34;MRV has a &gt;&gt; for enable mode instead of # like Cisco&#34;&#34;&#34;
+        &#34;&#34;&#34;MRV has a &gt;&gt; for enable mode and config mode instead of # like Cisco&#34;&#34;&#34;
         return super().check_enable_mode(check_string=check_string)
 
     def enable(
@@ -197,6 +197,26 @@ hljs.highlightAll();
             enable_pattern=enable_pattern,
             check_state=check_state,
             re_flags=re_flags,
+        )
+
+    def check_config_mode(
+        self,
+        check_string: str = r&#34;Conf.*&gt;&gt;&#34;,
+        pattern: str = &#34;&#34;,
+        force_regex: bool = True,
+    ) -&gt; bool:
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
+
+    def config_mode(
+        self,
+        config_command: str = &#34;configuration&#34;,
+        pattern: str = &#34;&#34;,
+        re_flags: int = 0,
+    ) -&gt; str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
     def save_config(
@@ -222,7 +242,7 @@ hljs.highlightAll();
 <span>def <span class="ident">check_enable_mode</span></span>(<span>self, check_string: str = &#x27;&gt;&gt;&#x27;) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>MRV has a &gt;&gt; for enable mode instead of # like Cisco</p></div>
+<div class="desc"><p>MRV has a &gt;&gt; for enable mode and config mode instead of # like Cisco</p></div>
 </dd>
 <dt id="netmiko.mrv.mrv_lx.MrvLxSSH.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'save config flash', confirm: bool = False, confirm_response: str = '') ‑> str</span>
