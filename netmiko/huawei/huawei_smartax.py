@@ -188,10 +188,8 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
     def cleanup(self, command: str = "quit") -> None:
         """Gracefully exit the SSH session."""
-        if self.check_config_mode():
-            self._send_command_str("quit")
-        timeout: int = 30
         super().cleanup(command=command)
+        timeout: int = 30
         start_time = time.time()
         output: str = ""
         # If after 30 seconds the device hasn't logged out, force it
@@ -216,6 +214,4 @@ class HuaweiSmartAXSSHMMI(HuaweiSmartAXSSH):
         self._enter_mmi_mode()
 
     def cleanup(self, command: str = "quit") -> None:
-        if self.check_config_mode():
-            self._send_command_str("quit")
-        self._send_command_str("quit")
+        super().cleanup(command=command)
