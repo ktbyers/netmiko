@@ -59,7 +59,28 @@ hljs.highlightAll();
         self.disable_paging()
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()</code></pre>
+        self.clear_buffer()
+
+    def disable_paging(
+        self,
+        command: str = &#34;pager off&#34;,
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;Disable paging on Pluribus devices.
+
+        :param command: Command to disable pagination of output
+        :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+        :param cmd_verify: Verify command echo before proceeding
+        :param pattern: Pattern to terminate reading of channel
+        &#34;&#34;&#34;
+        return super().disable_paging(
+            command=command,
+            delay_factor=delay_factor,
+            cmd_verify=cmd_verify,
+            pattern=pattern,
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -68,6 +89,16 @@ hljs.highlightAll();
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="netmiko.pluribus.pluribus_ssh.PluribusSSH.disable_paging"><code class="name flex">
+<span>def <span class="ident">disable_paging</span></span>(<span>self, command: str = 'pager off', delay_factor: Optional[float] = None, cmd_verify: bool = True, pattern: Optional[str] = None) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Disable paging on Pluribus devices.</p>
+<p>:param command: Command to disable pagination of output
+:param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+:param cmd_verify: Verify command echo before proceeding
+:param pattern: Pattern to terminate reading of channel</p></div>
+</dd>
 <dt id="netmiko.pluribus.pluribus_ssh.PluribusSSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -85,7 +116,6 @@ hljs.highlightAll();
 <li><code><a title="netmiko.base_connection.BaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
-<li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
@@ -141,6 +171,7 @@ hljs.highlightAll();
 <li>
 <h4><code><a title="netmiko.pluribus.pluribus_ssh.PluribusSSH" href="#netmiko.pluribus.pluribus_ssh.PluribusSSH">PluribusSSH</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.pluribus.pluribus_ssh.PluribusSSH.disable_paging" href="#netmiko.pluribus.pluribus_ssh.PluribusSSH.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.pluribus.pluribus_ssh.PluribusSSH.session_preparation" href="#netmiko.pluribus.pluribus_ssh.PluribusSSH.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>

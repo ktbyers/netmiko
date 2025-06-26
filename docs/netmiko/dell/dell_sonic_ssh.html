@@ -38,6 +38,170 @@ hljs.highlightAll();
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer"><code class="flex name class">
+<span>class <span class="ident">DellSonicFileTransfer</span></span>
+<span>(</span><span>ssh_conn: <a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a>, source_file: str, dest_file: str, file_system: Optional[str] = '/home/admin', direction: str = 'put', **kwargs: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dell EMC Networking SONiC SCP File Transfer driver.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellSonicFileTransfer(BaseFileTransfer):
+    &#34;&#34;&#34;Dell EMC Networking SONiC SCP File Transfer driver.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        ssh_conn: DellSonicSSH,
+        source_file: str,
+        dest_file: str,
+        file_system: Optional[str] = &#34;/home/admin&#34;,
+        direction: str = &#34;put&#34;,
+        **kwargs: Any,
+    ) -&gt; None:
+        super().__init__(
+            ssh_conn=ssh_conn,
+            source_file=source_file,
+            dest_file=dest_file,
+            file_system=file_system,
+            direction=direction,
+            **kwargs,
+        )
+        self.ssh_ctl_chan: DellSonicSSH = ssh_conn
+
+    def remote_file_size(
+        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
+    ) -&gt; int:
+        &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+            else:
+                raise ValueError(&#34;self.direction is set to an invalid value&#34;)
+
+        # Go back to the Linux shell
+        self.ssh_ctl_chan._return_shell()
+        if not remote_cmd:
+            remote_cmd = f&#34;ls -l {self.file_system}/{remote_file}&#34;
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
+        for line in remote_out.splitlines():
+            if remote_file in line:
+                file_size = line.split()[4]
+                break
+        self.ssh_ctl_chan._enter_cli()
+        if &#34;No such file or directory&#34; in remote_out:
+            raise IOError(&#34;Unable to find file on remote system&#34;)
+        else:
+            return int(file_size)
+
+    def remote_space_available(self, search_pattern: str = r&#34;Available&#34;) -&gt; int:
+        &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        # Go back to the Linux shell
+        self.ssh_ctl_chan._return_shell()
+        remote_cmd = f&#34;df {self.file_system}&#34;
+        remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
+        for line in remote_output.splitlines():
+            if &#34;root-overlay&#34; in line:
+                space_available = line.split()[3]
+                break
+        self.ssh_ctl_chan._enter_cli()
+        return int(space_available)
+
+    @staticmethod
+    def process_md5(md5_output: str, pattern: str = r&#34;(.*) (.*)&#34;) -&gt; str:
+        &#34;&#34;&#34;Process the md5 output and return the hash.&#34;&#34;&#34;
+        return BaseFileTransfer.process_md5(md5_output, pattern=pattern)
+
+    def remote_md5(
+        self, base_cmd: str = &#34;verify /md5&#34;, remote_file: Optional[str] = None
+    ) -&gt; str:
+        &#34;&#34;&#34;Calculate remote MD5 and returns the hash.&#34;&#34;&#34;
+        if remote_file is None:
+            if self.direction == &#34;put&#34;:
+                remote_file = self.dest_file
+            elif self.direction == &#34;get&#34;:
+                remote_file = self.source_file
+            else:
+                raise ValueError(&#34;self.direction is set to an invalid value&#34;)
+        self.ssh_ctl_chan._return_shell()
+        remote_md5_cmd = f&#34;md5sum {self.file_system}/{remote_file}&#34;
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
+        dest_md5 = self.process_md5(dest_md5)
+        self.ssh_ctl_chan._enter_cli()
+        return dest_md5.strip()
+
+    def check_file_exists(self, remote_cmd: str = &#34;dir home:/&#34;) -&gt; bool:
+        &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
+        if self.direction == &#34;put&#34;:
+            remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
+            search_string = rf&#34;{self.dest_file}&#34;
+            return bool(re.search(search_string, remote_out, flags=re.DOTALL))
+        elif self.direction == &#34;get&#34;:
+            return os.path.exists(self.dest_file)
+        else:
+            raise ValueError(&#34;self.direction is set to an invalid value&#34;)
+
+    def put_file(self) -&gt; None:
+        &#34;&#34;&#34;SCP copy the file from the local system to the remote device.&#34;&#34;&#34;
+        destination = f&#34;{self.dest_file}&#34;
+        self.scp_conn.scp_transfer_file(self.source_file, destination)
+        # Must close the SCP connection to get the file written (flush)
+        self.scp_conn.close()
+
+    def get_file(self) -&gt; None:
+        &#34;&#34;&#34;SCP copy the file from the remote device to local system.&#34;&#34;&#34;
+        source_file = f&#34;{self.source_file}&#34;
+        self.scp_conn.scp_get_file(source_file, self.dest_file)
+        self.scp_conn.close()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer.process_md5"><code class="name flex">
+<span>def <span class="ident">process_md5</span></span>(<span>md5_output: str, pattern: str = '(.*) (.*)') ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Process the md5 output and return the hash.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer.remote_md5"><code class="name flex">
+<span>def <span class="ident">remote_md5</span></span>(<span>self, base_cmd: str = 'verify /md5', remote_file: Optional[str] = None) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate remote MD5 and returns the hash.</p></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.check_file_exists" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.check_file_exists">check_file_exists</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.close_scp_chan" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.close_scp_chan">close_scp_chan</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.compare_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.compare_md5">compare_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.disable_scp" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.disable_scp">disable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.enable_scp" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.enable_scp">enable_scp</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.establish_scp_conn" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.establish_scp_conn">establish_scp_conn</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.file_md5" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.file_md5">file_md5</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.get_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.get_file">get_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.local_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.local_space_available">local_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.put_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.put_file">put_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_file_size" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.remote_file_size">remote_file_size</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.remote_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.remote_space_available">remote_space_available</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.transfer_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.transfer_file">transfer_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.verify_file" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.verify_file">verify_file</a></code></li>
+<li><code><a title="netmiko.scp_handler.BaseFileTransfer.verify_space_available" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer.verify_space_available">verify_space_available</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="netmiko.dell.dell_sonic_ssh.DellSonicSSH"><code class="flex name class">
 <span>class <span class="ident">DellSonicSSH</span></span>
 <span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
@@ -177,7 +341,8 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self._test_channel_read(pattern=r&#34;[&gt;$#]&#34;)
-        self._enter_shell()
+        # Enter the sonic-cli
+        self._enter_cli()
         self.disable_paging()
         self.set_base_prompt(alt_prompt_terminator=&#34;$&#34;)
 
@@ -191,13 +356,12 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def _enter_shell(self) -&gt; str:
-        &#34;&#34;&#34;Enter the sonic-cli Shell.&#34;&#34;&#34;
-        log.debug(&#34;Enter sonic-cli Shell.&#34;)
+    def _enter_cli(self) -&gt; str:
+        &#34;&#34;&#34;Enter the sonic-cli.&#34;&#34;&#34;
         return self._send_command_str(&#34;sonic-cli&#34;, expect_string=r&#34;\#&#34;)
 
-    def _return_cli(self) -&gt; str:
-        &#34;&#34;&#34;Return to the CLI.&#34;&#34;&#34;
+    def _return_shell(self) -&gt; str:
+        &#34;&#34;&#34;Return to the Linux shell.&#34;&#34;&#34;
         return self._send_command_str(&#34;exit&#34;, expect_string=r&#34;\$&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -279,6 +443,13 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer" href="#netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer">DellSonicFileTransfer</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer.process_md5" href="#netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer.process_md5">process_md5</a></code></li>
+<li><code><a title="netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer.remote_md5" href="#netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer.remote_md5">remote_md5</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a></code></h4>
 <ul class="">
