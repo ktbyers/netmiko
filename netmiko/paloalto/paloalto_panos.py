@@ -57,6 +57,8 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
     methods.  Overrides several methods for PaloAlto-specific compatibility.
     """
 
+    prompt_pattern = r"[>#]"
+
     def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
@@ -65,11 +67,11 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         Set the base prompt for interaction ('>').
         """
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"[>#]")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.disable_paging(
             command="set cli scripting-mode on",
             cmd_verify=False,
-            pattern=r"[>#].*mode on",
+            pattern=rf"{self.prompt_pattern}.*mode on",
         )
         self.set_terminal_width(
             command="set cli terminal width 500", pattern=r"set cli terminal width 500"
@@ -78,14 +80,16 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         self.set_base_prompt()
 
         # PA devices can be really slow--try to make sure we are caught up
-        self.write_channel("show admins\n")
-        self._test_channel_read(pattern=r"Client")
-        self._test_channel_read(pattern=r"[>#]")
+        self.write_channel("show system info\n")
+        self._test_channel_read(pattern=r"operational-mode")
+        self._test_channel_read(pattern=self.prompt_pattern)
 
     def find_prompt(
-        self, delay_factor: float = 5.0, pattern: Optional[str] = None
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
     ) -> str:
         """PA devices can be very slow to respond (in certain situations)"""
+        if pattern is None:
+            pattern = self.prompt_pattern
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def check_config_mode(
@@ -162,7 +166,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
             if device_and_network:
                 command_string += " device-and-network"
             if policy_and_objects:
-                command_string += " device-and-network"
+                command_string += " policy-and-objects"
             if no_vsys:
                 command_string += " no-vsys"
             command_string += " excluded"

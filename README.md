@@ -41,7 +41,7 @@ Netmiko aims to accomplish both of these operations and to do it across a very b
 
 ## Supported Platforms
 
-[PLATFORMS](PLATFORMS.md)
+[PLATFORMS](https://github.com/ktbyers/netmiko/blob/develop/PLATFORMS.md)
 
 <br />
 
@@ -64,7 +64,7 @@ $ pip install netmiko
 
 ## Common Issues/FAQ
 
-Answers to some [common questions](COMMON_ISSUES.md)
+Answers to some [common_questions](https://github.com/ktbyers/netmiko/blob/develop/COMMON_ISSUES.md)
 
 <br />
 
@@ -158,7 +158,7 @@ Contributors are welcome.
 
 You can contribute to Netmiko in a variety of ways: answering questions on Slack (see below in Questions/Discussions), responding to issues, adding to the common issues, reporting/fixing bugs, or even adding your own device type.
 
-Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion. To add a vendor/platform you can follow the outline [here](VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](TESTING.md).
+Before contributing a new vendor/platform device type, remember that any code added needs to be supported in some fashion. To add a vendor/platform you can follow the outline [here](https://github.com/ktbyers/netmiko/blob/develop/VENDOR.md). Once you've worked on your first pass of your driver and have it functional, you'll need to include test data in order for it to be merged into develop, you can see the general flow of how to do that [here](https://github.com/ktbyers/netmiko/blob/develop/TESTING.md).
 
 For all code contributions, please ensure that you have ran `black` against the code or your code will fail the Travis CI build.
 
@@ -170,8 +170,20 @@ If you find an issue with Netmiko, then you can open an issue on this projects i
 
 If you have questions or would like to discuss Netmiko, a #netmiko channel exists in [this Slack](https://pynet.slack.com) workspace. To join, use [this invitation](https://join.slack.com/t/pynet/shared_invite/zt-km2k3upf-AkWHY4YEx3sI1R5irMmc7Q). Once you have entered the workspace, then you can join the #netmiko channel.
 
+<br />
 
----
-Kirk Byers  
-Python for Network Engineers  
-https://pynet.twb-tech.com  
+## Sponsors 2025
+
+Special thanks to organizations and people that have helped support Netmiko development. In particular, these organizations have made meaningful contributions that help Netmiko keep moving forward:
+
+<a href="https://slurpit.io/"><img src="https://github.com/ktbyers/netmiko/blob/develop/images/slurpit.png" width="200" alt="Slurp'it Logo"></a>
+<a href="https://netpicker.io/"><img src="https://github.com/ktbyers/netmiko/blob/develop/images/netpicker.png" width="200" alt="Netpicker Logo"></a>
+
+<br />
+<br />
+
+##  
+Kirk Byers <br />
+Python for Network Engineers <br />
+https://pynet.twb-tech.com  <br />
+<br />

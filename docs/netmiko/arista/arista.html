@@ -171,8 +171,12 @@ hljs.highlightAll();
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
         self.ansi_escape_codes = True
         self._test_channel_read(pattern=self.prompt_pattern)
-        cmd = &#34;terminal width 511&#34;
-        self.set_terminal_width(command=cmd, pattern=r&#34;Width set to&#34;)
+        try:
+            cmd = &#34;terminal width 511&#34;
+            self.set_terminal_width(command=cmd, pattern=r&#34;Width set to&#34;)
+        except NetmikoTimeoutException:
+            # Continue on if setting &#39;terminal width&#39; fails
+            pass
         self.disable_paging(cmd_verify=False, pattern=r&#34;Pagination disabled&#34;)
         self.set_base_prompt()
 
@@ -369,6 +373,8 @@ fall behind.</p></div>
 <pre><code class="python">class AristaFileTransfer(CiscoFileTransfer):
     &#34;&#34;&#34;Arista SCP File Transfer driver.&#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[$&gt;#]&#34;
+
     def __init__(
         self,
         ssh_conn: &#34;BaseConnection&#34;,
@@ -389,6 +395,7 @@ fall behind.</p></div>
 
     def remote_space_available(self, search_pattern: str = &#34;&#34;) -&gt; int:
         &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        search_pattern = self.prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
@@ -427,6 +434,13 @@ fall behind.</p></div>
 <li><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></li>
 <li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.arista.arista.AristaFileTransfer.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></b></code>:
@@ -858,6 +872,9 @@ fall behind.</p></div>
 </li>
 <li>
 <h4><code><a title="netmiko.arista.arista.AristaFileTransfer" href="#netmiko.arista.arista.AristaFileTransfer">AristaFileTransfer</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.arista.arista.AristaFileTransfer.prompt_pattern" href="#netmiko.arista.arista.AristaFileTransfer.prompt_pattern">prompt_pattern</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="netmiko.arista.arista.AristaSSH" href="#netmiko.arista.arista.AristaSSH">AristaSSH</a></code></h4>

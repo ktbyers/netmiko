@@ -79,6 +79,7 @@ hljs.highlightAll();
 
     def remote_space_available(self, search_pattern: str = &#34;&#34;) -&gt; int:
         &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        search_pattern = r&#34;[%&gt;$#]&#34;
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
@@ -458,17 +459,19 @@ Overrides several methods for Juniper-specific compatibility.</p>
     Implement methods for interacting with Juniper ScreenOS devices.
     &#34;&#34;&#34;
 
+    def _try_session_preparation(self, force_data: bool = False) -&gt; None:
+        return super()._try_session_preparation(force_data=force_data)
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;
         ScreenOS can be configured to require: Accept this agreement y/[n]
         &#34;&#34;&#34;
         terminator = r&#34;\-&gt;&#34;
-        pattern = rf&#34;(Accept this|{terminator})&#34;
-        data = self._test_channel_read(pattern=pattern)
+        pattern = rf&#34;(?:Accept this.*|{terminator})&#34;
+        data = self.read_until_pattern(pattern=pattern)
         if &#34;Accept this&#34; in data:
             self.write_channel(&#34;y&#34;)
-            data += self._test_channel_read(pattern=terminator)
-
+            data += self.read_until_pattern(pattern=terminator)
         self.set_base_prompt()
         self.disable_paging(command=&#34;set console page 0&#34;)
 

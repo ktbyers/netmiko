@@ -176,6 +176,8 @@ class BaseConnection:
         # Connect timeouts
         # ssh-connect --> TCP conn (conn_timeout) --> SSH-banner (banner_timeout)
         #       --> Auth response (auth_timeout)
+        # For telnet 'conn_timeout' is mapped to main telnet timeout (which is used for both the
+        # telnet connection and for other blocking operations).
         conn_timeout: int = 10,
         # Timeout to wait for authentication response
         auth_timeout: Optional[int] = None,
@@ -721,7 +723,10 @@ parenthesis completely wrap the pattern '(pattern)'"""
                     pattern = f"({pattern})"
                     results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
-                if len(results) != 3:
+                if len(results) == 3:
+                    output, match_str, buffer = results
+
+                if len(results) != 3 or match_str is None:
                     # well, we tried
                     msg = f"""Unable to successfully split output based on pattern:
 pattern={pattern}
@@ -732,7 +737,6 @@ results={results}
 
                 # Process such that everything before and including pattern is return.
                 # Everything else is retained in the _read_buffer
-                output, match_str, buffer = results
                 output = output + match_str
                 if buffer:
                     self._read_buffer += buffer
@@ -1118,12 +1122,12 @@ You can look at the Netmiko session_log or debug log for more information.
                 self.remote_conn = telnet_proxy.Telnet(
                     self.host,
                     port=self.port,
-                    timeout=self.timeout,
+                    timeout=self.conn_timeout,
                     proxy_dict=self.sock_telnet,
                 )
             else:
                 self.remote_conn = telnetlib.Telnet(  # type: ignore
-                    self.host, port=self.port, timeout=self.timeout
+                    self.host, port=self.port, timeout=self.conn_timeout
                 )
             # Migrating communication to channel class
             self.channel = TelnetChannel(conn=self.remote_conn, encoding=self.encoding)
@@ -1391,7 +1395,7 @@ A paramiko SSHException occurred during connection creation:
             if pri_prompt_terminator and alt_prompt_terminator:
                 pri_term = re.escape(pri_prompt_terminator)
                 alt_term = re.escape(alt_prompt_terminator)
-                pattern = rf"({pri_term}|{alt_term})"
+                pattern = rf"(?:{pri_term}|{alt_term})"
             elif pri_prompt_terminator:
                 pattern = re.escape(pri_prompt_terminator)
             elif alt_prompt_terminator:
@@ -1421,7 +1425,8 @@ A paramiko SSHException occurred during connection creation:
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
 
-        :param pattern: Regular expression pattern to determine whether prompt is valid
+        :param pattern: Regular expression pattern to read until (not used in
+        most situations).
         """
         delay_factor = self.select_delay_factor(delay_factor)
         sleep_time = delay_factor * 0.25
@@ -2401,6 +2406,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         code_graphics_mode2 = chr(27) + r"\[\d\d;\d\d;\d\dm"
         code_graphics_mode3 = chr(27) + r"\[(3|4)\dm"
         code_graphics_mode4 = chr(27) + r"\[(9|10)[0-7]m"
+        code_graphics_mode5 = chr(27) + r"\[\d;\d\dm"
         code_get_cursor_position = chr(27) + r"\[6n"
         code_cursor_position = chr(27) + r"\[m"
         code_attrs_off = chr(27) + r"\[0m"
@@ -2432,6 +2438,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             code_graphics_mode2,
             code_graphics_mode3,
             code_graphics_mode4,
+            code_graphics_mode5,
             code_get_cursor_position,
             code_cursor_position,
             code_erase_display,

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.cisco_base_connection import CiscoFileTransfer
+from netmiko.exceptions import NetmikoTimeoutException
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
@@ -15,8 +16,12 @@ class AristaBase(CiscoSSHConnection):
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True
         self._test_channel_read(pattern=self.prompt_pattern)
-        cmd = "terminal width 511"
-        self.set_terminal_width(command=cmd, pattern=r"Width set to")
+        try:
+            cmd = "terminal width 511"
+            self.set_terminal_width(command=cmd, pattern=r"Width set to")
+        except NetmikoTimeoutException:
+            # Continue on if setting 'terminal width' fails
+            pass
         self.disable_paging(cmd_verify=False, pattern=r"Pagination disabled")
         self.set_base_prompt()
 
@@ -117,6 +122,8 @@ class AristaTelnet(AristaBase):
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
 
+    prompt_pattern = r"[$>#]"
+
     def __init__(
         self,
         ssh_conn: "BaseConnection",
@@ -137,6 +144,7 @@ class AristaFileTransfer(CiscoFileTransfer):
 
     def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
+        search_pattern = self.prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:

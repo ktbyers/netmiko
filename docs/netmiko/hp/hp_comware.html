@@ -197,10 +197,20 @@ hljs.highlightAll();
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_config_mode(
-        self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
+        self,
+        check_string: str = &#34;]&#34;,
+        pattern: str = r&#34;[&gt;\]]&#34;,
+        force_regex: bool = False,
     ) -&gt; bool:
-        &#34;&#34;&#34;Check whether device is in configuration mode. Return a boolean.&#34;&#34;&#34;
-        return super().check_config_mode(check_string=check_string)
+        &#34;&#34;&#34;Checks if the device is in configuration mode or not.
+
+        :param check_string: Identification of configuration mode from the device
+        :param pattern: Pattern to terminate reading of channel
+        :param force_regex: Use regular expression pattern to find check_string in output
+        &#34;&#34;&#34;
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def send_config_set(
         self,
@@ -311,10 +321,13 @@ hljs.highlightAll();
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.hp.hp_comware.HPComwareBase.check_config_mode"><code class="name flex">
-<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ']', pattern: str = '', force_regex: bool = False) ‑> bool</span>
+<span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ']', pattern: str = &#x27;[&gt;\\]]&#x27;, force_regex: bool = False) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Check whether device is in configuration mode. Return a boolean.</p></div>
+<div class="desc"><p>Checks if the device is in configuration mode or not.</p>
+<p>:param check_string: Identification of configuration mode from the device
+:param pattern: Pattern to terminate reading of channel
+:param force_regex: Use regular expression pattern to find check_string in output</p></div>
 </dd>
 <dt id="netmiko.hp.hp_comware.HPComwareBase.check_enable_mode"><code class="name flex">
 <span>def <span class="ident">check_enable_mode</span></span>(<span>self, check_string: str = ']') ‑> bool</span>

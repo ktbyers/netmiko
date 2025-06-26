@@ -51,6 +51,7 @@
 - Maipu
 - MikroTik RouterOS
 - MikroTik SwitchOS
+- NEC Univerge IX Routers
 - NetApp cDOT
 - Netgear ProSafe
 - Nokia/Alcatel SR OS
@@ -75,8 +76,10 @@
 - Accedian
 - Alaxala AX2600S and AX3600S 
 - Allied Telesis AlliedWare Plus
+- Arris CER
 - Aruba OS (Wireless Controllers/WAPs)
 - Aruba AOS-CX
+- Bintec BOSS (Bintec/Funkwerk)
 - Brocade Fabric OS
 - C-DOT CROS
 - Ciena SAOS
@@ -99,10 +102,12 @@
 - F5 Linux
 - Fortinet
 - Garderos GRS
+- Genexis Saturn SOLT33 (telnet only)
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
 - Nokia SR Linux
+- Optilink EOLT 9702 (telnet only)
 - QuantaMesh
 - Rad ETX
 - Raisecom ROAP
@@ -121,12 +126,15 @@
 - adtran_os
 - adva_fsp150f2
 - adva_fsp150f3
+- alaxala_ax26s
+- alaxala_ax36s
 - alcatel_aos
 - alcatel_sros
 - allied_telesis_awplus
 - apresia_aeos
 - arista_eos
 - arris_cer
+- aruba_aoscx
 - aruba_os
 - aruba_osswitch
 - aruba_procurve
@@ -135,6 +143,7 @@
 - audiocode_shell
 - avaya_ers
 - avaya_vsp
+- bintec_boss
 - broadcom_icos
 - brocade_fastiron
 - brocade_fos
@@ -148,6 +157,7 @@
 - centec_os
 - checkpoint_gaia
 - ciena_saos
+- cisco_apic
 - cisco_asa
 - cisco_ftd
 - cisco_ios
@@ -169,8 +179,8 @@
 - dell_os9
 - dell_powerconnect
 - dell_sonic
-- dlink_ds
 - digi_transport
+- dlink_ds
 - eltex
 - eltex_esr
 - endace
@@ -191,8 +201,10 @@
 - f5_linux
 - f5_ltm
 - f5_tmsh
+- fiberstore_fsos
 - flexvnf
 - fortinet
+- garderos_grs
 - generic
 - generic_termserver
 - hillstone_stoneos
@@ -210,6 +222,7 @@
 - keymile
 - keymile_nos
 - linux
+- maipu
 - mellanox
 - mellanox_mlnxos
 - mikrotik_routeros
@@ -239,6 +252,7 @@
 - ubiquiti_edgerouter
 - ubiquiti_edgeswitch
 - ubiquiti_unifiswitch
+- vertiv_mph
 - vyatta_vyos
 - vyos
 - watchguard_fireware
@@ -252,34 +266,38 @@
 - apresia_aeos_telnet
 - arista_eos_telnet
 - aruba_procurve_telnet
-- audiocode_72_telnet
 - audiocode_66_telnet
+- audiocode_72_telnet
 - audiocode_shell_telnet
+- bintec_boss_telnet
 - brocade_fastiron_telnet
 - brocade_netiron_telnet
 - calix_b6_telnet
 - centec_os_telnet
 - ciena_saos_telnet
 - cisco_ios_telnet
-- cisco_xr_telnet
 - cisco_s200_telnet
 - cisco_s300_telnet
+- cisco_xr_telnet
 - dell_dnos6_telnet
 - dell_powerconnect_telnet
 - dlink_ds_telnet
-- extreme_telnet
 - extreme_exos_telnet
 - extreme_netiron_telnet
+- extreme_telnet
 - generic_telnet
 - generic_termserver_telnet
-- hp_procurve_telnet
+- genexis_solt33_telnet
 - hp_comware_telnet
-- huawei_telnet
+- hp_procurve_telnet
 - huawei_olt_telnet
+- huawei_telnet
 - ipinfusion_ocnos_telnet
 - juniper_junos_telnet
+- maipu_telnet
 - nokia_sros_telnet
 - oneaccess_oneos_telnet
+- optilink_eolt9702_telnet
 - paloalto_panos_telnet
 - rad_etx_telnet
 - raisecom_telnet
@@ -304,5 +322,6 @@
 - extreme_exos
 - juniper_junos
 - linux
+- mikrotik_routeros
 - nokia_sros
 - ubiquiti_edgerouter
