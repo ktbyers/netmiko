@@ -212,6 +212,3 @@ class HuaweiSmartAXSSHMMI(HuaweiSmartAXSSH):
     def session_preparation(self) -> None:
         super().session_preparation()
         self._enter_mmi_mode()
-
-    def cleanup(self, command: str = "quit") -> None:
-        super().cleanup(command=command)
