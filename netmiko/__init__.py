@@ -1,9 +1,9 @@
 import sys
 
-__version__ = "4.5.0"
+__version__ = "4.6.0"
 PY_MAJ_VER = 3
-PY_MIN_VER = 8
-MIN_PYTHON_VER = "3.8"
+PY_MIN_VER = 9
+MIN_PYTHON_VER = "3.9"
 
 
 # Make sure user is using a valid Python version (for Netmiko)
