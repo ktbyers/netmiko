@@ -74,11 +74,12 @@
 
 - A10
 - Accedian
-- Alaxala AX2600S and AX3600S 
+- Alaxala AX2600S and AX3600S
 - Allied Telesis AlliedWare Plus
 - Arris CER
 - Aruba OS (Wireless Controllers/WAPs)
 - Aruba AOS-CX
+- Avara OAP800
 - Bintec BOSS (Bintec/Funkwerk)
 - Brocade Fabric OS
 - C-DOT CROS
@@ -259,7 +260,7 @@
 - yamaha
 - zte_zxros
 - zyxel_os
- 
+
 ###### Supported Telnet device_type values
 
 - adtran_os_telnet
