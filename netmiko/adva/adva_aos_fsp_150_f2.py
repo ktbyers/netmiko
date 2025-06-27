@@ -56,15 +56,37 @@ class AdvaAosFsp150F2SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
     def set_base_prompt(
         self,
-        pri_prompt_terminator: str = r"(^.+?)-->$",
+        pri_prompt_terminator: str = r"-->",
         alt_prompt_terminator: str = "",
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
+        if pattern is None:
+            if pri_prompt_terminator and alt_prompt_terminator:
+                pri_term = re.escape(pri_prompt_terminator)
+                alt_term = re.escape(alt_prompt_terminator)
+                pattern = rf"({pri_term}|{alt_term})"
+            elif pri_prompt_terminator:
+                pattern = re.escape(pri_prompt_terminator)
+            elif alt_prompt_terminator:
+                pattern = re.escape(alt_prompt_terminator)
 
-        prompt = self.find_prompt()
-        match = re.search(pri_prompt_terminator, prompt)
-        if not match:
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
+        if not prompt[-3:] in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
-        self.base_prompt = match[1]
+
+        # If all we have is the 'terminator' just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Strip off trailing terminator
+            self.base_prompt = prompt[-3:]
         return self.base_prompt
+
+    def cleanup(self, command: str = "logout") -> None:
+        """Gracefully exit the SSH session."""
+        return super().cleanup(command=command)
