@@ -1,5 +1,5 @@
 import time
-from typing import Any
+from typing import Any, Optional
 from socket import socket
 
 from netmiko._telnetlib.telnetlib import (
@@ -28,15 +28,156 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
         self._test_channel_read()
         self.set_base_prompt()
         self.disable_paging(command="terminal length 0")
-
+        # Turn off logging for the session as it can spoil analyzing of outputs
+        self.send_command("terminal no monitor")
         # Clear the read buffer
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def send_config_set(self, *args: Any, **kwargs: Any) -> str:
+        """Send config command(s). Requires separate calling of commit to apply."""
+
+        # Do not exit config mode - it won't allow until you commit or abort transaction
+        output = super().send_config_set(*args, **kwargs, exit_config_mode=False)
+        error_markers = [
+            "% Invalid input detected at '^' marker.",
+            "% Parameter not configured",
+            "% Ambiguous command:",
+        ]
+        for error_marker in error_markers:
+            if error_marker in output:
+                raise ValueError(
+                    f"Send config set failed with the following errors:\n\n{output}"
+                )
+        return output
+
+    def commit(
+        self,
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        description: str = "",
+        read_timeout: float = 120.0,
+    ) -> str:
+        """
+        Commit the candidate configuration.
+
+        default (no options):
+            command_string = commit
+        confirm and confirm_delay:
+            command_string = commit confirmed <confirm_delay>
+        description:
+            command_string = commit description <comment>
+
+        failed commit message example:
+        % Failed to commit .. As error(s) encountered during commit operation...
+        Uncommitted configurations are retained in the current transaction session,
+        check 'show transaction current'.
+        Correct the reason for the failure and re-issue the commit.
+        Use 'abort transaction' to terminate current transaction session and discard
+        all uncommitted changes.
+        """
+
+        if confirm_delay and not confirm:
+            raise ValueError(
+                "Invalid arguments supplied to commit: confirm_delay specified without confirm"
+            )
+
+        error_marker = "Failed to commit"
+
+        # Build proper command string based on arguments provided
+        command_string = "commit"
+        if confirm:
+            command_string += " confirmed"
+            if confirm_delay:
+                command_string += f" timeout {str(confirm_delay)}"
+        if description:
+            command_string += f" description {description}"
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        new_data = self._send_command_str(
+            command_string,
+            expect_string=r"#",
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        output += new_data
+        if error_marker in output:
+            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
+
+        return output
+
+    def _confirm_commit(self, read_timeout: float = 120.0) -> str:
+        """Confirm the commit that was previously issued with 'commit confirmed' command"""
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        command_string = "confirm-commit"
+        # If output is empty, it worked, an error looks like this:
+        # Error: No confirm-commit in progress OR commit-history feature is Disabled
+        new_data = self._send_command_str(
+            command_string,
+            expect_string=r"(#|Error)",
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        output += new_data
+        if "Error" in new_data:
+            raise ValueError(
+                f"Confirm commit operation failed with the following errors:\n\n{output}"
+            )
+
+        return output
+
+    def _cancel_commit(self, read_timeout: float = 120.0) -> str:
+        """Cancel ongoing confirmed commit"""
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        command_string = "cancel-commit"
+        # If output is empty, cancel-commit worked, an error looks like this:
+        # Error: No confirm-commit in progress OR commit-history feature is Disabled
+        new_data = self._send_command_str(
+            command_string,
+            expect_string=r"(#|Error)",
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        output += new_data
+        if "Error" in new_data:
+            raise ValueError(
+                f"Cancel commit operation failed with the following errors:\n\n{output}"
+            )
+
+        return output
+
+    def _abort_transaction(self, read_timeout: float = 120.0) -> str:
+        """Abort transaction, thus cancelling the pending changes rather than committing them"""
+
+        if not self.check_config_mode():
+            raise ValueError("Device is not in config mode")
+        command_string = "abort transaction"
+        # If output is empty, it worked; this is usually so (note: if
+        # transaction is empty, it still works)
+        output = self._send_command_str(
+            command_string,
+            expect_string=r"#",
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        return output
+
     def save_config(
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
-        """Saves Config Using write command"""
+        """Saves config using 'write' command"""
         return super().save_config(
             cmd=cmd, confirm=confirm, confirm_response=confirm_response
         )
