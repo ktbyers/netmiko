@@ -1,5 +1,6 @@
 """A10 support."""
 
+from typing import Optional
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -17,8 +18,29 @@ class A10SSH(CiscoSSHConnection):
         # self.set_terminal_width()
         self.disable_paging(command="terminal length 0")
 
+    def read_until_prompt(
+        self,
+        read_timeout: float = 10.0,
+        read_entire_line: bool = False,
+        re_flags: int = 0,
+        max_loops: Optional[int] = None,
+    ) -> str:
+
+        # delete the string "NOLICENSE" from base_prompt
+        if self.base_prompt.find("(NOLICENSE)"):
+            self.base_prompt = self.base_prompt.replace("(NOLICENSE)", "")
+        pattern = re.escape(self.base_prompt)
+        if read_entire_line:
+            pattern = f"{pattern}.*"
+        return self.read_until_pattern(
+            pattern=pattern,
+            re_flags=re_flags,
+            max_loops=max_loops,
+            read_timeout=read_timeout,
+        )
+
     def check_config_mode(
-        self, check_string: str = ")#", pattern: str = ")#", force_regex: bool = False
+        self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
     ) -> bool:
         self.write_channel(self.RETURN)
 
@@ -32,14 +54,17 @@ class A10SSH(CiscoSSHConnection):
         # Example, config: LBR1_PROD-EXT_(config)(NOLICENSE)#
         # Example, outside of config LBR1_PROD-EXT_(NOLICENSE)#
         output = output.replace("(NOLICENSE)", "")
-
         if force_regex:
             return bool(re.search(check_string, output))
         else:
             return check_string in output
 
     def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+        self,
+        cmd: str = "write memory",
+        confirm: bool = False,
+        confirm_response: str = "",
     ) -> str:
-        """Not Implemented"""
-        raise NotImplementedError
+        return super().save_config(
+            cmd=cmd, confirm=confirm, confirm_response=confirm_response
+        )
