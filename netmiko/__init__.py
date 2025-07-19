@@ -8,7 +8,7 @@ MIN_PYTHON_VER = "3.9"
 
 # Make sure user is using a valid Python version (for Netmiko)
 def check_python_version():  # type: ignore
-    python_snake = "\U0001f40d"
+    python_snake = "\U0001F40D"
 
     # Use old-school .format() method in case someone tries to use Netmiko with very old Python
     msg = """

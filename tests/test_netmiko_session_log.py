@@ -208,7 +208,7 @@ def test_unicode(device_slog_test_name):
 
     conn = ConnectHandler(**device_slog)
 
-    smiley_face = "\N{GRINNING FACE WITH SMILING EYES}"
+    smiley_face = "\N{grinning face with smiling eyes}"
     conn.session_log.write("\nTesting unicode\n")
     conn.session_log.write(smiley_face)
     conn.session_log.write(smiley_face)

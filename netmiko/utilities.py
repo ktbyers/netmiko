@@ -137,7 +137,7 @@ def load_devices(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> 
 
 
 def find_cfg_file(
-    file_name: Union[str, bytes, "PathLike[Any]", None] = None,
+    file_name: Union[str, bytes, "PathLike[Any]", None] = None
 ) -> Union[str, bytes, "PathLike[Any]"]:
     """
     Search for netmiko_tools inventory file in the following order:
@@ -191,7 +191,7 @@ def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -
 
 
 def obtain_all_devices(
-    my_devices: Dict[str, Union[List[str], Dict[str, Any]]],
+    my_devices: Dict[str, Union[List[str], Dict[str, Any]]]
 ) -> Dict[str, Dict[str, Any]]:
     """Dynamically create 'all' group."""
     new_devices = {}
