@@ -18,7 +18,7 @@ class CiscoBaseConnection(BaseConnection):
     def enable(
         self,
         cmd: str = "enable",
-        pattern: str = "ssword",
+        pattern: str = r"(?:^|\n)[Pp]assword:",
         enable_pattern: Optional[str] = None,
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
