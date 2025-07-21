@@ -122,6 +122,8 @@ class AristaTelnet(AristaBase):
 class AristaFileTransfer(CiscoFileTransfer):
     """Arista SCP File Transfer driver."""
 
+    prompt_pattern = r"[$>#]"
+
     def __init__(
         self,
         ssh_conn: "BaseConnection",
@@ -142,6 +144,7 @@ class AristaFileTransfer(CiscoFileTransfer):
 
     def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
+        search_pattern = self.prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:

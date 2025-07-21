@@ -166,9 +166,18 @@ hljs.highlightAll();
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class RuijieOSBase(CiscoBaseConnection):
+    prompt_pattern = r&#34;[&gt;#]&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+
+        pwd_change_msg = r&#34;Do you want to change the password&#34;
+        data = self.read_until_pattern(
+            pattern=rf&#34;(?:{pwd_change_msg}|{self.prompt_pattern})&#34;
+        )
+        if pwd_change_msg in data:
+            self._send_command_str(&#34;n&#34;, expect_string=self.prompt_pattern)
+
         self.set_base_prompt()
         &#34;&#34;&#34;Ruijie OS requires enable mode to set terminal width&#34;&#34;&#34;
         self.enable()
@@ -196,6 +205,13 @@ hljs.highlightAll();
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSSSH" href="#netmiko.ruijie.ruijie_os.RuijieOSSSH">RuijieOSSSH</a></li>
 <li><a title="netmiko.ruijie.ruijie_os.RuijieOSTelnet" href="#netmiko.ruijie.ruijie_os.RuijieOSTelnet">RuijieOSTelnet</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.ruijie.ruijie_os.RuijieOSBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.ruijie.ruijie_os.RuijieOSBase.save_config"><code class="name flex">
@@ -654,6 +670,7 @@ hljs.highlightAll();
 <li>
 <h4><code><a title="netmiko.ruijie.ruijie_os.RuijieOSBase" href="#netmiko.ruijie.ruijie_os.RuijieOSBase">RuijieOSBase</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.ruijie.ruijie_os.RuijieOSBase.prompt_pattern" href="#netmiko.ruijie.ruijie_os.RuijieOSBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.ruijie.ruijie_os.RuijieOSBase.save_config" href="#netmiko.ruijie.ruijie_os.RuijieOSBase.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.ruijie.ruijie_os.RuijieOSBase.session_preparation" href="#netmiko.ruijie.ruijie_os.RuijieOSBase.session_preparation">session_preparation</a></code></li>
 </ul>
