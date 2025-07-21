@@ -74,7 +74,7 @@ the 'secret' argument to ConnectHandler.
                     pattern=pattern, re_flags=re_flags, read_entire_line=True
                 )
                 output += new_data
-                if re.search(pattern, new_data):
+                if re.search(pattern, new_data, flags=re_flags):
                     self.write_channel(self.normalize_cmd(self.secret))
                     output += self.read_until_prompt(read_entire_line=True)
             except ReadTimeout:

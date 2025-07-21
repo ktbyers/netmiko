@@ -2051,11 +2051,11 @@ You can also look at the Netmiko session_log or debug log for more information.
 
             # Search for trailing prompt or password pattern
             output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
 
             # Send the "secret" in response to password pattern
-            if re.search(pattern, output):
+            if re.search(pattern, output, flags=re_flags):
                 self.write_channel(self.normalize_cmd(self.secret))
                 output += self.read_until_prompt()
 
