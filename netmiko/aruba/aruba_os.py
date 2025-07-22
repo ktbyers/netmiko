@@ -71,21 +71,21 @@ class ArubaOsFileTransfer(BaseFileTransfer):
         )
 
     def file_md5(self, file_name: str, add_newline: bool = False) -> str:
-        msg = "Aruba OS does not support an MD5-hash operation."
-        raise AttributeError(msg)
+        """Aruba OS does not support an MD5-hash operation."""
+        raise NotImplementedError
 
     @staticmethod
     def process_md5(md5_output: str, pattern: str = "") -> str:
-        msg = "Aruba OS does not support an MD5-hash operation."
-        raise AttributeError(msg)
+        """Aruba OS does not support an MD5-hash operation."""
+        raise NotImplementedError
 
     def compare_md5(self) -> bool:
-        msg = "Aruba OS does not support an MD5-hash operation."
-        raise AttributeError(msg)
+        """Aruba OS does not support an MD5-hash operation."""
+        raise NotImplementedError
 
     def remote_md5(self, base_cmd: str = "", remote_file: Optional[str] = None) -> str:
-        msg = "Aruba OS does not support an MD5-hash operation."
-        raise AttributeError(msg)
+        """Aruba OS does not support an MD5-hash operation."""
+        raise NotImplementedError
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
@@ -97,11 +97,17 @@ class ArubaOsFileTransfer(BaseFileTransfer):
             if "Cannot get directory information" in remote_out:
                 return False
 
+            # dir search default.cfg
+            # -rw-r--r--    1 root     root 16283 Nov  9 12:25 default.cfg
+            # -rw-r--r--    1 root     root 22927 May 25 12:21 default.cfg.2016-05-25_20-21-38
+            # -rw-r--r--    2 root     root 19869 May  9 12:20 default.cfg.2016-05-09_12-20-22
+            # Construct a list of the last column
             return self.dest_file in [
-                split_line[-1]
+                fields[-1]
                 for line in remote_out.splitlines()
-                if (split_line := line.split())
+                if (fields := line.split())
             ]
+
         elif self.direction == "get":
             return os.path.exists(self.dest_file)
         else:
@@ -128,20 +134,24 @@ class ArubaOsFileTransfer(BaseFileTransfer):
             msg = "Unable to find file on remote system"
             raise IOError(msg)
 
-        file_size = [
-            split_line[-5]
-            for line in remote_out.splitlines()
-            if (split_line := line.split()) and split_line[-1] == remote_file_search
-        ]
-
-        if len(file_size) != 1:
-            msg = (
-                "Unable to parse remote file size, found file count is not equal to one"
-            )
+        # dir search default.cfg
+        # -rw-r--r--    1 root     root 16283 Nov  9 12:25 default.cfg
+        # -rw-r--r--    1 root     root 22927 May 25 12:21 default.cfg.2016-05-25_20-21-38
+        # -rw-r--r--    2 root     root 19869 May  9 12:20 default.cfg.2016-05-09_12-20-22
+        for line in remote_out.splitlines():
+            if line:
+                fields = line.split()
+                if len(fields) >= 5:
+                    file_size = fields[4]
+                    f_name = fields[-1]
+                    if f_name == remote_file_search:
+                        break
+        else:
+            msg = "Unable to find file on remote system"
             raise IOError(msg)
 
         try:
-            return int(file_size[0])
+            return int(file_size)
         except ValueError as ve:
             msg = "Unable to parse remote file size, wrong field in use or malformed command output"
             raise IOError(msg) from ve
@@ -165,11 +175,14 @@ class ArubaOsFileTransfer(BaseFileTransfer):
         remote_cmd = "show storage"
         remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd).strip()
 
-        # df -h ouput
+        # show storage (df -h)
+        # Filesystem                Size      Used Available Use% Mounted on
+        # /dev/root                57.0M     54.6M      2.3M  96% /
+        # /dev/usbdisk/1            3.9G    131.0M      3.8G   3% /mnt/usbdisk/1
         available_sizes = [
-            split_line[-3]
+            fields[-3]
             for line in remote_output.splitlines()
-            if (split_line := line.split()) and split_line[-1] == "/flash"
+            if (fields := line.split()) and fields[-1] == "/flash"
         ]
 
         if not available_sizes:
@@ -177,11 +190,11 @@ class ArubaOsFileTransfer(BaseFileTransfer):
             raise ValueError(msg)
 
         space_available = 0
-
+        # There is potentially more than one filesystem for /flash
         for available_size in available_sizes:
-            size_names = ["B", "K", "M", "G", "T", "P", "E", "Z", "Y"]
-
-            size_str, suffix = available_size[:-1], available_size[-1]
+            size_names = ["B", "K", "M", "G", "T", "P", "E"]
+            suffix = available_size[-1]
+            size_str = available_size[:-1]
 
             if suffix not in size_names:
                 msg = "Could not determine remote space available."
@@ -193,7 +206,7 @@ class ArubaOsFileTransfer(BaseFileTransfer):
                 msg = "Could not determine remote space available."
                 raise ValueError(msg) from ve
 
-            space_available += size * 1024 ** size_names.index(suffix)
+            space_available += size * (1024 ** size_names.index(suffix))
 
         return int(space_available)
 
