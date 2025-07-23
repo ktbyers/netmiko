@@ -116,8 +116,8 @@ class AvaraSSH(CiscoSSHConnection):
             bool: True if device is in configuration mode, False otherwise.
         """
         # Silence warnings
-        _pattern = pattern
-        _force_regex = force_regex
+        _pattern = pattern  # noqa
+        _force_regex = force_regex  # noqa
 
         self.write_channel(self.RETURN)
         output = self.read_channel_timing(read_timeout=0.5)
@@ -171,7 +171,8 @@ class AvaraSSH(CiscoSSHConnection):
         """
         Save the configuration to flash memory.
         This method first applies any pending configuration edits using the "apply" command,
-        and then saves the configuration to flash memory using the parent class's save_config method.
+        and then saves the configuration to flash memory using the parent class's save_config
+        method.
 
         Args:
             cmd: The command to save the configuration. Default is "save flash".
