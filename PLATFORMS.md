@@ -311,6 +311,7 @@
 
 ###### Supported Secure Copy device_type values
 
+- aruba_os
 - arista_eos
 - ciena_saos
 - cisco_asa
