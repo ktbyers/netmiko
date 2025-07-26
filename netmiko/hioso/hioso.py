@@ -5,54 +5,40 @@ from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class HiosoBase(CiscoBaseConnection):
+    """
+    Base class for Hioso devices.
+    It is fairly similar to Cisco devices.
+    """
+
     prompt_pattern = r"[\]>]"
-    password_change_prompt = r"(?:Change now|Please choose)"
     prompt_or_password_change = rf"(?:Change now|Please choose|{prompt_pattern})"
 
     def session_preparation(self) -> None:
-        """Prepare the session after the connection has been established."""
+        """Prepare the session after the connection is established."""
         self.ansi_escape_codes = True
-        # The _test_channel_read happens in special_login_handler()
         self.set_base_prompt()
         self.enable()
-        self.disable_paging(command="terminal length 0")
-        self.find_prompt()  # The disable_paging doesn't clear the buffer
-        self.exit_enable_mode(exit_command="exit")
-
-    def config_mode(
-        self,
-        config_command: str = "configure terminal",
-        pattern: str = "",
-        re_flags: int = 0,
-    ) -> str:
-        return super().config_mode(
-            config_command=config_command, pattern=pattern, re_flags=re_flags
-        )
-
-    def exit_config_mode(
-            self,
-            exit_config: str = "exit",
-            pattern: str = r"#"
-    ) -> str:
-        """Exit configuration mode."""
-        return super().exit_config_mode(
-            exit_config=exit_config, pattern=pattern
-        )
+        self.disable_paging()
+        self.clear_buffer()
+        self.exit_enable_mode()
 
     def check_config_mode(
         self,
-        check_string: str = ")",
-        pattern: str = "",
-        force_regex: bool = False
+        check_string: str = ")#",
+        pattern: str = r"[>#]",
+        force_regex: bool = False,
     ) -> bool:
-        """Checks whether in configuration mode. Returns a boolean."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(check_string, pattern, force_regex)
+
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#") -> str:
+        """Exit configuration mode."""
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
         self,
         cmd: str = "write file",
         confirm: bool = False,
-        confirm_response: str = "y"
+        confirm_response: str = "y",
     ) -> str:
         """Save Config for Hioso Telnet."""
         return super().save_config(
@@ -60,7 +46,8 @@ class HiosoBase(CiscoBaseConnection):
         )
 
     def cleanup(self, command: str = "quit") -> None:
-        return super().cleanup(command=command)
+        """Cleanup the connection."""
+        super().cleanup(command=command)
 
 
 class HiosoTelnet(HiosoBase):
@@ -75,7 +62,7 @@ class HiosoTelnet(HiosoBase):
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
-        """Telnet login for Huawei Devices"""
+        """Telnet login for Hioso Devices"""
         output = ""
         return_msg = ""
         try:
