@@ -121,6 +121,7 @@ from netmiko.maipu import MaipuTelnet
 from netmiko.mikrotik import MikrotikRouterOsSSH, MikrotikRouterOsFileTransfer
 from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxMlnxosSSH
+from netmiko.moxa import MoxaSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
@@ -297,6 +298,7 @@ CLASS_MAPPER_BASE = {
     "mikrotik_switchos": MikrotikSwitchOsSSH,
     "mellanox": MellanoxMlnxosSSH,
     "mellanox_mlnxos": MellanoxMlnxosSSH,
+    "moxa": MoxaSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "nec_ix": NecIxSSH,

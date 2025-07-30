@@ -103,6 +103,7 @@
 - Fortinet
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
+- Moxa EDS
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
@@ -227,6 +228,7 @@
 - mellanox_mlnxos
 - mikrotik_routeros
 - mikrotik_switchos
+- moxa
 - mrv_lx
 - mrv_optiswitch
 - netapp_cdot
