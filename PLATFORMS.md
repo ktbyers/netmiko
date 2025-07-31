@@ -29,8 +29,8 @@
 - Cisco ASA
 - Cisco S200
 - CloudGenix ION
-- Dell OS9 (Force10)
 - Dell OS10
+- Dell OS9 (Force10)
 - Dell PowerConnect
 - Ericsson IPOS
 - Ericsson MINI-LINK 66XX & 63XX
@@ -72,34 +72,35 @@
 
 ###### Experimental
 
+- 6WIND TurboRouter
 - A10
 - Accedian
 - Alaxala AX2600S and AX3600S 
 - Allied Telesis AlliedWare Plus
 - Arris CER
-- Aruba OS (Wireless Controllers/WAPs)
 - Aruba AOS-CX
+- Aruba OS (Wireless Controllers/WAPs)
 - Bintec BOSS (Bintec/Funkwerk)
 - Brocade Fabric OS
 - C-DOT CROS
+- Check Point GAiA
 - Ciena SAOS
-- Citrix Netscaler
 - Cisco APIC (Linux)
 - Cisco Telepresence
 - Cisco Viptela
-- Check Point GAiA
+- Citrix Netscaler
 - Coriant
-- Dell OS6
 - Dell EMC Isilon
+- Dell OS6
 - Digi TransPort Routers
 - Eltex
-- Enterasys
 - Endace
+- Enterasys
 - Extreme EXOS
-- Extreme Wing
 - Extreme SLX (Brocade)
-- F5 TMSH
+- Extreme Wing
 - F5 Linux
+- F5 TMSH
 - Fortinet
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
@@ -118,7 +119,6 @@
 - Vertiv MPH Power Distribution Units
 - Watchguard Firebox
 - Zyxel NOS
-- 6WIND TurboRouter
 
 ###### Supported SSH device_type values
 
