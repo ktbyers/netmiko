@@ -106,7 +106,16 @@ from netmiko.fortinet import FortinetSSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
-from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
+from netmiko.hp import (
+    HPProcurveSSH,
+    HPProcurveTelnet,
+    HPComwareSSH,
+    HPComwareTelnet,
+    HPComware1920SSH,
+    HPComware1920Telnet,
+    HPComware1950SSH,
+    HPComware1950Telnet
+)
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
 from netmiko.infinera import InfineraPacketSSH, InfineraPacketTelnet
@@ -277,6 +286,8 @@ CLASS_MAPPER_BASE = {
     "h3c_comware": HPComwareSSH,
     "hillstone_stoneos": HillstoneStoneosSSH,
     "hp_comware": HPComwareSSH,
+    "hp_comware1920": HPComware1920SSH,
+    "hp_comware1950": HPComware1950SSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
     "huawei_smartaxmmi": HuaweiSmartAXSSHMMI,
@@ -400,6 +411,8 @@ CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["genexis_solt33_telnet"] = GenexisSOLT33Telnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
+CLASS_MAPPER["hp_comware1920_telnet"] = HPComware1920Telnet
+CLASS_MAPPER["hp_comware1950_telnet"] = HPComware1950Telnet
 CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["infinera_packet_telnet"] = InfineraPacketTelnet
