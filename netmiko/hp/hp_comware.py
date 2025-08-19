@@ -10,8 +10,6 @@ class HPComwareBase(CiscoSSHConnection):
         global_cmd_verify = kwargs.get("global_cmd_verify")
         if global_cmd_verify is None:
             kwargs["global_cmd_verify"] = False
-
-        self.officeconnect_model = kwargs.pop('hpe_officeconnect_model', None)
         super().__init__(**kwargs)
 
     def session_preparation(self) -> None:
@@ -24,12 +22,6 @@ class HPComwareBase(CiscoSSHConnection):
             self._test_channel_read(pattern=r"[>\]]")
 
         self.set_base_prompt()
-
-        if self.officeconnect_model == 'hpe1920':
-            self.enable_cmd_hpe1920()
-        elif self.officeconnect_model == 'hpe1950':
-            self.enable_cmd_hpe1950()
-
         command = "screen-length disable"
         self.disable_paging(command=command)
 
@@ -59,22 +51,6 @@ class HPComwareBase(CiscoSSHConnection):
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
-
-    def enable_cmd_hpe1920(self):
-        """
-        Enable terminal cmdline for HPE OfficeConnect 1920
-        """
-        self.send_command('_cmdline-mode on', 'Continue?')
-        self.send_command('y', 'password:')
-        self.send_command('Jinhua1920unauthorized', 'Warning:')
-
-    def enable_cmd_hpe1950(self):
-        """
-        Enable terminal cmdline for HPE OfficeConnect 1950
-        """
-        self.send_command('xtd-cli-mode', 'Switch to extended CLI mode?')
-        self.send_command('y', 'Password:')
-        self.send_command('foes-bent-pile-atom-ship', 'Warning:')
 
     def send_config_set(
         self,
