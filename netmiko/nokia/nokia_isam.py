@@ -32,7 +32,14 @@ class NokiaIsamSSH(BaseConnection, NoEnable):
 
     def cleanup(self, command: str = "logout") -> None:
         """Gracefully exit the SSH session."""
-        # Always try to send final 'logout'.
+        try:
+            if self.check_config_mode():
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final command
+        if self.session_log:
+            self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
     def check_config_mode(
