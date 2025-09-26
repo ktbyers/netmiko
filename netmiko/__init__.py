@@ -1,6 +1,6 @@
 import sys
 
-__version__ = "4.6.0"
+__version__ = "4.6.1"
 PY_MAJ_VER = 3
 PY_MIN_VER = 9
 MIN_PYTHON_VER = "3.9"
