@@ -26,6 +26,7 @@ bin/.netmiko.cfg
 
 # Virtual Environment files
 .venv/
+.venv_old/
 bin/
 lib/
 pyvenv.cfg
