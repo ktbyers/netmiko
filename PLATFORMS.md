@@ -118,6 +118,7 @@
 - MRV LX
 - Nokia/Alcatel SR-OS
 - Nokia SR Linux
+- Perle IOLAN Console Server
 - Optilink EOLT 9702 (telnet only)
 - QuantaMesh
 - Rad ETX

@@ -5,7 +5,7 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.utilities import structured_data_converter
 
 
-class PerleSSH(CiscoBaseConnection):
+class PerleIolanSSH(CiscoBaseConnection):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.default_enter = kwargs.get("default_enter", "\r")

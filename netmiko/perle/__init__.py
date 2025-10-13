@@ -1,3 +1,3 @@
-from netmiko.perle.perle_ssh import PerleSSH
+from netmiko.perle.perle_ssh import PerleIolanSSH
 
-__all__ = ("PerleSSH",)
+__all__ = ("PerleIolanSSH",)
