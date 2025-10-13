@@ -193,7 +193,7 @@ class BaseConnection:
         serial_settings: Optional[Dict[str, Any]] = None,
         fast_cli: bool = True,
         _legacy_mode: bool = False,
-        session_log: Optional[SessionLog] = None,
+        session_log: Optional[Union[str, io.BufferedIOBase, SessionLog]] = None,
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,

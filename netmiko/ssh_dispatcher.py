@@ -140,6 +140,7 @@ from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
 from netmiko.pluribus import PluribusSSH
+from netmiko.perle import PerleIolanSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.rad import RadETXSSH
 from netmiko.rad import RadETXTelnet
@@ -309,6 +310,7 @@ CLASS_MAPPER_BASE = {
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,
+    "perle_iolan": PerleIolanSSH,
     "quanta_mesh": QuantaMeshSSH,
     "rad_etx": RadETXSSH,
     "raisecom_roap": RaisecomRoapSSH,

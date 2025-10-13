@@ -222,8 +222,8 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
         sys_res = self.ssh_ctl_chan._send_command_timing_str(remote_cmd).splitlines()
         for res in sys_res:
             if "free-memory" in res:
-                spaceMib = res.strip().replace("free-memory: ", "").replace("MiB", "")
-                return int(float(spaceMib) * 1048576)
+                space_str = res.strip().replace("free-memory: ", "")
+                return self._format_to_bytes(space_str)
         raise ValueError("Unexpected output from remote_space_available")
 
     def remote_file_size(
