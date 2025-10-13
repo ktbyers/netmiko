@@ -4,11 +4,15 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "netmiko"
-version = "4.6.0"
+version = "4.6.1"
 description = "Multi-vendor library to simplify legacy CLI connections to network devices"
 authors = ["Kirk Byers <ktbyers@twb-tech.com>"]
 license = "MIT"
 readme = "README.md"
+include = [
+    "netmiko/py.typed",
+    "LICENSE"
+]
 repository = "https://github.com/ktbyers/netmiko"
 classifiers = [
         "License :: OSI Approved :: MIT License",
