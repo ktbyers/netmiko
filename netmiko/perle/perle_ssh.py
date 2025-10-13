@@ -2,13 +2,18 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.no_config import NoConfig
 from netmiko.utilities import structured_data_converter
 
 
-class PerleIolanSSH(CiscoBaseConnection):
+class PerleIolanSSH(NoConfig, CiscoBaseConnection):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.default_enter = kwargs.get("default_enter", "\r")
+
+    def session_preparation(self) -> None:
+        self._test_channel_read()
+        self.set_base_prompt(pri_prompt_terminator="$")
 
     def enable(
         self,
@@ -24,22 +29,10 @@ class PerleIolanSSH(CiscoBaseConnection):
         # Perle does not have this concept
         return ""
 
-    def config_mode(self, *args: Any, **kwargs: Any) -> str:
-        # Perle has no config mode
-        return ""
-
-    def exit_config_mode(self, *args: Any, **kwargs: Any) -> str:
-        # Perle has no config mode
-        return ""
-
     def save_config(
         self, cmd: str = "save", confirm: bool = True, confirm_response: str = "y"
     ) -> str:
         return super().save_config(cmd, confirm, confirm_response)
-
-    def session_preparation(self) -> None:
-        self._test_channel_read()
-        self.set_base_prompt(pri_prompt_terminator="$")
 
     def send_command_timing(
         self,
