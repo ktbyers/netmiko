@@ -13,7 +13,7 @@ class PerleIolanSSH(NoConfig, CiscoBaseConnection):
 
     def session_preparation(self) -> None:
         self._test_channel_read()
-        self.set_base_prompt(pri_prompt_terminator="$")
+        self.set_base_prompt(alt_prompt_terminator="$")
 
     def enable(
         self,
@@ -36,26 +36,28 @@ class PerleIolanSSH(NoConfig, CiscoBaseConnection):
 
     def send_command_timing(
         self,
+        command_string: str,
         *args: Any,
         **kwargs: Any,
     ) -> Union[str, List[Any], Dict[str, Any]]:
-        real_command_string = kwargs["command_string"]
+        real_command_string = command_string
         real_strip_command = kwargs.get("strip_command", True)
         real_strip_prompt = kwargs.get("strip_prompt", True)
-        command = kwargs["command_string"] + "\n"
+        command = command_string
         more = r"< Hit any key >"
         kwargs["strip_prompt"] = False
         kwargs["strip_command"] = False
 
-        output = str(super().send_command_timing(*args, **kwargs))
+        output = str(super().send_command_timing(command_string, *args, **kwargs))
 
-        kwargs["command_string"] = " "
+        command_string = " "
         kwargs["normalize"] = False
         kwargs["strip_command"] = True
         while more in output:
             output = re.sub(r"\n" + more, "", output)
             output += str(
                 super().send_command_timing(
+                    command_string,
                     *args,
                     **kwargs,
                 )
