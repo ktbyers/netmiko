@@ -44,12 +44,14 @@ class NokiaIsamSSH(BaseConnection, NoEnable):
 
     def check_config_mode(
         self,
-        check_string: str = "configure#",
-        pattern: str = "",
+        check_string: str = ">configure",
+        pattern: str = "#",
         force_regex: bool = False,
     ) -> bool:
         """Use equivalent enable method."""
-        return super().check_config_mode(check_string=check_string)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self, config_command: str = "configure", pattern: str = "", re_flags: int = 0
