@@ -30,7 +30,7 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         """Check Point clish double echoes the command (at least sometimes)"""
 
         re_cmd = re.escape(cmd)
-        pattern = f"{self.prompt_pattern}\s{re_cmd}"
+        pattern = rf"{self.prompt_pattern}\s{re_cmd}"
 
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         new_data = self.read_until_pattern(
