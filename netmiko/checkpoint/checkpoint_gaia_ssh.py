@@ -10,6 +10,7 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
     Implements methods for communicating with Check Point Gaia
     firewalls.
     """
+
     prompt_pattern = r"[>#]"
 
     def session_preparation(self) -> None:
@@ -33,9 +34,7 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         pattern = rf"{self.prompt_pattern}\s{re_cmd}"
 
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        new_data = self.read_until_pattern(
-            pattern=pattern, read_timeout=read_timeout
-        )
+        new_data = self.read_until_pattern(pattern=pattern, read_timeout=read_timeout)
 
         # There can be echoed prompts that haven't been cleared before the cmd echo
         # this can later mess up the trailing prompt pattern detection. Clear this out.
