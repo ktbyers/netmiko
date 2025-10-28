@@ -125,6 +125,7 @@ from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
 from netmiko.nokia import (
+    NokiaIsamSSH,
     NokiaSrosSSH,
     NokiaSrosFileTransfer,
     NokiaSrosTelnet,
@@ -140,6 +141,7 @@ from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
 from netmiko.pluribus import PluribusSSH
+from netmiko.perle import PerleIolanSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.rad import RadETXSSH
 from netmiko.rad import RadETXTelnet
@@ -303,12 +305,14 @@ CLASS_MAPPER_BASE = {
     "netapp_cdot": NetAppcDotSSH,
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
+    "nokia_isam": NokiaIsamSSH,
     "nokia_sros": NokiaSrosSSH,
     "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,
+    "perle_iolan": PerleIolanSSH,
     "quanta_mesh": QuantaMeshSSH,
     "rad_etx": RadETXSSH,
     "raisecom_roap": RaisecomRoapSSH,
