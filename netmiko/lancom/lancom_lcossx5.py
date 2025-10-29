@@ -1,5 +1,6 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
+
 class LancomLCOSSX5SSH(CiscoSSHConnection):
     def session_preparation(self) -> None:
         """
