@@ -157,6 +157,7 @@ class BaseConnection:
         secret: str = "",
         port: Optional[int] = None,
         device_type: str = "",
+        ansi_escape_codes: bool = False,
         verbose: bool = False,
         global_delay_factor: float = 1.0,
         global_cmd_verify: Optional[bool] = None,
@@ -225,6 +226,8 @@ class BaseConnection:
                 device.
 
         :param device_type: Class selection based on device type.
+
+        :param ansi_escape_codes: Remove any ANSI (VT100) ESC codes from the output
 
         :param verbose: Enable additional messages to standard output.
 
@@ -361,7 +364,7 @@ class BaseConnection:
         self.password = password
         self.secret = secret
         self.device_type = device_type
-        self.ansi_escape_codes = False
+        self.ansi_escape_codes = ansi_escape_codes
         self.verbose = verbose
         self.auth_timeout = auth_timeout
         self.banner_timeout = banner_timeout
