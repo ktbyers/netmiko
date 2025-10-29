@@ -87,6 +87,7 @@ hljs.highlightAll();
 
     def remote_space_available(self, search_pattern: str = &#34;&#34;) -&gt; int:
         &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        search_pattern = r&#34;[\$#]&#34;
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def remote_md5(

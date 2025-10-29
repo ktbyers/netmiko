@@ -16,7 +16,7 @@ from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
-from netmiko.aruba import ArubaOsSSH, ArubaCxSSH
+from netmiko.aruba import ArubaOsSSH, ArubaCxSSH, ArubaOsFileTransfer
 from netmiko.asterfusion import AsterfusionAsterNOSSSH
 from netmiko.audiocode import (
     Audiocode72SSH,
@@ -43,7 +43,7 @@ from netmiko.ciena import (
     CienaSaosFileTransfer,
 )
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
-from netmiko.cisco import CiscoApicSSH
+from netmiko.cisco import CiscoApicSSH, CiscoApSSH
 from netmiko.cisco import CiscoFtdSSH
 from netmiko.cisco import (
     CiscoIosSSH,
@@ -108,7 +108,7 @@ from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
-from netmiko.huawei import HuaweiSmartAXSSH
+from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
 from netmiko.infinera import InfineraPacketSSH, InfineraPacketTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
@@ -125,6 +125,7 @@ from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
 from netmiko.nokia import (
+    NokiaIsamSSH,
     NokiaSrosSSH,
     NokiaSrosFileTransfer,
     NokiaSrosTelnet,
@@ -135,10 +136,12 @@ from netmiko.nec import NecIxSSH, NecIxTelnet
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
 from netmiko.optilink import OptilinkEOLT9702Telnet
 from netmiko.optilink import OptilinkEOLT11444Telnet
+from netmiko.optilink import OptilinkGOLT924Telnet
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
 from netmiko.pluribus import PluribusSSH
+from netmiko.perle import PerleIolanSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.rad import RadETXSSH
 from netmiko.rad import RadETXTelnet
@@ -216,8 +219,9 @@ CLASS_MAPPER_BASE = {
     "ciena_saos": CienaSaosSSH,
     "ciena_saos10": CienaSaos10SSH,
     "ciena_waveserver": CienaWaveserverSSH,
-    "cisco_asa": CiscoAsaSSH,
+    "cisco_ap": CiscoApSSH,
     "cisco_apic": CiscoApicSSH,
+    "cisco_asa": CiscoAsaSSH,
     "cisco_ftd": CiscoFtdSSH,
     "cisco_ios": CiscoIosSSH,
     "cisco_nxos": CiscoNxosSSH,
@@ -277,6 +281,7 @@ CLASS_MAPPER_BASE = {
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
+    "huawei_smartaxmmi": HuaweiSmartAXSSHMMI,
     "huawei_smartax": HuaweiSmartAXSSH,
     "huawei_olt": HuaweiSmartAXSSH,
     "huawei_vrp": HuaweiSSH,
@@ -301,12 +306,14 @@ CLASS_MAPPER_BASE = {
     "netapp_cdot": NetAppcDotSSH,
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
+    "nokia_isam": NokiaIsamSSH,
     "nokia_sros": NokiaSrosSSH,
     "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,
+    "perle_iolan": PerleIolanSSH,
     "quanta_mesh": QuantaMeshSSH,
     "rad_etx": RadETXSSH,
     "raisecom_roap": RaisecomRoapSSH,
@@ -335,6 +342,7 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
+    "aruba_os": ArubaOsFileTransfer,
     "arista_eos": AristaFileTransfer,
     "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
@@ -408,6 +416,7 @@ CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["optilink_eolt9702_telnet"] = OptilinkEOLT9702Telnet
 CLASS_MAPPER["optilink_eolt11444_telnet"] = OptilinkEOLT11444Telnet
+CLASS_MAPPER["optilink_golt924_telnet"] = OptilinkGOLT924Telnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet

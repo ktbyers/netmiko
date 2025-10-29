@@ -10,6 +10,14 @@ cisco_ios:
   file_check_cmd: "logging buffered 8880"
   save_config: 'OK'
 
+cisco_ap:
+  base_prompt: ap01-test
+  router_prompt: ap01-test>
+  enable_prompt: ap01-test#
+  interface_ip: 10.10.10.100
+  version_banner: "Cisco AP Software"
+  multiple_line_output: "Cisco AP Software"
+
 juniper:
   base_prompt: pyclass@pynet-jnpr-srx1
   router_prompt: pyclass@pynet-jnpr-srx1>

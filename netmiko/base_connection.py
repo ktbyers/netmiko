@@ -178,22 +178,22 @@ class BaseConnection:
         #       --> Auth response (auth_timeout)
         # For telnet 'conn_timeout' is mapped to main telnet timeout (which is used for both the
         # telnet connection and for other blocking operations).
-        conn_timeout: int = 10,
+        conn_timeout: float = 10,
         # Timeout to wait for authentication response
-        auth_timeout: Optional[int] = None,
-        banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
+        auth_timeout: Optional[float] = None,
+        banner_timeout: float = 15,  # Timeout to wait for the banner to be presented
         # Other timeouts
-        blocking_timeout: int = 20,  # Read blocking timeout
+        blocking_timeout: float = 20,  # Read blocking timeout
         timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
-        session_timeout: int = 60,  # Used for locking/sharing the connection
+        session_timeout: float = 60,  # Used for locking/sharing the connection
         read_timeout_override: Optional[float] = None,
-        keepalive: int = 0,
+        keepalive: float = 0,
         default_enter: Optional[str] = None,
         response_return: Optional[str] = None,
         serial_settings: Optional[Dict[str, Any]] = None,
         fast_cli: bool = True,
         _legacy_mode: bool = False,
-        session_log: Optional[SessionLog] = None,
+        session_log: Optional[Union[str, io.BufferedIOBase, SessionLog]] = None,
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
@@ -2051,11 +2051,11 @@ You can also look at the Netmiko session_log or debug log for more information.
 
             # Search for trailing prompt or password pattern
             output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
 
             # Send the "secret" in response to password pattern
-            if re.search(pattern, output):
+            if re.search(pattern, output, flags=re_flags):
                 self.write_channel(self.normalize_cmd(self.secret))
                 output += self.read_until_prompt()
 
