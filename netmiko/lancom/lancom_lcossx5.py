@@ -10,11 +10,7 @@ class LancomLCOSSX5SSH(CiscoSSHConnection):
         offers inconsistent command options
         """
         self._test_channel_read()
-        super().send_command_timing(
-            "enable",
-            strip_prompt=False,
-            strip_command=False,
-        )
+        self.enable(enable_pattern=r"#")
         super().set_base_prompt()
         super().disable_paging()
         self.clear_buffer()
