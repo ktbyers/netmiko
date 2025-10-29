@@ -20,12 +20,6 @@ class LancomLCOSSX5SSH(CiscoSSHConnection):
         super().disable_paging()
         self.clear_buffer()
 
-    def set_terminal_width(self, *args: Any, **kwargs: Any) -> str:
-        """
-        LCOS SX 5 does not support 'terminal width', therefore skip it.
-        """
-        return ""
-
     def check_config_mode(
         self,
         check_string: str = "(Config)#",
