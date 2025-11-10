@@ -15,11 +15,6 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
 
     prompt_pattern = r"[>#]"
 
-#    def __init__(self, *args, **kwargs) -> None:
-#        default_enter = kwargs.get("default_enter") or "\r\n"
-#        kwargs["default_enter"] = default_enter
-#        return super().__init__(*args, **kwargs)
-
     def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
@@ -97,7 +92,6 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
                 time.sleep(.5)
                 self.write_channel("\r")
 
-            import ipdb; ipdb.set_trace()
             # Search for terminating pattern if defined
             if enable_pattern:
                 output += self.read_until_pattern(pattern=enable_pattern)
@@ -109,6 +103,7 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         except NetmikoTimeoutException:
             raise ValueError(msg)
 
+        print(output)
         self.set_base_prompt()
         return output
 
