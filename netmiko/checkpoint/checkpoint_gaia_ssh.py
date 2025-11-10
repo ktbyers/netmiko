@@ -36,6 +36,34 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         """Check if in enable mode. Return boolean."""
         return super().check_enable_mode(check_string=check_string)
 
+    def enable_secret_handler(
+        self,
+        pattern: str,
+        output: str
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
+        """
+        Check Point Gaia requires very particular timing for this 'expert'
+        password handling to work.
+
+        Send the "secret" in response to password pattern
+        """
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.secret))
+            print(output)
+            time.sleep(.3)
+            self.write_channel("\n")
+            time.sleep(.3)
+            output += self.read_until_pattern(pattern=r"[>#]")
+            #print(self.read_channel())
+#2060                 #output += self.read_until_prompt()
+#2061                 print(output)
+#2062                 time.sleep(.3)
+#2063                 self.write_channel("\n")
+#2064                 time.sleep(.3)
+#2065                 #print(self.read_channel())
+#2066                 output += self.read_until_pattern(pattern=r"[>#]")
+
     def enable(
         self,
         cmd: str = "expert",
@@ -49,6 +77,16 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
 
         Check Point Gaia is very finicky on the timing of sending this 'expert' password.
         """
+        output = super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
+        self.set_base_prompt()
+        return output
+
         output = ""
         msg = (
             "Failed to enter enable mode. Please ensure you pass "
