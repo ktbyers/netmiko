@@ -382,6 +382,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
     except AttributeError:
         assert True
 
+
 def test_disconnect(net_connect, commands, expected_responses):
     """Terminate the SSH session."""
     start_time = datetime.now()
