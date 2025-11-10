@@ -1,6 +1,6 @@
 import time
 import re
-from typing import Optional
+from typing import Optional, Any
 
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
@@ -14,15 +14,19 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
 
     prompt_pattern = r"[>#]"
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Kept running into issues with command_echo and duplicate echoes of commands.
+        self.fast_cli = False
+        fast_cli = kwargs.get("fast_cli") or False
+        kwargs["fast_cli"] = fast_cli
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self) -> None:
         """
         Prepare the session after the connection has been established.
 
         Set the base prompt for interaction ('>').
         """
-        # Kept running into issues with command_echo and duplicate
-        # echoes of commands.
-        self.fast_cli = False
         self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.disable_paging(command="set clienv rows 0")
@@ -48,14 +52,12 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         Send the "secret" in response to password pattern
         """
         if re.search(pattern, output, flags=re_flags):
+            print(self.global_delay_factor)
             self.write_channel(self.secret)
-            print(output)
-            time.sleep(0.3)
+            time.sleep(0.3 * self.global_delay_factor)
             self.write_channel(self.RETURN)
-            time.sleep(0.3)
-            new_output = self.read_until_pattern(pattern=r"[>#]")
-            print(new_output)
-
+            time.sleep(0.3 * self.global_delay_factor)
+            new_output = self.read_until_pattern(pattern=self.prompt_pattern)
         return new_output
 
     def enable(
