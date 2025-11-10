@@ -25,6 +25,7 @@
 - Calix B6
 - Casa Systems CMTS
 - Centec Networks
+- Check Point GAiA
 - Cisco AireOS (Wireless LAN Controllers)
 - Cisco ASA
 - Cisco S200
@@ -92,7 +93,6 @@
 - Cisco APIC (Linux)
 - Cisco Telepresence
 - Cisco Viptela
-- Check Point GAiA
 - Corelight Linux
 - Coriant
 - Cumulus VX Linux
