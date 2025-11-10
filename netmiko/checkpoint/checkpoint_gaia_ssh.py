@@ -4,7 +4,6 @@ from typing import Optional
 
 from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
-from netmiko.exceptions import ReadTimeout
 
 
 class CheckPointGaiaSSH(NoConfig, BaseConnection):
@@ -39,7 +38,7 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
     def enable_secret_handler(
         self,
         pattern: str,
-        output: str
+        output: str,
         re_flags: int = re.IGNORECASE,
     ) -> str:
         """
@@ -49,20 +48,15 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         Send the "secret" in response to password pattern
         """
         if re.search(pattern, output, flags=re_flags):
-            self.write_channel(self.secret))
+            self.write_channel(self.secret)
             print(output)
-            time.sleep(.3)
-            self.write_channel("\n")
-            time.sleep(.3)
-            output += self.read_until_pattern(pattern=r"[>#]")
-            #print(self.read_channel())
-#2060                 #output += self.read_until_prompt()
-#2061                 print(output)
-#2062                 time.sleep(.3)
-#2063                 self.write_channel("\n")
-#2064                 time.sleep(.3)
-#2065                 #print(self.read_channel())
-#2066                 output += self.read_until_pattern(pattern=r"[>#]")
+            time.sleep(0.3)
+            self.write_channel(self.RETURN)
+            time.sleep(0.3)
+            new_output = self.read_until_pattern(pattern=r"[>#]")
+            print(new_output)
+
+        return new_output
 
     def enable(
         self,
@@ -84,64 +78,6 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
             check_state=check_state,
             re_flags=re_flags,
         )
-        self.set_base_prompt()
-        return output
-
-        output = ""
-        msg = (
-            "Failed to enter enable mode. Please ensure you pass "
-            "the 'secret' argument to ConnectHandler."
-        )
-
-        # Check if in enable mode already.
-        if check_state and self.check_enable_mode():
-            return output
-
-        # Send "enable" mode command
-        self.write_channel(self.normalize_cmd(cmd))
-        try:
-            # Read the command echo
-            if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
-
-            # Gaia is really tricky as it frequently double echoes the cmd
-            try:
-                tmp_pattern = rf"(?:>\s{re.escape(cmd.strip())}|{pattern})"
-                output += self.read_until_pattern(pattern=tmp_pattern, read_timeout=3)
-            except ReadTimeout:
-                # No double echo / no prompt to enter password (give up).
-                raise ValueError(msg)
-
-            print(output)
-
-            # Must have hit double echo
-            if not re.search(pattern, output):
-                time.sleep(.3)
-                # Search for trailing prompt or password pattern
-                output += self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags, read_entire_line=True
-                )
-
-            print(output)
-
-            # Send the "secret" in response to password pattern
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.secret)
-                time.sleep(.5)
-                self.write_channel("\r")
-
-            # Search for terminating pattern if defined
-            if enable_pattern:
-                output += self.read_until_pattern(pattern=enable_pattern)
-            else:
-                output += self.read_until_prompt()
-                if not self.check_enable_mode():
-                    raise ValueError(msg)
-
-        except NetmikoTimeoutException:
-            raise ValueError(msg)
-
-        print(output)
         self.set_base_prompt()
         return output
 

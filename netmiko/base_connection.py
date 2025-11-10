@@ -2011,6 +2011,29 @@ You can also look at the Netmiko session_log or debug log for more information.
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
+    def enable_secret_handler(
+        self,
+        pattern: str,
+        output: str,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
+        """
+        Some platforms require special handling when entering 'enable' mode.
+
+        Send the "secret" in response to password pattern
+
+        :param pattern: pattern to search for indicating device is waiting for password
+
+        :param output: Accumulated output from 'enable()' method.
+
+        :param re_flags: Regular expression flags used in conjunction with pattern
+
+        """
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+            new_output = self.read_until_prompt()
+        return new_output
+
     def enable(
         self,
         cmd: str = "",
@@ -2054,10 +2077,9 @@ You can also look at the Netmiko session_log or debug log for more information.
                 pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
 
-            # Send the "secret" in response to password pattern
-            if re.search(pattern, output, flags=re_flags):
-                self.write_channel(self.normalize_cmd(self.secret))
-                output += self.read_until_prompt()
+            output += self.enable_secret_handler(
+                pattern=pattern, output=output, re_flags=re_flags
+            )
 
             # Search for terminating pattern if defined
             if enable_pattern and not re.search(enable_pattern, output):
