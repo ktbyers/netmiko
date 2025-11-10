@@ -52,7 +52,6 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         Send the "secret" in response to password pattern
         """
         if re.search(pattern, output, flags=re_flags):
-            print(self.global_delay_factor)
             self.write_channel(self.secret)
             time.sleep(0.3 * self.global_delay_factor)
             self.write_channel(self.RETURN)
@@ -84,9 +83,14 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         return output
 
     def exit_enable_mode(self, exit_command: str = "exit") -> str:
-        """Exits enable (privileged exec) mode."""
-        output = super().exit_enable_mode(exit_command=exit_command)
-        self.set_base_prompt()
+        """Exit expert mode."""
+        output = ""
+        if self.check_enable_mode():
+            self.write_channel(self.normalize_cmd(exit_command))
+            output += self.read_until_pattern(pattern=r">")
+            self.set_base_prompt()
+            if self.check_enable_mode():
+                raise ValueError("Failed to exit enable mode.")
         return output
 
     def save_config(
