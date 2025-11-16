@@ -25,6 +25,7 @@
 - Calix B6
 - Casa Systems CMTS
 - Centec Networks
+- Check Point GAiA
 - Cisco AireOS (Wireless LAN Controllers)
 - Cisco ASA
 - Cisco S200
@@ -120,6 +121,7 @@
 - MRV LX
 - Nokia/Alcatel SR-OS
 - Nokia SR Linux
+- Perle IOLAN Console Server
 - Optilink EOLT 9702 (telnet only)
 - QuantaMesh
 - Rad ETX

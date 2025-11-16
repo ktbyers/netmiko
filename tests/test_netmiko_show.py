@@ -374,6 +374,14 @@ def test_enable_mode(net_connect, commands, expected_responses):
     except AttributeError:
         assert True
 
+    # Now verify you can exit enable mode
+    try:
+        net_connect.exit_enable_mode()
+        prompt = net_connect.find_prompt()
+        assert prompt == expected_responses["router_prompt"]
+    except AttributeError:
+        assert True
+
 
 def test_disconnect(net_connect, commands, expected_responses):
     """Terminate the SSH session."""
