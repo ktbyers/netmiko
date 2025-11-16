@@ -349,7 +349,7 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "moxa": {
+    "moxa_nos": {
         "cmd": "",
         "dispatch": "_autodetect_remote_version",
         "search_patterns": [r"[Mm]oxa"],

@@ -1,3 +1,3 @@
-from netmiko.moxa.moxa import MoxaSSH
+from netmiko.moxa.moxa_nos import MoxaNosSSH
 
-__all__ = ["MoxaSSH"]
+__all__ = ["MoxaNosSSH"]

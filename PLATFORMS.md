@@ -75,43 +75,41 @@
 
 ###### Experimental
 
-- 6WIND TurboRouter
 - A10
 - Accedian
 - Alaxala AX2600S and AX3600S 
 - Allied Telesis AlliedWare Plus
 - Arris CER
-- Aruba AOS-CX
 - Aruba OS (Wireless Controllers/WAPs)
+- Aruba AOS-CX
 - AsterFusion AsterNOS SONiC
 - Bintec BOSS (Bintec/Funkwerk)
 - Brocade Fabric OS
 - C-DOT CROS
-- Check Point GAiA
 - Ciena SAOS
 - Ciena SAOS10
 - Ciena Waveserver
+- Citrix Netscaler
 - Cisco APIC (Linux)
 - Cisco Telepresence
 - Cisco Viptela
-- Citrix Netscaler
 - Corelight Linux
 - Coriant
 - Cumulus VX Linux
-- Dell EMC Isilon
 - Dell OS6
+- Dell EMC Isilon
 - Digi TransPort Routers
 - Edgecore SONiC
 - Eltex
-- Endace
 - Enterasys
+- Endace
 - Extreme EXOS
-- Extreme SLX (Brocade)
 - Extreme Wing
-- F5 Linux
+- Extreme SLX (Brocade)
 - F5 TMSH
-- Fiberstore FS-OS (V2)
+- F5 Linux
 - Fiberstore NetworkOS
+- Fiberstore FS-OS (V2)
 - Fortinet
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
@@ -134,6 +132,7 @@
 - Vertiv MPH Power Distribution Units
 - Watchguard Firebox
 - Zyxel NOS
+- 6WIND TurboRouter
 
 ###### Supported SSH device_type values
 
@@ -256,7 +255,7 @@
 - mellanox_mlnxos
 - mikrotik_routeros
 - mikrotik_switchos
-- moxa
+- moxa_nos
 - mrv_lx
 - mrv_optiswitch
 - nec_ix

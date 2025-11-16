@@ -1,13 +1,13 @@
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
-class MoxaBase(CiscoSSHConnection):
+class MoxaNosBase(CiscoSSHConnection):
     """MOXA base driver"""
 
     pass
 
 
-class MoxaSSH(MoxaBase):
+class MoxaNosSSH(MoxaNosBase):
     """MOXA SSH driver"""
 
     pass
