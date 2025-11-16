@@ -121,10 +121,12 @@ from netmiko.maipu import MaipuTelnet
 from netmiko.mikrotik import MikrotikRouterOsSSH, MikrotikRouterOsFileTransfer
 from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxMlnxosSSH
+from netmiko.moxa import MoxaNosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
 from netmiko.nokia import (
+    NokiaIsamSSH,
     NokiaSrosSSH,
     NokiaSrosFileTransfer,
     NokiaSrosTelnet,
@@ -298,12 +300,14 @@ CLASS_MAPPER_BASE = {
     "mikrotik_switchos": MikrotikSwitchOsSSH,
     "mellanox": MellanoxMlnxosSSH,
     "mellanox_mlnxos": MellanoxMlnxosSSH,
+    "moxa_nos": MoxaNosSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "nec_ix": NecIxSSH,
     "netapp_cdot": NetAppcDotSSH,
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
+    "nokia_isam": NokiaIsamSSH,
     "nokia_sros": NokiaSrosSSH,
     "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
