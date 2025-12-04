@@ -114,7 +114,9 @@ from netmiko.hp import (
     HPComware1920SSH,
     HPComware1920Telnet,
     HPComware1950SSH,
-    HPComware1950Telnet
+    HPComware1950Telnet,
+    HPComware1910SSH,
+    HPComware1910Telnet
 )
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
@@ -288,6 +290,7 @@ CLASS_MAPPER_BASE = {
     "hp_comware": HPComwareSSH,
     "hp_comware1920": HPComware1920SSH,
     "hp_comware1950": HPComware1950SSH,
+    "hp_comware1910": HPComware1910SSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
     "huawei_smartaxmmi": HuaweiSmartAXSSHMMI,
@@ -413,6 +416,7 @@ CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
 CLASS_MAPPER["hp_comware1920_telnet"] = HPComware1920Telnet
 CLASS_MAPPER["hp_comware1950_telnet"] = HPComware1950Telnet
+CLASS_MAPPER["hp_comware1910_telnet"] = HPComware1910Telnet
 CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
 CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["infinera_packet_telnet"] = InfineraPacketTelnet
