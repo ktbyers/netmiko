@@ -182,7 +182,7 @@ jobs:
     # ongoing issues supporting newer Python versions.
     strategy:
       matrix:
-        python-version: [ '3.12']
+        python-version: [ '3.11']
         platform: [ubuntu-24.04]
 
     runs-on: ${{ matrix.platform }}
