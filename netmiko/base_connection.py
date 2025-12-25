@@ -2032,6 +2032,8 @@ You can also look at the Netmiko session_log or debug log for more information.
         if re.search(pattern, output, flags=re_flags):
             self.write_channel(self.normalize_cmd(self.secret))
             new_output = self.read_until_prompt()
+        else:
+            new_output = ""
         return new_output
 
     def enable(
