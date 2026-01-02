@@ -4,10 +4,6 @@ from netmiko.base_connection import BaseConnection
 
 
 class SmartOpticsDWDMSSH(BaseConnection):
-    def session_preparation(self):
-        self._test_channel_read(pattern=r"[>#]")
-        self.set_base_prompt()
-
     def set_base_prompt(
         self,
         pri_prompt_terminator="#",
