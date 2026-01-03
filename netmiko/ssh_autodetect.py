@@ -349,6 +349,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "moxa_nos": {
+        "cmd": "",
+        "dispatch": "_autodetect_remote_version",
+        "search_patterns": [r"[Mm]oxa"],
+        "priority": 99,
+    },
     "huawei_smartax": {
         "cmd": "display version",
         "search_patterns": [r"Huawei Integrated Access Software"],

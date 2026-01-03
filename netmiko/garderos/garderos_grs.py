@@ -18,7 +18,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established"""
         self.ansi_escape_codes = True
         self._test_channel_read()
-        self.set_base_prompt(pri_prompt_terminator="#")
+        self.set_base_prompt(pri_prompt_terminator="#", alt_prompt_terminator="$")
         self.clear_buffer()
 
     def send_command(
