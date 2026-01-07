@@ -133,6 +133,11 @@ SNMP_MAPPER_BASE = {
         "expr": re.compile(r".*RouterOS.*", re.IGNORECASE),
         "priority": 60,
     },
+    "hirschmann_hios": {
+        "oid": ".1.3.6.1.2.1.1.1.0",
+        "expr": re.compile(r".*Hirschmann BOBCAT.*"),
+        "priority": 60,
+    },
 }
 
 # Ensure all SNMP device types are supported by Netmiko
