@@ -113,6 +113,7 @@
 - Fortinet
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
+- Hirschmann HiOS
 - Lancom LCOS SX4
 - Moxa EDS
 - MRV Communications OptiSwitch
@@ -233,6 +234,7 @@
 - generic_termserver
 - h3c_comware
 - hillstone_stoneos
+- hirschmann_hios
 - hp_comware
 - hp_procurve
 - huawei

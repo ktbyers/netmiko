@@ -106,6 +106,7 @@ from netmiko.fortinet import FortinetSSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
+from netmiko.hirschmann.hirschmann_hios import HirschmannHiOSSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
@@ -279,6 +280,7 @@ CLASS_MAPPER_BASE = {
     "generic_termserver": TerminalServerSSH,
     "h3c_comware": HPComwareSSH,
     "hillstone_stoneos": HillstoneStoneosSSH,
+    "hirschmann_hios": HirschmannHiOSSSH,
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
