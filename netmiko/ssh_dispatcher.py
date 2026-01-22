@@ -15,6 +15,7 @@ from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
+from netmiko.apc import ApcAosSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaOsSSH, ArubaCxSSH, ArubaOsFileTransfer
 from netmiko.asterfusion import AsterfusionAsterNOSSSH
@@ -191,6 +192,7 @@ CLASS_MAPPER_BASE = {
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "allied_telesis_awplus": AlliedTelesisAwplusSSH,
+    "apc_aos": ApcAosSSH,
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "arris_cer": ArrisCERSSH,
