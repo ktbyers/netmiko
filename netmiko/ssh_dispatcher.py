@@ -30,7 +30,7 @@ from netmiko.audiocode import (
 from netmiko.bintec import BintecBossSSH, BintecBossTelnet
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
-from netmiko.calix import CalixB6SSH, CalixB6Telnet
+from netmiko.calix import CalixB6SSH, CalixB6Telnet, CalixAxosSSH, CalixAxosTelnet
 from netmiko.casa import CasaCMTSSSH
 from netmiko.cdot import CdotCrosSSH
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
@@ -213,6 +213,7 @@ CLASS_MAPPER_BASE = {
     "brocade_vdx": ExtremeNosSSH,
     "brocade_vyos": VyOSSSH,
     "checkpoint_gaia": CheckPointGaiaSSH,
+    "calix_axos": CalixAxosSSH,
     "calix_b6": CalixB6SSH,
     "casa_cmts": CasaCMTSSSH,
     "cdot_cros": CdotCrosSSH,
@@ -386,6 +387,7 @@ CLASS_MAPPER["audiocode_shell_telnet"] = AudiocodeShellTelnet
 CLASS_MAPPER["bintec_boss_telnet"] = BintecBossTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
+CLASS_MAPPER["calix_axos_telnet"] = CalixAxosTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
 CLASS_MAPPER["centec_os_telnet"] = CentecOSTelnet
 CLASS_MAPPER["ciena_saos_telnet"] = CienaSaosTelnet
