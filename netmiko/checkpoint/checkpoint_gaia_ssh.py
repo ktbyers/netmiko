@@ -106,6 +106,21 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         return output
 
     def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+        self,
+        cmd: str = "save config",
+        confirm: bool = False,
+        confirm_response: str = "",
     ) -> str:
-        raise NotImplementedError
+        output = ""
+        if self.check_enable_mode():
+            self.write_channel(self.normalize_cmd("exit"))
+            output += self.read_until_pattern(pattern=r">")
+            self.set_base_prompt()
+
+        output += self._send_command_str(
+            command_string=cmd,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=100.0,
+        )
+        return output
