@@ -136,6 +136,7 @@ from netmiko.nokia import (
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.nec import NecIxSSH, NecIxTelnet
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
+from netmiko.opengear import OpengearLinuxSSH
 from netmiko.optilink import OptilinkEOLT9702Telnet
 from netmiko.optilink import OptilinkEOLT11444Telnet
 from netmiko.optilink import OptilinkGOLT924Telnet
@@ -313,6 +314,7 @@ CLASS_MAPPER_BASE = {
     "nokia_sros": NokiaSrosSSH,
     "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
+    "opengear_linux": OpengearLinuxSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,
