@@ -15,6 +15,7 @@ from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
+from netmiko.apc import ApcAosSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
 from netmiko.aruba import ArubaOsSSH, ArubaCxSSH, ArubaOsFileTransfer
 from netmiko.asterfusion import AsterfusionAsterNOSSSH
@@ -121,6 +122,7 @@ from netmiko.maipu import MaipuTelnet
 from netmiko.mikrotik import MikrotikRouterOsSSH, MikrotikRouterOsFileTransfer
 from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxMlnxosSSH
+from netmiko.moxa import MoxaNosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
@@ -134,6 +136,7 @@ from netmiko.nokia import (
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.nec import NecIxSSH, NecIxTelnet
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
+from netmiko.opengear import OpengearLinuxSSH
 from netmiko.optilink import OptilinkEOLT9702Telnet
 from netmiko.optilink import OptilinkEOLT11444Telnet
 from netmiko.optilink import OptilinkGOLT924Telnet
@@ -190,6 +193,7 @@ CLASS_MAPPER_BASE = {
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "allied_telesis_awplus": AlliedTelesisAwplusSSH,
+    "apc_aos": ApcAosSSH,
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "arris_cer": ArrisCERSSH,
@@ -299,6 +303,7 @@ CLASS_MAPPER_BASE = {
     "mikrotik_switchos": MikrotikSwitchOsSSH,
     "mellanox": MellanoxMlnxosSSH,
     "mellanox_mlnxos": MellanoxMlnxosSSH,
+    "moxa_nos": MoxaNosSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "nec_ix": NecIxSSH,
@@ -309,6 +314,7 @@ CLASS_MAPPER_BASE = {
     "nokia_sros": NokiaSrosSSH,
     "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
+    "opengear_linux": OpengearLinuxSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,

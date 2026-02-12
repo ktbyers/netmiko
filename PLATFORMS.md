@@ -25,6 +25,7 @@
 - Calix B6
 - Casa Systems CMTS
 - Centec Networks
+- Check Point GAiA
 - Cisco AireOS (Wireless LAN Controllers)
 - Cisco ASA
 - Cisco S200
@@ -92,7 +93,6 @@
 - Cisco APIC (Linux)
 - Cisco Telepresence
 - Cisco Viptela
-- Check Point GAiA
 - Corelight Linux
 - Coriant
 - Cumulus VX Linux
@@ -114,6 +114,7 @@
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
 - Lancom LCOS SX4
+- Moxa EDS
 - MRV Communications OptiSwitch
 - MRV LX
 - Nokia/Alcatel SR-OS
@@ -254,6 +255,7 @@
 - mellanox_mlnxos
 - mikrotik_routeros
 - mikrotik_switchos
+- moxa_nos
 - mrv_lx
 - mrv_optiswitch
 - nec_ix
