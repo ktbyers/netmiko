@@ -42,6 +42,7 @@
 - Extreme VDX (Brocade)
 - Extreme VSP (Avaya)
 - Fiberstore FSOS
+- Furukawa FITELnet
 - Hillstone StoneOS
 - HPE Comware7
 - HPE ProCurve
@@ -228,6 +229,7 @@
 - fiberstore_networkos
 - flexvnf
 - fortinet
+- furukawa_fitelnet
 - garderos_grs
 - generic
 - generic_termserver
@@ -319,6 +321,7 @@
 - extreme_netiron_telnet
 - extreme_telnet
 - fiberstore_fsosv2_telnet
+- furukawa_fitelnet_telnet
 - generic_telnet
 - generic_termserver_telnet
 - genexis_solt33_telnet
