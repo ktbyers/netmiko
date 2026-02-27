@@ -26,6 +26,9 @@ def common_args(parser):
         "--hide-failed", help="Hide failed devices", action="store_true"
     )
     parser.add_argument(
+        "--hide-empty", help="Hide empty responses", action="store_true"
+    )
+    parser.add_argument(
         "--json", help="Output results in JSON format", action="store_true"
     )
     parser.add_argument("--raw", help="Display raw output", action="store_true")
