@@ -85,7 +85,7 @@ SSH_MAPPER_DICT = {
     },
     "aruba_aoscx": {
         "cmd": "show version",
-        "search_patterns": [r"ArubaOS-CX"],
+        "search_patterns": [r"ArubaOS-CX", r"AOS-CX"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
