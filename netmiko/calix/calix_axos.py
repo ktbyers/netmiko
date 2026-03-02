@@ -23,7 +23,7 @@ class CalixAxosBase(CiscoSSHConnection):
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
-        alt_prompt_terminator: str = None,
+        alt_prompt_terminator: str = "#",
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
