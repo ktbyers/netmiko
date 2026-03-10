@@ -71,3 +71,14 @@ exclude = '''
     | netmiko/_telnetlib
 )/
 '''
+
+[tool.ruff]
+# Files or directories to exclude from linting and formatting
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "netmiko/_telnetlib",
+]
