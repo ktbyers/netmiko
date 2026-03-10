@@ -40,6 +40,8 @@ mypy = "1.11.2"
 mypy-extensions = "1.0.0"
 pytest = "8.3.3"
 pyflakes = "3.2.0"
+# Needed for pylama
+setuptools = "81.0.0"
 pylama = "8.4.1"
 twine = "5.1.1"
 docutils = "0.21.2"
@@ -47,7 +49,6 @@ pysnmp = "6.2.6"
 pdoc3 = "0.11.1"
 types-paramiko = "4.0.0.20250821"
 types-PyYAML = "6.0.12.20240917"
-setuptools = ">=65.0.0"
 
 [tool.poetry.group.parsers]
 optional = true
