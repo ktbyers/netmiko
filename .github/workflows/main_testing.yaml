@@ -32,9 +32,9 @@ jobs:
         run: |
           poetry install
 
-      - name: Run pylama
+      - name: Run ruff check
         run: |
-          poetry run pylama .
+          poetry run ruff check .
 
       - name: Run black
         run: |
