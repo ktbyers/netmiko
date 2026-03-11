@@ -75,9 +75,7 @@ Login process failed to Calix B6 device. Unable to login in {login_timeout} seco
         confirm: bool = False,
         confirm_response: str = "",
     ) -> str:
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class CalixB6SSH(CalixB6Base):

@@ -18,9 +18,7 @@ class MaipuBase(CiscoBaseConnection):
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves Config Using Copy Run Start"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class MaipuSSH(MaipuBase):

@@ -27,9 +27,7 @@ class JuniperBase(NoEnable, BaseConnection):
             command="set cli complete-on-space off",
             pattern=r"Disabling complete-on-space",
         )
-        self.disable_paging(
-            command="set cli screen-length 0", pattern=r"Screen length set to"
-        )
+        self.disable_paging(command="set cli screen-length 0", pattern=r"Screen length set to")
         self.set_base_prompt()
 
     def _enter_shell(self) -> str:
@@ -162,9 +160,7 @@ class JuniperBase(NoEnable, BaseConnection):
         if check and (confirm or confirm_delay or comment):
             raise ValueError("Invalid arguments supplied with commit check")
         if confirm_delay and not confirm:
-            raise ValueError(
-                "Invalid arguments supplied to commit method both confirm and check"
-            )
+            raise ValueError("Invalid arguments supplied to commit method both confirm and check")
 
         # Select proper command string based on arguments provided
         command_string = "commit"
@@ -294,13 +290,9 @@ class JuniperFileTransfer(BaseFileTransfer):
         """Check if the dest_file already exists on the file system (return boolean)."""
         return self._check_file_exists_unix(remote_cmd=remote_cmd)
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
-        return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
-        )
+        return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
 
     def remote_md5(
         self, base_cmd: str = "file checksum md5", remote_file: Optional[str] = None

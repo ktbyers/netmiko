@@ -31,11 +31,11 @@ Examples
                      'password': 'foo'}
 >>> guesser = SSHDetect(**remote_device)
 >>> best_match = guesser.autodetect()
->>> print(best_match) # Name of the best device_type to use further
->>> print(guesser.potential_matches) # Dictionary of the whole matching result
+>>> print(best_match)  # Name of the best device_type to use further
+>>> print(guesser.potential_matches)  # Dictionary of the whole matching result
 
 # Netmiko connection creation section
->>> remote_device['device_type'] = best_match
+>>> remote_device["device_type"] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
 
@@ -482,9 +482,7 @@ class SSHDetect(object):
             self.connection.disconnect()
             return None
 
-        best_match = sorted(
-            self.potential_matches.items(), key=lambda t: t[1], reverse=True
-        )
+        best_match = sorted(self.potential_matches.items(), key=lambda t: t[1], reverse=True)
         self.connection.disconnect()
         return best_match[0][0]
 
@@ -536,7 +534,7 @@ class SSHDetect(object):
         search_patterns: Optional[List[str]] = None,
         re_flags: int = re.IGNORECASE,
         priority: int = 99,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> int:
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported

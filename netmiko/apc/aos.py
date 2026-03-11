@@ -25,8 +25,6 @@ class ApcAosSSH(BaseConnection, NoEnable, NoConfig):
         )
         return self.base_prompt
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         """Not Implemented"""
         raise NotImplementedError

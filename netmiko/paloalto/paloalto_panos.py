@@ -84,9 +84,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         self._test_channel_read(pattern=r"operational-mode")
         self._test_channel_read(pattern=self.prompt_pattern)
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         """PA devices can be very slow to respond (in certain situations)"""
         if pattern is None:
             pattern = self.prompt_pattern
@@ -143,9 +141,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         if delay_factor is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
-        if (
-            device_and_network or policy_and_objects or vsys or no_vsys
-        ) and not partial:
+        if (device_and_network or policy_and_objects or vsys or no_vsys) and not partial:
             raise ValueError(
                 "'partial' must be True when using "
                 "device_and_network or policy_and_objects "

@@ -37,9 +37,7 @@ def test_cmd_verify_decorator(net_connect_cmd_verify):
     obj.global_cmd_verify = False
 
 
-def test_send_command_global_cmd_verify(
-    net_connect_cmd_verify, commands, expected_responses
-):
+def test_send_command_global_cmd_verify(net_connect_cmd_verify, commands, expected_responses):
     """
     Verify a command can be sent down the channel successfully using send_command method.
 

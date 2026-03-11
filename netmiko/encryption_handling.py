@@ -53,9 +53,7 @@ def decrypt_value(encrypted_value: str, key: bytes, encryption_type: str) -> str
         raise ValueError(f"Unsupported encryption type: {encryption_type}")
 
 
-def decrypt_config(
-    config: Dict[str, Any], key: bytes, encryption_type: str
-) -> Dict[str, Any]:
+def decrypt_config(config: Dict[str, Any], key: bytes, encryption_type: str) -> Dict[str, Any]:
     for device, params in config.items():
         if isinstance(params, dict):
             for field, value in params.items():

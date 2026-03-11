@@ -69,19 +69,13 @@ class UbiquitiEdgeRouterFileTransfer(BaseFileTransfer):
         search_pattern = r"[\$#]"
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
-    def remote_md5(
-        self, base_cmd: str = "md5sum", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "md5sum", remote_file: Optional[str] = None) -> str:
         """Calculate remote MD5 and returns the hash."""
         return super().remote_md5(base_cmd=base_cmd, remote_file=remote_file)
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
-        return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
-        )
+        return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
 
     @staticmethod
     def process_md5(md5_output: str, pattern: str = r"(\S+)\s+") -> str:

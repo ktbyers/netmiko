@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Return output from single show cmd using Netmiko."""
+
 import sys
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed

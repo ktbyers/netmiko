@@ -23,9 +23,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
 
     def commit(self, confirm: bool = False, confirm_response: str = "") -> str:
         cmd = "commit"
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def config_mode(
         self,
@@ -60,9 +58,7 @@ class CiscoViptelaSSH(CiscoSSHConnection):
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(
-                    pattern=re.escape(exit_config.strip())
-                )
+                output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
             if not re.search(pattern, output, flags=re.M):
                 uncommit_pattern = r"Uncommitted changes found"
                 new_pattern = f"({pattern}|{uncommit_pattern})"
