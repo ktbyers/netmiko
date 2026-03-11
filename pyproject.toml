@@ -61,17 +61,6 @@ ttp = ">=0.9.5"
 "netmiko-encrypt" = "netmiko.cli_tools.netmiko_encrypt:main_ep"
 "netmiko-bulk-encrypt" = "netmiko.cli_tools.netmiko_bulk_encrypt:main_ep"
 
-[tool.black]
-exclude = '''
-/(
-    \.git
-    | \.venv
-    | build
-    | dist
-    | netmiko/_telnetlib
-)/
-'''
-
 [tool.ruff]
 line-length = 100
 
