@@ -1,5 +1,5 @@
 black .
-pylama .
+ruff check .
 mypy ./netmiko
 py.test -v -s tests/test_import_netmiko.py
 py.test -v -s tests/unit/test_base_connection.py
