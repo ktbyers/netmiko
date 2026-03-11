@@ -102,7 +102,7 @@ def file_transfer(
     if verify_file is None:
         verify_file = not disable_md5
 
-    scp_args = {
+    scp_args: Dict[str, Any] = {
         "ssh_conn": ssh_conn,
         "source_file": source_file,
         "dest_file": dest_file,

@@ -43,7 +43,7 @@ twine = "6.2.0"
 docutils = "0.22.4"
 pysnmp = "6.2.6"
 pdoc3 = "0.11.6"
-types-paramiko = "4.0.0.20250821"
+types-paramiko = "4.0.0.20250822"
 types-PyYAML = "6.0.12.20250915"
 
 [tool.poetry.group.parsers]
@@ -82,3 +82,39 @@ exclude = [
     "dist",
     "netmiko/_telnetlib",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+exclude = "telnetlib.py"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+ignore_errors = false
+ignore_missing_imports = true
+strict_optional = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_redundant_casts = true
+
+# Module-specific overrides
+[[tool.mypy.overrides]]
+module = "netmiko.base_connection"
+warn_unused_ignores = false
+
+[[tool.mypy.overrides]]
+module = [
+    "netmiko.cli_tools.netmiko_grep",
+    "netmiko.cli_tools.netmiko_cfg",
+    "netmiko.cli_tools.netmiko_show",
+    "netmiko.cli_tools.helpers",
+    "netmiko.cli_tools.outputters",
+    "netmiko.cli_tools.argument_handling",
+    "netmiko.cli_tools.netmiko_encrypt",
+    "netmiko.cli_tools.netmiko_bulk_encrypt",
+    "netmiko._telnetlib.telnetlib"
+]
+ignore_errors = true
