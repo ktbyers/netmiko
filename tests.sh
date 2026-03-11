@@ -1,4 +1,4 @@
-black .
+ruff format .
 ruff check .
 mypy ./netmiko
 py.test -v -s tests/test_import_netmiko.py

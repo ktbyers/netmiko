@@ -89,9 +89,8 @@ source .venv/bin/activate
 
 ```
 # Should report all files as 'unchanged'
-$ black --check .
-All done! ✨ 🍰 ✨
-264 files would be left unchanged.
+$ ruff format --check .
+323 files already formatted
 
 # Linter should report nothing (at this point)
 $ ruff check .
@@ -135,8 +134,8 @@ At the end of your changes the linters and unit tests MUST all pass.
 
 ```
 cd {{ repo_base }}
-# Use black to autoformat the code
-black .
+# Use 'ruff format' to autoformat the code
+ruff format .
 
 # Fix any linting errors
 ruff check .

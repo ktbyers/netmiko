@@ -473,8 +473,7 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         else:
             msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
         raise ValueError(
-            "Unsupported 'device_type' "
-            "currently supported platforms are: {}".format(msg_str)
+            "Unsupported 'device_type' currently supported platforms are: {}".format(msg_str)
         )
     ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
@@ -533,9 +532,7 @@ def ConnLogOnly(
         logger.info(msg)
         return net_connect
     except NetmikoAuthenticationException as e:
-        msg = (
-            f"Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}"
-        )
+        msg = f"Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}"
         logger.error(msg)
         return None
     except NetmikoTimeoutException as e:
@@ -583,9 +580,7 @@ def ssh_dispatcher(device_type: str) -> Type["BaseConnection"]:
     return CLASS_MAPPER[device_type]
 
 
-def redispatch(
-    obj: "BaseConnection", device_type: str, session_prep: bool = True
-) -> None:
+def redispatch(obj: "BaseConnection", device_type: str, session_prep: bool = True) -> None:
     """Dynamically change Netmiko object's class to proper class.
     Generally used with terminal_server device_type when you need to redispatch after interacting
     with terminal server.
@@ -605,8 +600,9 @@ def FileTransfer(*args: Any, **kwargs: Any) -> "BaseFileTransfer":
         device_type = kwargs["ssh_conn"].device_type
     if device_type not in scp_platforms:
         raise ValueError(
-            "Unsupported SCP device_type: "
-            "currently supported platforms are: {}".format(scp_platforms_str)
+            "Unsupported SCP device_type: currently supported platforms are: {}".format(
+                scp_platforms_str
+            )
         )
     FileTransferClass: Type["BaseFileTransfer"]
     FileTransferClass = FILE_TRANSFER_MAP[device_type]

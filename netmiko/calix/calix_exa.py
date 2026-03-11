@@ -8,7 +8,6 @@ from netmiko.no_config import NoConfig
 
 
 class CalixExaBase(BaseConnection, NoEnable, NoConfig):
-
     def session_preparation(self) -> Any:
         """Prepare the session after the connection has been established."""
         self.ansi_escape_codes = True

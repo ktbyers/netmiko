@@ -126,9 +126,7 @@ def log_writes(func: F) -> F:
         func(self, out_data)
         try:
             log.debug(
-                "write_channel: {}".format(
-                    str(write_bytes(out_data, encoding=self.encoding))
-                )
+                "write_channel: {}".format(str(write_bytes(out_data, encoding=self.encoding)))
             )
             if self.session_log:
                 if self.session_log.fin or self.session_log.record_writes:
@@ -323,9 +321,7 @@ class BaseConnection:
                 (default: False)
         """
 
-        self.remote_conn: Union[
-            None, telnetlib.Telnet, paramiko.Channel, serial.Serial
-        ] = None
+        self.remote_conn: Union[None, telnetlib.Telnet, paramiko.Channel, serial.Serial] = None
         # Does the platform support a configuration mode
         self._config_mode = True
         self._read_buffer = ""
@@ -463,9 +459,7 @@ class BaseConnection:
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = (
-                path.abspath(path.expanduser(key_file)) if key_file else None
-            )
+            self.key_file = path.abspath(path.expanduser(key_file)) if key_file else None
             if self.use_keys is True:
                 self._key_check()
             self.pkey = pkey
@@ -483,9 +477,7 @@ class BaseConnection:
                 else:
                     # Merge sha2_pubkeys into pubkeys and prevent duplicates
                     current_pubkeys = self.disabled_algorithms.get("pubkeys", [])
-                    self.disabled_algorithms["pubkeys"] = list(
-                        set(current_pubkeys + sha2_pubkeys)
-                    )
+                    self.disabled_algorithms["pubkeys"] = list(set(current_pubkeys + sha2_pubkeys))
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -947,9 +939,9 @@ You can look at the Netmiko session_log or debug log for more information.
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                        alt_prompt_terminator, output, flags=re.M
+                    ):
                         return return_msg
 
                 # Check if proper data received
@@ -1043,9 +1035,7 @@ You can look at the Netmiko session_log or debug log for more information.
         elif "proxyjump" in source:
             hops = list(reversed(source["proxyjump"].split(",")))
             if len(hops) > 1:
-                raise ValueError(
-                    "ProxyJump with more than one proxy server is not supported."
-                )
+                raise ValueError("ProxyJump with more than one proxy server is not supported.")
             port = source.get("port", self.port)
             host = source.get("hostname", self.host)
             # -F {full_path} forces the continued use of the same SSH config file
@@ -1228,9 +1218,7 @@ A paramiko SSHException occurred during connection creation:
         :param pattern: Regular expression pattern used to determine end of channel read
         """
 
-        def _increment_delay(
-            main_delay: float, increment: float = 1.1, maximum: int = 8
-        ) -> float:
+        def _increment_delay(main_delay: float, increment: float = 1.1, maximum: int = 8) -> float:
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
             if main_delay >= maximum:
@@ -1322,9 +1310,7 @@ A paramiko SSHException occurred during connection creation:
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         if cmd_verify and self.global_cmd_verify is not False:
-            output = self.read_until_pattern(
-                pattern=re.escape(command.strip()), read_timeout=20
-            )
+            output = self.read_until_pattern(pattern=re.escape(command.strip()), read_timeout=20)
         elif pattern:
             output = self.read_until_pattern(pattern=pattern, read_timeout=20)
         else:
@@ -1417,9 +1403,7 @@ A paramiko SSHException occurred during connection creation:
             self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         """Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor
@@ -1491,9 +1475,7 @@ A paramiko SSHException occurred during connection creation:
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        new_data = self.read_until_pattern(
-            pattern=re.escape(cmd), read_timeout=read_timeout
-        )
+        new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
 
         # There can be echoed prompts that haven't been cleared before the cmd echo
         # this can later mess up the trailing prompt pattern detection. Clear this out.
@@ -1578,9 +1560,7 @@ A paramiko SSHException occurred during connection creation:
         if cmd and cmd_verify:
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
         output += new_data
-        output += self.read_channel_timing(
-            last_read=last_read, read_timeout=read_timeout
-        )
+        output += self.read_channel_timing(last_read=last_read, read_timeout=read_timeout)
 
         output = self._sanitize_output(
             output,
@@ -1807,9 +1787,7 @@ before timing out.\n"""
                 # Case where we haven't processed the first_line yet (there is a potential issue
                 # in the first line (in cases where the line is repainted).
                 if not first_line_processed:
-                    output, first_line_processed = self._first_line_handler(
-                        output, search_pattern
-                    )
+                    output, first_line_processed = self._first_line_handler(output, search_pattern)
                     # Check if we have already found our pattern
                     if re.search(search_pattern, output):
                         break
@@ -1911,9 +1889,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             # If list of commands just send directly using default_expect_string (probably prompt)
             for cmd in commands:
                 cmd = str(cmd)
-                output += self._send_command_str(
-                    cmd, expect_string=default_expect_string, **kwargs
-                )
+                output += self._send_command_str(cmd, expect_string=default_expect_string, **kwargs)
         else:
             # If list of lists, then first element is cmd and second element is expect_string
             for cmd_item in commands:
@@ -1921,9 +1897,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 cmd, expect_string = cmd_item
                 if not expect_string:
                     expect_string = default_expect_string
-                output += self._send_command_str(
-                    cmd, expect_string=expect_string, **kwargs
-                )
+                output += self._send_command_str(cmd, expect_string=expect_string, **kwargs)
         return output
 
     def send_multiline_timing(
@@ -2079,9 +2053,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
 
-            output += self.enable_secret_handler(
-                pattern=pattern, output=output, re_flags=re_flags
-            )
+            output += self.enable_secret_handler(pattern=pattern, output=output, re_flags=re_flags)
 
             # Search for terminating pattern if defined
             if enable_pattern and not re.search(enable_pattern, output):
@@ -2136,9 +2108,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         else:
             return check_string in output
 
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
+    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -2155,9 +2125,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(
-                    pattern=re.escape(config_command.strip())
-                )
+                output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
             if pattern:
                 output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
             else:
@@ -2180,9 +2148,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(
-                    pattern=re.escape(exit_config.strip())
-                )
+                output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
             if pattern:
                 output += self.read_until_pattern(pattern=pattern)
             else:
@@ -2537,9 +2503,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         """Not Implemented"""
         raise NotImplementedError
 
@@ -2575,9 +2539,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         """
         if res_kwargs is None:
             res_kwargs = {}
-        return run_ttp_template(
-            connection=self, template=template, res_kwargs=res_kwargs, **kwargs
-        )
+        return run_ttp_template(connection=self, template=template, res_kwargs=res_kwargs, **kwargs)
 
 
 class TelnetConnection(BaseConnection):

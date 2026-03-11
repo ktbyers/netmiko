@@ -36,9 +36,9 @@ jobs:
         run: |
           poetry run ruff check .
 
-      - name: Run black
+      - name: Run ruff format
         run: |
-          poetry run black --check .
+          poetry run ruff format --check .
 
       - name: Run mypy
         run: |

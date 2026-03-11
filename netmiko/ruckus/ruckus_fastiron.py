@@ -78,9 +78,7 @@ class RuckusFastironBase(CiscoSSHConnection):
         self, cmd: str = "write mem", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves configuration."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class RuckusFastironTelnet(RuckusFastironBase):

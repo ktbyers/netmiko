@@ -42,9 +42,7 @@ class HPProcurveBase(CiscoSSHConnection):
 
         # Procurve uses 'Press any key to continue'
         try:
-            data = self.read_until_pattern(
-                pattern=r"(any key to continue|[>#])", read_timeout=3.0
-            )
+            data = self.read_until_pattern(pattern=r"(any key to continue|[>#])", read_timeout=3.0)
             if "any key to continue" in data:
                 self.write_channel(self.RETURN)
                 self.read_until_pattern(pattern=r"[>#]", read_timeout=3.0)
@@ -100,26 +98,20 @@ class HPProcurveBase(CiscoSSHConnection):
 
         # Send the enable command
         self.write_channel(cmd + self.RETURN)
-        new_output = self.read_until_pattern(
-            full_pattern, read_timeout=15, re_flags=re_flags
-        )
+        new_output = self.read_until_pattern(full_pattern, read_timeout=15, re_flags=re_flags)
 
         # Send the username
         if re.search(username_pattern, new_output, flags=re_flags):
             output += new_output
             self.write_channel(default_username + self.RETURN)
             full_pattern = rf"({pwd_pattern}|{prompt_pattern})"
-            new_output = self.read_until_pattern(
-                full_pattern, read_timeout=15, re_flags=re_flags
-            )
+            new_output = self.read_until_pattern(full_pattern, read_timeout=15, re_flags=re_flags)
 
         # Send the password
         if re.search(pwd_pattern, new_output, flags=re_flags):
             output += new_output
             self.write_channel(self.secret + self.RETURN)
-            new_output = self.read_until_pattern(
-                prompt_pattern, read_timeout=15, re_flags=re_flags
-            )
+            new_output = self.read_until_pattern(prompt_pattern, read_timeout=15, re_flags=re_flags)
 
         output += new_output
         log.debug(f"{output}")
@@ -147,7 +139,6 @@ class HPProcurveBase(CiscoSSHConnection):
 
         output = ""
         for _ in range(10):
-
             # The connection might be dead here.
             try:
                 # "Do you want to log out"
@@ -181,9 +172,7 @@ class HPProcurveBase(CiscoSSHConnection):
         confirm_response: str = "",
     ) -> str:
         """Save Config."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class HPProcurveSSH(HPProcurveBase):

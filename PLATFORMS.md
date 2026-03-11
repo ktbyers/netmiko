@@ -201,6 +201,7 @@
 - dell_sonic
 - digi_transport
 - dlink_ds
+- dptech
 - edgecore_sonic
 - ekinops_ek360
 - eltex

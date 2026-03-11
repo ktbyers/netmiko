@@ -36,7 +36,6 @@ rich = ">=13.8"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "0.15.5"
-black = "24.10.0"
 mypy = "1.19.1"
 mypy-extensions = "1.0.0"
 pytest = "8.3.3"
@@ -61,17 +60,6 @@ ttp = ">=0.9.5"
 "netmiko-cfg" = "netmiko.cli_tools.netmiko_cfg:main_ep"
 "netmiko-encrypt" = "netmiko.cli_tools.netmiko_encrypt:main_ep"
 "netmiko-bulk-encrypt" = "netmiko.cli_tools.netmiko_bulk_encrypt:main_ep"
-
-[tool.black]
-exclude = '''
-/(
-    \.git
-    | \.venv
-    | build
-    | dist
-    | netmiko/_telnetlib
-)/
-'''
 
 [tool.ruff]
 line-length = 100
