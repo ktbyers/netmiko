@@ -94,7 +94,8 @@ All done! ✨ 🍰 ✨
 264 files would be left unchanged.
 
 # Linter should report nothing (at this point)
-$ pylama .
+$ ruff check .
+All checks passed!
 
 # Type hints should be happy 😃
 $ mypy netmiko/
@@ -104,13 +105,12 @@ Success: no issues found in 194 source files
 Unit tests should pass (once again we are testing on unchanged 'develop' branch at this point so everything should pass)
 
 ```
-$ py.test tests/unit/
+$ py.test tests/unit
 ============================= test session starts ==============================
-platform linux -- Python 3.9.12, pytest-7.1.2, pluggy-1.3.0
-rootdir: /home/ktbyers/netmiko_tmp/netmiko, configfile: setup.cfg
-plugins: pylama-8.3.8
-collected 58 items                                                             
-
+platform linux -- Python 3.13.12, pytest-8.3.3, pluggy-1.6.0
+rootdir: /home/ktbyers/netmiko
+configfile: setup.cfg
+collected 89 items                                                                                      
 tests/unit/test_base_connection.py ........................              [ 41%]
 tests/unit/test_connection.py ....                                       [ 48%]
 tests/unit/test_entry_points.py .                                        [ 50%]
@@ -139,7 +139,7 @@ cd {{ repo_base }}
 black .
 
 # Fix any linting errors
-pylama .
+ruff check .
 
 # Type hints (if you struggle with this, submit PR and ask for assistance)
 mypy netmiko/
