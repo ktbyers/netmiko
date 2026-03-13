@@ -285,9 +285,7 @@ def test_textfsm_w_index():
     """Convert raw CLI output to structured data using TextFSM template"""
     os.environ["NET_TEXTFSM"] = RESOURCE_FOLDER
     raw_output = "Cisco IOS Software, Catalyst 4500 L3 Switch Software"
-    result = utilities.get_structured_data(
-        raw_output, platform="cisco_ios", command="show version"
-    )
+    result = utilities.get_structured_data(raw_output, platform="cisco_ios", command="show version")
     assert result == [{"model": "4500"}]
     result = utilities.get_structured_data_textfsm(
         raw_output, platform="cisco_ios", command="show version"

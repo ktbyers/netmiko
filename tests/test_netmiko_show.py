@@ -14,6 +14,7 @@ test_clear_buffer: clear text buffer
 test_enable_mode: verify enter enable mode
 test_disconnect: cleanly disconnect the SSH session
 """
+
 import pytest
 import time
 from datetime import datetime
@@ -112,10 +113,7 @@ def test_complete_on_space_disabled(net_connect, commands, expected_responses):
     """Verify complete on space is disabled."""
     # If complete on space is enabled will get re-written to "show configuration groups"
     if net_connect.device_type in ["juniper_junos", "nokia_sros"]:
-        if (
-            net_connect.device_type == "nokia_sros"
-            and "@" not in net_connect.base_prompt
-        ):
+        if net_connect.device_type == "nokia_sros" and "@" not in net_connect.base_prompt:
             # Only MD-CLI supports disable of command complete on space
             assert pytest.skip()
         cmd = commands.get("abbreviated_cmd")
@@ -173,9 +171,7 @@ def test_send_command_ttp(net_connect):
         net_connect.clear_buffer()
 
         # write a simple template to file
-        ttp_raw_template = (
-            "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
-        )
+        ttp_raw_template = "interface {{ intf_name }}\n description {{ description | ORPHRASE}}"
 
         with open("show_run_interfaces.ttp", "w") as writer:
             writer.write(ttp_raw_template)
@@ -223,10 +219,7 @@ def test_send_multiline_timing(net_connect):
 
     debug = False
 
-    if (
-        "cisco_ios" not in net_connect.device_type
-        and "cisco_xe" not in net_connect.device_type
-    ):
+    if "cisco_ios" not in net_connect.device_type and "cisco_xe" not in net_connect.device_type:
         assert pytest.skip()
     count = 100
     cmd_list = ["ping", "", "8.8.8.8", str(count), "", "", "", ""]
@@ -239,10 +232,7 @@ def test_send_multiline_timing(net_connect):
 def test_send_multiline(net_connect):
 
     debug = False
-    if (
-        "cisco_ios" not in net_connect.device_type
-        and "cisco_xe" not in net_connect.device_type
-    ):
+    if "cisco_ios" not in net_connect.device_type and "cisco_xe" not in net_connect.device_type:
         assert pytest.skip()
     commands = (
         ("ping", r"ip"),
@@ -264,10 +254,7 @@ def test_send_multiline_prompt(net_connect):
     """Use send_multiline, but use device's prompt as expect_string"""
 
     debug = False
-    if (
-        "cisco_ios" not in net_connect.device_type
-        and "cisco_xe" not in net_connect.device_type
-    ):
+    if "cisco_ios" not in net_connect.device_type and "cisco_xe" not in net_connect.device_type:
         assert pytest.skip()
     commands = (
         ("show ip int brief", ""),
@@ -288,10 +275,7 @@ def test_send_multiline_simple(net_connect):
     """
 
     debug = False
-    if (
-        "cisco_ios" not in net_connect.device_type
-        and "cisco_xe" not in net_connect.device_type
-    ):
+    if "cisco_ios" not in net_connect.device_type and "cisco_xe" not in net_connect.device_type:
         assert pytest.skip()
     commands = [
         "show ip int brief",

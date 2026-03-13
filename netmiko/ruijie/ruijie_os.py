@@ -13,9 +13,7 @@ class RuijieOSBase(CiscoBaseConnection):
         """Prepare the session after the connection has been established."""
 
         pwd_change_msg = r"Do you want to change the password"
-        data = self.read_until_pattern(
-            pattern=rf"(?:{pwd_change_msg}|{self.prompt_pattern})"
-        )
+        data = self.read_until_pattern(pattern=rf"(?:{pwd_change_msg}|{self.prompt_pattern})")
         if pwd_change_msg in data:
             self._send_command_str("n", expect_string=self.prompt_pattern)
 
@@ -32,13 +30,10 @@ class RuijieOSBase(CiscoBaseConnection):
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save config: write"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class RuijieOSSSH(RuijieOSBase):
-
     pass
 
 

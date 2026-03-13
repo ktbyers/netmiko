@@ -43,9 +43,7 @@ def output_raw(results, hide_empty=False):
     border_color = CUSTOM_THEME.styles.get("border").color.name
 
     if hide_empty:
-        results = {
-            device_name: output for device_name, output in results.items() if output
-        }
+        results = {device_name: output for device_name, output in results.items() if output}
 
     if len(results) == 1:
         for device_name, output in results.items():

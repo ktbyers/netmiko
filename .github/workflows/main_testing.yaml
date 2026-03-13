@@ -32,13 +32,13 @@ jobs:
         run: |
           poetry install
 
-      - name: Run pylama
+      - name: Run ruff check
         run: |
-          poetry run pylama .
+          poetry run ruff check .
 
-      - name: Run black
+      - name: Run ruff format
         run: |
-          poetry run black --check .
+          poetry run ruff format --check .
 
       - name: Run mypy
         run: |

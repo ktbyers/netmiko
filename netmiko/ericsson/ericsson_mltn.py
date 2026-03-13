@@ -57,9 +57,7 @@ class EricssonMinilinkBase(NoEnable, BaseConnection):
 
     def session_preparation(self) -> None:
         self._test_channel_read(pattern=self.prompt_pattern)
-        self.set_base_prompt(
-            pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1
-        )
+        self.set_base_prompt(pri_prompt_terminator="#", alt_prompt_terminator=">", delay_factor=1)
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Handle Ericcsons Special MINI-LINK CLI login

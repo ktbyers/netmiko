@@ -74,9 +74,7 @@ class DellIsilonSSH(BaseConnection):
         if check_state and self.check_enable_mode():
             return output
 
-        output += self._send_command_timing_str(
-            cmd, strip_prompt=False, strip_command=False
-        )
+        output += self._send_command_timing_str(cmd, strip_prompt=False, strip_command=False)
         if re.search(pattern, output, flags=re_flags):
             self.write_channel(self.normalize_cmd(self.secret))
         output += self.read_until_pattern(pattern=r"#.*$")

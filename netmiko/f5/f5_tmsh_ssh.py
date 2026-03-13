@@ -10,9 +10,7 @@ class F5TmshSSH(NoConfig, BaseConnection):
         self._config_mode = False
         cmd = 'run /util bash -c "stty cols 255"'
         self.set_terminal_width(command=cmd, pattern="run")
-        self.disable_paging(
-            command="modify cli preference pager disabled display-threshold 0"
-        )
+        self.disable_paging(command="modify cli preference pager disabled display-threshold 0")
 
     def tmsh_mode(self, delay_factor: float = 1.0) -> str:
         """tmsh command is equivalent to config command on F5."""

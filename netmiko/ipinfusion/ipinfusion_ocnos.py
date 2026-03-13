@@ -39,9 +39,7 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
 
         # Default 'exit_config_mode' to False unless it is explicitly overwritten
         exit_config_mode = kwargs.get("exit_config_mode", False)
-        output = super().send_config_set(
-            *args, **kwargs, exit_config_mode=exit_config_mode
-        )
+        output = super().send_config_set(*args, **kwargs, exit_config_mode=exit_config_mode)
         return output
 
     def commit(
@@ -171,9 +169,7 @@ class IpInfusionOcNOSBase(CiscoBaseConnection):
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves config using 'write' command"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class IpInfusionOcNOSSSH(IpInfusionOcNOSBase):

@@ -31,7 +31,7 @@ from netmiko.audiocode import (
 from netmiko.bintec import BintecBossSSH, BintecBossTelnet
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
-from netmiko.calix import CalixB6SSH, CalixB6Telnet
+from netmiko.calix import CalixB6SSH, CalixB6Telnet, CalixExaSSH, CalixExaTelnet
 from netmiko.casa import CasaCMTSSSH
 from netmiko.cdot import CdotCrosSSH
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
@@ -217,6 +217,7 @@ CLASS_MAPPER_BASE = {
     "brocade_vyos": VyOSSSH,
     "checkpoint_gaia": CheckPointGaiaSSH,
     "calix_b6": CalixB6SSH,
+    "calix_exa": CalixExaSSH,
     "casa_cmts": CasaCMTSSSH,
     "cdot_cros": CdotCrosSSH,
     "centec_os": CentecOSSSH,
@@ -234,6 +235,7 @@ CLASS_MAPPER_BASE = {
     "cisco_tp": CiscoTpTcCeSSH,
     "cisco_viptela": CiscoViptelaSSH,
     "cisco_wlc": CiscoWlcSSH,
+    "cisco_ioswlc": CiscoIosSSH,
     "cisco_xe": CiscoIosSSH,
     "cisco_xr": CiscoXrSSH,
     "cloudgenix_ion": CloudGenixIonSSH,
@@ -353,6 +355,7 @@ FILE_TRANSFER_MAP = {
     "cisco_asa": CiscoAsaFileTransfer,
     "cisco_ios": CiscoIosFileTransfer,
     "cisco_nxos": CiscoNxosFileTransfer,
+    "cisco_ioswlc": CiscoIosFileTransfer,
     "cisco_xe": CiscoIosFileTransfer,
     "cisco_xr": CiscoXrFileTransfer,
     "dell_os10": DellOS10FileTransfer,
@@ -391,10 +394,13 @@ CLASS_MAPPER["bintec_boss_telnet"] = BintecBossTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
+CLASS_MAPPER["calix_exa_telnet"] = CalixExaTelnet
 CLASS_MAPPER["centec_os_telnet"] = CentecOSTelnet
 CLASS_MAPPER["ciena_saos_telnet"] = CienaSaosTelnet
 CLASS_MAPPER["cisco_ios_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_nxos_telnet"] = CiscoNxosTelnet
+CLASS_MAPPER["cisco_ioswlc_telnet"] = CiscoIosTelnet
+CLASS_MAPPER["cisco_xe_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_xr_telnet"] = CiscoXrTelnet
 CLASS_MAPPER["cisco_s200_telnet"] = CiscoS200Telnet
 CLASS_MAPPER["cisco_s300_telnet"] = CiscoS300Telnet
@@ -467,8 +473,7 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         else:
             msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
         raise ValueError(
-            "Unsupported 'device_type' "
-            "currently supported platforms are: {}".format(msg_str)
+            "Unsupported 'device_type' currently supported platforms are: {}".format(msg_str)
         )
     ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
@@ -527,9 +532,7 @@ def ConnLogOnly(
         logger.info(msg)
         return net_connect
     except NetmikoAuthenticationException as e:
-        msg = (
-            f"Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}"
-        )
+        msg = f"Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}"
         logger.error(msg)
         return None
     except NetmikoTimeoutException as e:
@@ -577,9 +580,7 @@ def ssh_dispatcher(device_type: str) -> Type["BaseConnection"]:
     return CLASS_MAPPER[device_type]
 
 
-def redispatch(
-    obj: "BaseConnection", device_type: str, session_prep: bool = True
-) -> None:
+def redispatch(obj: "BaseConnection", device_type: str, session_prep: bool = True) -> None:
     """Dynamically change Netmiko object's class to proper class.
     Generally used with terminal_server device_type when you need to redispatch after interacting
     with terminal server.
@@ -599,8 +600,9 @@ def FileTransfer(*args: Any, **kwargs: Any) -> "BaseFileTransfer":
         device_type = kwargs["ssh_conn"].device_type
     if device_type not in scp_platforms:
         raise ValueError(
-            "Unsupported SCP device_type: "
-            "currently supported platforms are: {}".format(scp_platforms_str)
+            "Unsupported SCP device_type: currently supported platforms are: {}".format(
+                scp_platforms_str
+            )
         )
     FileTransferClass: Type["BaseFileTransfer"]
     FileTransferClass = FILE_TRANSFER_MAP[device_type]
