@@ -84,6 +84,7 @@ from netmiko.ericsson import (
     EricssonMinilink63SSH,
     EricssonMinilink66SSH,
 )
+
 from netmiko.extreme import ExtremeErsSSH
 from netmiko.extreme import ExtremeExosSSH, ExtremeExosFileTransfer
 from netmiko.extreme import ExtremeExosTelnet
@@ -110,6 +111,7 @@ from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
+from netmiko.dptech.dptech_ssh import DpTechSSH, DpTechTelnet
 from netmiko.infinera import InfineraPacketSSH, InfineraPacketTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
@@ -252,6 +254,8 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
     "digi_transport": DigiTransportSSH,
+    "dptech": DpTechSSH,
+    "dptech_telnet": DpTechTelnet,
     "edgecore_sonic": EdgecoreSonicSSH,
     "endace": EndaceSSH,
     "ekinops_ek360": EkinopsEk360SSH,
