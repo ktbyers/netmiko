@@ -32,10 +32,10 @@ class AdvaAosFsp150F2SSH(NoEnable, NoConfig, CiscoSSHConnection):
 
     def __init__(self, **kwargs: Any) -> None:
         """
-        \n for default enter causes some issues with the Adva so setting to \r.
+        Setting default_enter to \r\n as this is required for proper operation on Adva devices.
         """
         if kwargs.get("default_enter") is None:
-            kwargs["default_enter"] = "\r"
+            kwargs["default_enter"] = "\r\n"
         return super().__init__(**kwargs)
 
     def session_preparation(self) -> None:
