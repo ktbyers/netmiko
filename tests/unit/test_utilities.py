@@ -331,7 +331,9 @@ def test_ntc_templates_discovery():
         with pytest.raises(ValueError):
             utilities.get_template_dir(_skip_ntc_package=True)
     elif not home_ntc.is_dir():
-        pytest.skip("~/ntc-templates not found on this machine; please install ntc-templates into your home dir!")
+        pytest.skip(
+            "~/ntc-templates not found on this machine; please install ntc-templates into your home dir!"
+        )
     else:
         ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
         assert ntc_path == str(home_ntc)
