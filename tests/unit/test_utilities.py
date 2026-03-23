@@ -3,6 +3,7 @@
 import os
 import sys
 from os.path import dirname, join, relpath
+from pathlib import Path
 import pytest
 
 from netmiko import utilities
@@ -324,15 +325,16 @@ def test_ntc_templates_discovery():
     assert ntc_path == f"{packages_dir}/ntc_templates/templates"
 
     # Next should use local index file in ~
-    # Will not work for CI-CD without pain so just test locally
     environment = os.getenv("environment", "local")
-    if environment != "gh_actions":
-        home_dir = os.path.expanduser("~")
-        ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
-        assert ntc_path == f"{home_dir}/ntc-templates/ntc_templates/templates"
-    else:
+    home_ntc = Path.home() / "ntc-templates" / "ntc_templates" / "templates"
+    if environment == "gh_actions":
         with pytest.raises(ValueError):
-            ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
+            utilities.get_template_dir(_skip_ntc_package=True)
+    elif not home_ntc.is_dir():
+        pytest.skip("~/ntc-templates not found on this machine; please install ntc-templates into your home dir!")
+    else:
+        ntc_path = utilities.get_template_dir(_skip_ntc_package=True)
+        assert ntc_path == str(home_ntc)
 
 
 def test_textfsm_index_relative_path():
