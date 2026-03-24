@@ -74,6 +74,7 @@ from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
 from netmiko.digi import DigiTransportSSH
 from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
+from netmiko.dptech.dptech_ssh import DpTechConplatSSH, DpTechConplatTelnet
 from netmiko.edgecore import EdgecoreSonicSSH
 from netmiko.ekinops import EkinopsEk360SSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
@@ -111,7 +112,6 @@ from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
-from netmiko.dptech.dptech_ssh import DpTechSSH, DpTechTelnet
 from netmiko.infinera import InfineraPacketSSH, InfineraPacketTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
@@ -254,8 +254,8 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
     "digi_transport": DigiTransportSSH,
-    "dptech": DpTechSSH,
-    "dptech_telnet": DpTechTelnet,
+    "dptech_conplat": DpTechConplatSSH,
+    "dptech_conplat_telnet": DpTechConplatTelnet,
     "edgecore_sonic": EdgecoreSonicSSH,
     "endace": EndaceSSH,
     "ekinops_ek360": EkinopsEk360SSH,

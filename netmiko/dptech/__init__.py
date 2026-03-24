@@ -1,3 +1,3 @@
-from netmiko.dptech.dptech_ssh import DpTechSSH
+from netmiko.dptech.dptech_conplat import DpTechConplatSSH, DpTechConplatTelnet
 
-__all__ = ["DpTechSSH"]
+__all__ = ["DpTechConplatSSH", "DpTechConplatTelnet"]
