@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import importlib.util
 import os
 import sys
 from os.path import dirname, join, relpath
@@ -315,14 +316,9 @@ def test_ntc_templates_discovery():
     # Next should be PIP installed ntc-tempaltes
     del os.environ["NET_TEXTFSM"]
     ntc_path = utilities.get_template_dir()
-    for py_path in sys.path:
-        if "site-packages" in py_path:
-            _, suffix = py_path.split("site-packages")
-            if len(suffix) > 1:  # Should be "" or "/"
-                continue
-            packages_dir = py_path
-            break
-    assert ntc_path == f"{packages_dir}/ntc_templates/templates"
+    ntc_module = importlib.util.find_spec("ntc_templates")
+    expected = str(Path(ntc_module.origin).parent / "templates")
+    assert ntc_path == expected
 
     # Next should use local index file in ~
     environment = os.getenv("environment", "local")
