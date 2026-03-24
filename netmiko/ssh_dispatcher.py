@@ -366,25 +366,25 @@ FILE_TRANSFER_MAP = {
     "extreme_exos": ExtremeExosFileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
-    "nokia_sros": NokiaSrosFileTransfer,
     "mikrotik_routeros": MikrotikRouterOsFileTransfer,
+    "nokia_sros": NokiaSrosFileTransfer,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterFileTransfer,
 }
 
 # Also support keys that end in _ssh
-new_mapper = {}
+new_mapper: dict[str, Type[BaseConnection]] = {}
 for k, v in CLASS_MAPPER_BASE.items():
     new_mapper[k] = v
     alt_key = k + "_ssh"
     new_mapper[alt_key] = v
 CLASS_MAPPER = new_mapper
 
-new_mapper = {}
+new_file_mapper: dict[str, Type["BaseFileTransfer"]] = {}
 for k, v in FILE_TRANSFER_MAP.items():
-    new_mapper[k] = v
+    new_file_mapper[k] = v
     alt_key = k + "_ssh"
-    new_mapper[alt_key] = v
-FILE_TRANSFER_MAP = new_mapper
+    new_file_mapper[alt_key] = v
+FILE_TRANSFER_MAP = new_file_mapper
 
 # Add telnet drivers
 CLASS_MAPPER["adtran_os_telnet"] = AdtranOSTelnet
