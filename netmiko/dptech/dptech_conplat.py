@@ -44,13 +44,10 @@ class DpTechConplatBase(BaseConnection):
     def session_preparation(self) -> None:
         self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
-        self.disable_paging()
+        self.disable_paging(command="terminal line 0")
         self.set_terminal_width(command="screen-width 511", pattern=r"screen-width")
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
-
-    def disable_paging(self, command: str = "terminal line 0", delay_factor: float = 1) -> str:
-        return super().disable_paging(command=command, delay_factor=delay_factor)
 
     def set_base_prompt(
         self,
@@ -69,7 +66,7 @@ class DpTechConplatBase(BaseConnection):
 
     def enable(
         self,
-        cmd: str = "control",
+        *args: Any,
         **kwargs: Any,
     ) -> str:
         """
@@ -79,7 +76,8 @@ class DpTechConplatBase(BaseConnection):
         Cisco's enable mode. In this view, users can execute
         configuration commands and view sensitive information.
         """
-        return super().enable(cmd=cmd, **kwargs)
+        kwargs.setdefault("cmd", "control")
+        return super().enable(*args, **kwargs)
 
     def check_enable_mode(self, check_string: str = "]") -> bool:
         return super().check_enable_mode(check_string=check_string)

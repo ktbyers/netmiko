@@ -3,6 +3,7 @@
 from typing import Any, Type, Optional
 from typing import TYPE_CHECKING
 import re
+from netmiko.base_connection import BaseConnection
 from netmiko.exceptions import ConnectionException
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from netmiko.a10 import A10SSH
@@ -74,7 +75,7 @@ from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
 from netmiko.digi import DigiTransportSSH
 from netmiko.dlink import DlinkDSTelnet, DlinkDSSSH
-from netmiko.dptech.dptech_ssh import DpTechConplatSSH, DpTechConplatTelnet
+from netmiko.dptech import DpTechConplatSSH, DpTechConplatTelnet
 from netmiko.edgecore import EdgecoreSonicSSH
 from netmiko.ekinops import EkinopsEk360SSH
 from netmiko.eltex import EltexSSH, EltexEsrSSH
