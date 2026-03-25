@@ -367,3 +367,4 @@
 - mikrotik_routeros
 - ubiquiti_edgerouter
 
+- **dptech**: Hangzhou DPtech Technologies firewalls
