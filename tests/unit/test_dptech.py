@@ -1,14 +1,5 @@
-from netmiko import ConnectHandler
-
-def test_dptech_import():
-    """Verify 'dptech' device_type is registered."""
-    try:
-        conn = ConnectHandler(
-            device_type="dptech",
-            host="192.168.1.1",
-            username="admin",
-            password="dummy",
-            timeout=1,
-        )
-    except Exception:
-        pass  # Expected due to network failure, not driver issue
+from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE;
+device_types = set(CLASS_MAPPER_BASE.keys());
+print('Is \"dptech\" registered?', 'dptech' in device_types);
+assert 'dptech' in device_types, ' dptech NOT found in CLASS_MAPPER_BASE';
+print('Test PASSED: dptech is registered!')
