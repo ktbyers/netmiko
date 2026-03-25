@@ -236,7 +236,7 @@ class PaloAltoPanosSSH(PaloAltoPanosBase):
         # Create instance of SSHClient object
         # If not using SSH keys, we use noauth
 
-        if not self.use_keys:
+        if not self.use_keys and not self.allow_agent:
             remote_conn_pre: SSHClient = SSHClient_interactive()
         else:
             remote_conn_pre = SSHClient()
