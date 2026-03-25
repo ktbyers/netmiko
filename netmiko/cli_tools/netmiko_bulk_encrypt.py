@@ -13,9 +13,7 @@ yaml.preserve_quotes = True
 yaml.indent(mapping=2, sequence=4, offset=2)
 
 
-def encrypt_netmiko_yml(
-    input_file: str, output_file: str | None, encryption_type: str
-) -> None:
+def encrypt_netmiko_yml(input_file: str, output_file: str | None, encryption_type: str) -> None:
     # Read the input YAML file
     input_path = Path(input_file).expanduser()
     with input_path.open("r") as f:
@@ -28,9 +26,7 @@ def encrypt_netmiko_yml(
     for device, params in config.items():
         if isinstance(params, dict):
             if "password" in params:
-                encrypted_value = encrypt_value(
-                    params["password"], key, encryption_type
-                )
+                encrypted_value = encrypt_value(params["password"], key, encryption_type)
                 params["password"] = encrypted_value
             if "secret" in params:
                 encrypted_value = encrypt_value(params["secret"], key, encryption_type)
@@ -50,9 +46,7 @@ def main_ep():
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Encrypt passwords in .netmiko.yml file"
-    )
+    parser = argparse.ArgumentParser(description="Encrypt passwords in .netmiko.yml file")
     parser.add_argument(
         "--input_file",
         default="~/.netmiko.yml",

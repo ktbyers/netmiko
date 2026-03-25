@@ -35,9 +35,7 @@ class LinuxSSH(CiscoSSHConnection):
         """Linux doesn't have paging by default."""
         return ""
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         if pattern is None:
             pattern = self.prompt_pattern
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
@@ -203,13 +201,9 @@ class LinuxFileTransfer(CiscoFileTransfer):
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         search_pattern = self.prompt_pattern
-        return self._check_file_exists_unix(
-            remote_cmd=remote_cmd, search_pattern=search_pattern
-        )
+        return self._check_file_exists_unix(remote_cmd=remote_cmd, search_pattern=search_pattern)
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         search_pattern = self.prompt_pattern
         return self._remote_file_size_unix(
@@ -218,9 +212,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
             search_pattern=search_pattern,
         )
 
-    def remote_md5(
-        self, base_cmd: str = "md5sum", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "md5sum", remote_file: Optional[str] = None) -> str:
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
@@ -233,9 +225,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     @staticmethod
     def process_md5(md5_output: str, pattern: str = r"^(\S+)\s+") -> str:
-        return super(LinuxFileTransfer, LinuxFileTransfer).process_md5(
-            md5_output, pattern=pattern
-        )
+        return super(LinuxFileTransfer, LinuxFileTransfer).process_md5(md5_output, pattern=pattern)
 
     def enable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError

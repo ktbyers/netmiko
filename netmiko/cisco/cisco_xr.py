@@ -114,9 +114,7 @@ class CiscoXrBase(CiscoBaseConnection):
             if comment:
                 command_string = f"commit label {label} comment {comment}"
             elif confirm:
-                command_string = "commit label {} confirmed {}".format(
-                    label, str(confirm_delay)
-                )
+                command_string = "commit label {} confirmed {}".format(label, str(confirm_delay))
             else:
                 command_string = f"commit label {label}"
         elif confirm:
@@ -190,9 +188,7 @@ class CiscoXrBase(CiscoBaseConnection):
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(
-                    pattern=re.escape(exit_config.strip())
-                )
+                output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
             # Read until we detect either an Uncommitted change or the end prompt
             if not re.search(r"(Uncommitted|#$)", output):
                 output += self.read_until_pattern(pattern=r"(Uncommitted|#$)")
@@ -240,9 +236,7 @@ class CiscoXrFileTransfer(CiscoFileTransfer):
         else:
             raise ValueError(f"Invalid output from MD5 command: {md5_output}")
 
-    def remote_md5(
-        self, base_cmd: str = "show md5 file", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "show md5 file", remote_file: Optional[str] = None) -> str:
         """
         IOS-XR for MD5 requires this extra leading /
 

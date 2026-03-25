@@ -2,6 +2,7 @@
 """
 Implement common functions for tests
 """
+
 import io
 import sys
 

@@ -128,15 +128,13 @@ class CiscoBaseConnection(BaseConnection):
                         time.sleep(0.5 * delay_factor)
                         output = self.read_channel()
                         return_msg += output
-                        if re.search(
-                            pri_prompt_terminator, output, flags=re.M
-                        ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                            alt_prompt_terminator, output, flags=re.M
+                        ):
                             return return_msg
 
                     # Support direct telnet through terminal server
-                    if re.search(
-                        r"initial configuration dialog\? \[yes/no\]: ", output
-                    ):
+                    if re.search(r"initial configuration dialog\? \[yes/no\]: ", output):
                         self.write_channel("no" + self.TELNET_RETURN)
                         time.sleep(0.5 * delay_factor)
                         count = 0
@@ -153,17 +151,13 @@ class CiscoBaseConnection(BaseConnection):
                     if re.search(r"assword required, but none set", output):
                         assert self.remote_conn is not None
                         self.remote_conn.close()
-                        msg = (
-                            "Login failed - Password required, but none set: {}".format(
-                                self.host
-                            )
-                        )
+                        msg = "Login failed - Password required, but none set: {}".format(self.host)
                         raise NetmikoAuthenticationException(msg)
 
                     # Check if proper data received
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                        alt_prompt_terminator, output, flags=re.M
+                    ):
                         return return_msg
 
                     time.sleep(0.5 * delay_factor)
@@ -207,9 +201,7 @@ class CiscoBaseConnection(BaseConnection):
             self.session_log.fin = True
         self.write_channel(command + self.RETURN)
 
-    def _autodetect_fs(
-        self, cmd: str = "dir", pattern: str = r"Directory of (.*)/"
-    ) -> str:
+    def _autodetect_fs(self, cmd: str = "dir", pattern: str = r"Directory of (.*)/") -> str:
         """Autodetect the file system on the remote device. Used by SCP operations."""
         if not self.check_enable_mode():
             raise ValueError("Must be in enable mode to auto-detect the file-system.")
@@ -222,15 +214,17 @@ class CiscoBaseConnection(BaseConnection):
             output = self._send_command_str(cmd)
             if "% Invalid" in output or "%Error:" in output:
                 raise ValueError(
-                    "An error occurred in dynamically determining remote file "
-                    "system: {} {}".format(cmd, output)
+                    "An error occurred in dynamically determining remote file system: {} {}".format(
+                        cmd, output
+                    )
                 )
             else:
                 return file_system
 
         raise ValueError(
-            "An error occurred in dynamically determining remote file "
-            "system: {} {}".format(cmd, output)
+            "An error occurred in dynamically determining remote file system: {} {}".format(
+                cmd, output
+            )
         )
 
     def save_config(

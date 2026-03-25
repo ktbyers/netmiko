@@ -47,9 +47,7 @@ class RaisecomRoapBase(CiscoBaseConnection):
         """Saves Config."""
         self.exit_config_mode()
         self.enable()
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class RaisecomRoapSSH(RaisecomRoapBase):
@@ -138,9 +136,9 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                        alt_prompt_terminator, output, flags=re.M
+                    ):
                         return return_msg
 
                 # Check if proper data received

@@ -9,6 +9,7 @@ The setup here is:
 
 Linux Server --(ssh)--> Small Switch --(telnet)--> Terminal Server --(serial)--> Juniper SRX
 """
+
 import os
 from getpass import getpass
 from netmiko import ConnectHandler, redispatch

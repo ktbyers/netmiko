@@ -66,9 +66,7 @@ class ArubaOsFileTransfer(BaseFileTransfer):
         hash_supported: bool = False,
         **kwargs: Any,
     ) -> None:
-        super().__init__(
-            file_system=file_system, hash_supported=hash_supported, **kwargs
-        )
+        super().__init__(file_system=file_system, hash_supported=hash_supported, **kwargs)
 
     def file_md5(self, file_name: str, add_newline: bool = False) -> str:
         """Aruba OS does not support an MD5-hash operation."""
@@ -103,9 +101,7 @@ class ArubaOsFileTransfer(BaseFileTransfer):
             # -rw-r--r--    2 root     root 19869 May  9 12:20 default.cfg.2016-05-09_12-20-22
             # Construct a list of the last column
             return self.dest_file in [
-                fields[-1]
-                for line in remote_out.splitlines()
-                if (fields := line.split())
+                fields[-1] for line in remote_out.splitlines() if (fields := line.split())
             ]
 
         elif self.direction == "get":
@@ -113,9 +109,7 @@ class ArubaOsFileTransfer(BaseFileTransfer):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":

@@ -18,9 +18,7 @@ class DigiTransportBase(NoEnable, NoConfig, CiscoSSHConnection):
         confirm: bool = False,
         confirm_response: str = "",
     ) -> str:
-        output = self._send_command_str(
-            command_string=cmd, expect_string="Please wait..."
-        )
+        output = self._send_command_str(command_string=cmd, expect_string="Please wait...")
         return output
 
 

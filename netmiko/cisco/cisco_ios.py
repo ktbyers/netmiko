@@ -58,9 +58,7 @@ class CiscoIosBase(CiscoBaseConnection):
         self, cmd: str = "write mem", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves Config Using Copy Run Start"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class CiscoIosSSH(CiscoIosBase):
@@ -105,9 +103,7 @@ class InLineTransfer(CiscoIosFileTransfer):
     ) -> None:
 
         if not dest_file:
-            raise ValueError(
-                "Destination file must be specified for InlineTransfer operations."
-            )
+            raise ValueError("Destination file must be specified for InlineTransfer operations.")
         if hash_supported is False:
             raise ValueError("hash_supported=False is not supported for InLineTransfer")
 
@@ -118,9 +114,7 @@ class InLineTransfer(CiscoIosFileTransfer):
             raise ValueError("Only put operation supported by InLineTransfer.")
 
         if progress is not None or progress4 is not None:
-            raise NotImplementedError(
-                "Progress bar is not supported on inline transfers."
-            )
+            raise NotImplementedError("Progress bar is not supported on inline transfers.")
         else:
             self.progress = progress
             self.progress4 = progress4
@@ -215,9 +209,7 @@ class InLineTransfer(CiscoIosFileTransfer):
     def file_md5(self, file_name: str, add_newline: bool = False) -> str:
         """Compute MD5 hash of file."""
         if add_newline is True:
-            raise ValueError(
-                "add_newline argument is not supported for inline transfers."
-            )
+            raise ValueError("add_newline argument is not supported for inline transfers.")
         file_contents = self._read_file(file_name)
         file_contents = file_contents + "\n"  # Cisco IOS automatically adds this
         file_contents_bytes = file_contents.encode("UTF-8")

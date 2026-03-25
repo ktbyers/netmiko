@@ -46,13 +46,9 @@ class SessionLog:
         if self.file_name is None:
             return None
         if self.file_mode == "append":
-            self.session_log = open(
-                self.file_name, mode="a", encoding=self.file_encoding
-            )
+            self.session_log = open(self.file_name, mode="a", encoding=self.file_encoding)
         else:
-            self.session_log = open(
-                self.file_name, mode="w", encoding=self.file_encoding
-            )
+            self.session_log = open(self.file_name, mode="w", encoding=self.file_encoding)
         self._session_log_close = True
 
     def close(self) -> None:

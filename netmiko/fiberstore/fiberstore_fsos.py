@@ -133,9 +133,7 @@ class FiberstoreFsosV2Base(CiscoBaseConnection):
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save config: write"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def check_config_mode(
         self,
