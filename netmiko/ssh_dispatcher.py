@@ -255,6 +255,7 @@ CLASS_MAPPER_BASE = {
     "dell_isilon": DellIsilonSSH,
     "dlink_ds": DlinkDSSSH,
     "digi_transport": DigiTransportSSH,
+    "dptech": DpTechConplatSSH,
     "dptech_conplat": DpTechConplatSSH,
     "dptech_conplat_telnet": DpTechConplatTelnet,
     "edgecore_sonic": EdgecoreSonicSSH,
