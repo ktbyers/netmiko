@@ -1246,10 +1246,14 @@ A paramiko SSHException occurred during connection creation:
 
         raise NetmikoTimeoutException("Timed out waiting for data")
 
+    def _get_ssh_client_instance(self) -> paramiko.SSHClient:
+        """Return the appropriate SSHClient instance for this connection."""
+        return paramiko.SSHClient()
+
     def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
-        remote_conn_pre = paramiko.SSHClient()
+        remote_conn_pre = self._get_ssh_client_instance()
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
