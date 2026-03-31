@@ -7,7 +7,6 @@ from netmiko.no_enable import NoEnable
 
 
 class NokiaIsamSSH(BaseConnection, NoEnable):
-
     def session_preparation(self) -> None:
         self._test_channel_read()
         self.set_base_prompt()

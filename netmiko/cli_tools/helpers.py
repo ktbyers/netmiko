@@ -49,9 +49,8 @@ def obtain_devices(device_or_group: str) -> Dict[str, Dict[str, Any]]:
                 device_dict = my_devices[device_name]
                 devices[device_name] = device_dict
         except KeyError:
-            return (
-                "Error reading from netmiko devices file."
-                " Device or group not found: {0}".format(device_or_group)
+            return "Error reading from netmiko devices file. Device or group not found: {0}".format(
+                device_or_group
             )
 
     return devices

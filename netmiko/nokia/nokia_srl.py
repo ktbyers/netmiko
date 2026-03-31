@@ -117,9 +117,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
     def commit(self) -> str:
         """Commit changes by using 'commit stay'."""
         cmd = "commit stay"
-        output = self._send_command_str(
-            command_string=cmd, strip_prompt=False, strip_command=False
-        )
+        output = self._send_command_str(command_string=cmd, strip_prompt=False, strip_command=False)
         return output
 
     def save_config(
@@ -129,9 +127,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         confirm_response: str = "",
     ) -> str:
         """Save current running configuration as initial (startup) configuration"""
-        return self._send_command_str(
-            command_string=cmd, strip_prompt=False, strip_command=False
-        )
+        return self._send_command_str(command_string=cmd, strip_prompt=False, strip_command=False)
 
     def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
         """Exit the candidate private mode"""
@@ -161,17 +157,13 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         """Discard changes made in candidate private mode"""
         log.warning("Uncommitted changes will be discarted!")
         cmd = "discard stay"
-        output = self._send_command_str(
-            command_string=cmd, strip_prompt=False, strip_command=False
-        )
+        output = self._send_command_str(command_string=cmd, strip_prompt=False, strip_command=False)
         return output
 
     def _running_mode(self) -> str:
         """Enter running mode"""
         cmd = "enter running"
-        output = self._send_command_str(
-            command_string=cmd, strip_prompt=False, strip_command=False
-        )
+        output = self._send_command_str(command_string=cmd, strip_prompt=False, strip_command=False)
         return output
 
     def _has_uncommitted_changes(self, prompt: str) -> bool:

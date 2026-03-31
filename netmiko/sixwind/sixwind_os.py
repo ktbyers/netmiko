@@ -102,11 +102,8 @@ class SixwindOSBase(NoEnable, CiscoBaseConnection):
     ) -> str:
         """Save Config for 6WIND"""
 
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class SixwindOSSSH(SixwindOSBase):
-
     pass

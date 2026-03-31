@@ -2,7 +2,6 @@ from netmiko.linux.linux_ssh import LinuxSSH
 
 
 class CumulusLinuxSSH(LinuxSSH):
-
     def save_config(
         self,
         cmd: str = "nv config apply",
