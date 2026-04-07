@@ -208,7 +208,7 @@ def test_unicode(device_slog_test_name):
 
     conn = ConnectHandler(**device_slog)
 
-    smiley_face = "\N{grinning face with smiling eyes}"
+    smiley_face = "\N{GRINNING FACE WITH SMILING EYES}"
     conn.session_log.write("\nTesting unicode\n")
     conn.session_log.write(smiley_face)
     conn.session_log.write(smiley_face)
@@ -345,25 +345,15 @@ def test_session_log_custom_session_log(device_slog_test_name):
 
     conn = ConnectHandler(**device_slog)
     conn.session_log.write("\nTesting password and secret replacement\n")
-    conn.session_log.write(
-        "This is my first secret {}\n".format(sanitize_secrets["secret1"])
-    )
-    conn.session_log.write(
-        "This is my second secret {}\n".format(sanitize_secrets["secret2"])
-    )
-    conn.session_log.write(
-        "This is my third secret {}\n".format(sanitize_secrets["secret3"])
-    )
-    conn.session_log.write(
-        "This is my super secret {}\n".format(sanitize_secrets["supersecret"])
-    )
+    conn.session_log.write("This is my first secret {}\n".format(sanitize_secrets["secret1"]))
+    conn.session_log.write("This is my second secret {}\n".format(sanitize_secrets["secret2"]))
+    conn.session_log.write("This is my third secret {}\n".format(sanitize_secrets["secret3"]))
+    conn.session_log.write("This is my super secret {}\n".format(sanitize_secrets["supersecret"]))
     time.sleep(1)
     conn.session_log.flush()
 
     # Use send_command and send_command_timing to send something that should be filtered
-    conn.session_log.write(
-        "\n!Testing send_command() and send_command_timing() filtering"
-    )
+    conn.session_log.write("\n!Testing send_command() and send_command_timing() filtering")
     conn.send_command(sanitize_secrets["data1"])
     conn.send_command_timing(sanitize_secrets["data1"])
 

@@ -35,9 +35,7 @@ class LinuxSSH(CiscoSSHConnection):
         """Linux doesn't have paging by default."""
         return ""
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         if pattern is None:
             pattern = self.prompt_pattern
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
@@ -152,8 +150,16 @@ permissions.
         return output
 
     def cleanup(self, command: str = "exit") -> None:
-        """Try to Gracefully exit the SSH session."""
-        return super().cleanup(command=command)
+        """Gracefully exit the SSH session."""
+        try:
+            if self.username != "root" and self.check_config_mode():
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final 'exit' (command)
+        if self.session_log:
+            self.session_log.fin = True
+        self.write_channel(command + self.RETURN)
 
     def save_config(self, *args: Any, **kwargs: Any) -> str:
         """Not Implemented"""
@@ -166,6 +172,8 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     Mostly for testing purposes.
     """
+
+    prompt_pattern = rf"[{re.escape(LINUX_PROMPT_PRI)}{re.escape(LINUX_PROMPT_ALT)}]"
 
     def __init__(
         self,
@@ -187,23 +195,24 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
+        search_pattern = self.prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
-        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+        search_pattern = self.prompt_pattern
+        return self._check_file_exists_unix(remote_cmd=remote_cmd, search_pattern=search_pattern)
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
+        search_pattern = self.prompt_pattern
         return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
+            remote_cmd=remote_cmd,
+            remote_file=remote_file,
+            search_pattern=search_pattern,
         )
 
-    def remote_md5(
-        self, base_cmd: str = "md5sum", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "md5sum", remote_file: Optional[str] = None) -> str:
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file
@@ -216,9 +225,7 @@ class LinuxFileTransfer(CiscoFileTransfer):
 
     @staticmethod
     def process_md5(md5_output: str, pattern: str = r"^(\S+)\s+") -> str:
-        return super(LinuxFileTransfer, LinuxFileTransfer).process_md5(
-            md5_output, pattern=pattern
-        )
+        return super(LinuxFileTransfer, LinuxFileTransfer).process_md5(md5_output, pattern=pattern)
 
     def enable_scp(self, cmd: str = "") -> None:
         raise NotImplementedError

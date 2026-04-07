@@ -109,9 +109,7 @@ class BaseFileTransfer(object):
             self.source_md5 = self.file_md5(source_file) if hash_supported else None
             self.file_size = os.stat(source_file).st_size
         elif direction == "get":
-            self.source_md5 = (
-                self.remote_md5(remote_file=source_file) if hash_supported else None
-            )
+            self.source_md5 = self.remote_md5(remote_file=source_file) if hash_supported else None
             self.file_size = self.remote_file_size(remote_file=source_file)
         else:
             raise ValueError("Invalid direction specified")
@@ -154,17 +152,17 @@ class BaseFileTransfer(object):
                 return int(match.group(1)) * 1000
             return int(match.group(1))
         else:
-            msg = (
-                f"pattern: {search_pattern} not detected in output:\n\n{remote_output}"
-            )
+            msg = f"pattern: {search_pattern} not detected in output:\n\n{remote_output}"
             raise ValueError(msg)
 
     def _remote_space_available_unix(self, search_pattern: str = "") -> int:
         """Return space available on *nix system (BSD/Linux)."""
+        if not search_pattern:
+            search_pattern = r"[\$#]"
         self.ssh_ctl_chan._enter_shell()
         remote_cmd = f"/bin/df -k {self.file_system}"
         remote_output = self.ssh_ctl_chan._send_command_str(
-            remote_cmd, expect_string=r"[\$#]"
+            remote_cmd, expect_string=search_pattern
         )
 
         # Try to ensure parsing is correct:
@@ -179,16 +177,12 @@ class BaseFileTransfer(object):
 
         if "Filesystem" not in header_line or "Avail" not in header_line.split()[3]:
             # Filesystem  1K-blocks  Used   Avail Capacity  Mounted on
-            msg = "Parsing error, unexpected output from {}:\n{}".format(
-                remote_cmd, remote_output
-            )
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd, remote_output)
             raise ValueError(msg)
 
         space_available = filesystem_line.split()[3]
         if not re.search(r"^\d+$", space_available):
-            msg = "Parsing error, unexpected output from {}:\n{}".format(
-                remote_cmd, remote_output
-            )
+            msg = "Parsing error, unexpected output from {}:\n{}".format(remote_cmd, remote_output)
             raise ValueError(msg)
 
         self.ssh_ctl_chan._return_cli()
@@ -240,13 +234,15 @@ class BaseFileTransfer(object):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def _check_file_exists_unix(self, remote_cmd: str = "") -> bool:
+    def _check_file_exists_unix(self, remote_cmd: str = "", search_pattern: str = "") -> bool:
         """Check if the dest_file already exists on the file system (return boolean)."""
         if self.direction == "put":
+            if not search_pattern:
+                search_pattern = r"[\$#]"
             self.ssh_ctl_chan._enter_shell()
             remote_cmd = f"/bin/ls {self.file_system}/{self.dest_file} 2> /dev/null"
             remote_out = self.ssh_ctl_chan._send_command_str(
-                remote_cmd, expect_string=r"[\$#]"
+                remote_cmd, expect_string=search_pattern
             )
             self.ssh_ctl_chan._return_cli()
             return self.dest_file in remote_out
@@ -255,9 +251,7 @@ class BaseFileTransfer(object):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -289,7 +283,10 @@ class BaseFileTransfer(object):
             return int(file_size)
 
     def _remote_file_size_unix(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
+        self,
+        remote_cmd: str = "",
+        remote_file: Optional[str] = None,
+        search_pattern: str = "",
     ) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
@@ -300,11 +297,11 @@ class BaseFileTransfer(object):
         remote_file = f"{self.file_system}/{remote_file}"
         if not remote_cmd:
             remote_cmd = f"/bin/ls -l {remote_file}"
+        if not search_pattern:
+            search_pattern = r"[\$#]"
 
         self.ssh_ctl_chan._enter_shell()
-        remote_out = self.ssh_ctl_chan._send_command_str(
-            remote_cmd, expect_string=r"[\$#]"
-        )
+        remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd, expect_string=search_pattern)
         self.ssh_ctl_chan._return_cli()
 
         if "No such file or directory" in remote_out:
@@ -319,9 +316,7 @@ class BaseFileTransfer(object):
             file_size = line.split()[4]
             return int(file_size)
 
-        raise ValueError(
-            "Search pattern not found for remote file size during SCP transfer."
-        )
+        raise ValueError("Pattern not found for remote file size during SCP transfer.")
 
     def file_md5(self, file_name: str, add_newline: bool = False) -> str:
         """Compute MD5 hash of file.
@@ -371,9 +366,7 @@ class BaseFileTransfer(object):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def remote_md5(
-        self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None) -> str:
         """Calculate remote MD5 and returns the hash.
 
         This command can be CPU intensive on the remote device.

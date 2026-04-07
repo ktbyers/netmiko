@@ -1,10 +1,15 @@
 """Extreme Virtual Services Platform Support."""
 
-from netmiko.cisco_base_connection import CiscoSSHConnection
+from netmiko.extreme.extreme_ers_ssh import ExtremeErsSSH
 
 
-class ExtremeVspSSH(CiscoSSHConnection):
-    """Extreme Virtual Services Platform Support."""
+class ExtremeVspSSH(ExtremeErsSSH):
+    """Extreme Virtual Services Platform Support.
+
+    Note, inherits from ExtremeErsSSH so that VSP can re-use 'CNTL-Y'
+    special_login_handler.
+
+    """
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -19,6 +24,4 @@ class ExtremeVspSSH(CiscoSSHConnection):
         confirm_response: str = "",
     ) -> str:
         """Save Config"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)

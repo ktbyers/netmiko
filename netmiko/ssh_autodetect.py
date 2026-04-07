@@ -31,11 +31,11 @@ Examples
                      'password': 'foo'}
 >>> guesser = SSHDetect(**remote_device)
 >>> best_match = guesser.autodetect()
->>> print(best_match) # Name of the best device_type to use further
->>> print(guesser.potential_matches) # Dictionary of the whole matching result
+>>> print(best_match)  # Name of the best device_type to use further
+>>> print(guesser.potential_matches)  # Dictionary of the whole matching result
 
 # Netmiko connection creation section
->>> remote_device['device_type'] = best_match
+>>> remote_device["device_type"] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
 
@@ -85,13 +85,25 @@ SSH_MAPPER_DICT = {
     },
     "aruba_aoscx": {
         "cmd": "show version",
-        "search_patterns": [r"ArubaOS-CX"],
+        "search_patterns": [r"ArubaOS-CX", r"AOS-CX"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     "ciena_saos": {
         "cmd": "software show",
         "search_patterns": [r"saos"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "ciena_waveserver": {
+        "cmd": "software show",
+        "search_patterns": [r"WAVESERVER"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_ap": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco AP Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -140,6 +152,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "cumulus_linux": {
+        "cmd": "uname -a",
+        "search_patterns": [r"Linux cumulus"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "dell_force10": {
         "cmd": "show version",
         "search_patterns": [r"Real Time Operating System Software"],
@@ -149,15 +167,19 @@ SSH_MAPPER_DICT = {
     "dell_os9": {
         "cmd": "show system",
         "search_patterns": [
-            r"Dell Application Software Version:  9",
-            r"Dell Networking OS Version : 9",
+            r"Dell Application Software Version\s*:\s*9",
+            r"Dell Networking OS Version\s*:\s*9",
+            r"Dell EMC Networking OS Version\s*:\s*9",
         ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
     "dell_os10": {
         "cmd": "show version",
-        "search_patterns": [r"Dell EMC Networking OS10.Enterprise"],
+        "search_patterns": [
+            r"Dell EMC Networking OS10.Enterprise",
+            r"Dell SmartFabric OS10[\s*|-]Enterprise",
+        ],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -176,6 +198,12 @@ SSH_MAPPER_DICT = {
     "f5_linux": {
         "cmd": "cat /etc/issue",
         "search_patterns": [r"BIG-IP"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "h3c_comware": {
+        "cmd": "display version",
+        "search_patterns": ["H3C Comware Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -214,7 +242,7 @@ SSH_MAPPER_DICT = {
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
-        "priority": 99,
+        "priority": 95,
         "dispatch": "_autodetect_std",
     },
     "ericsson_ipos": {
@@ -225,7 +253,7 @@ SSH_MAPPER_DICT = {
     },
     "extreme_exos": {
         "cmd": "show version",
-        "search_patterns": [r"ExtremeXOS"],
+        "search_patterns": [r"ExtremeXOS", "EXOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -321,9 +349,38 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "moxa_nos": {
+        "cmd": "",
+        "dispatch": "_autodetect_remote_version",
+        "search_patterns": [r"[Mm]oxa"],
+        "priority": 99,
+    },
     "huawei_smartax": {
         "cmd": "display version",
         "search_patterns": [r"Huawei Integrated Access Software"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "nec_ix": {
+        "cmd": "show hardware",
+        "search_patterns": [r"IX Series"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "fiberstore_fsosv2": {
+        "cmd": "show version",
+        "search_patterns": [
+            (
+                r"Fiberstore Co., Limited Internetwork Operating System "
+                r"Software[\s\S]*Version 2.[0-9]*.[0-9]*[\s\S]*"
+            )
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "telcosystems_binos": {
+        "cmd": "show version",
+        "search_patterns": [r"BiNOS"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -425,9 +482,7 @@ class SSHDetect(object):
             self.connection.disconnect()
             return None
 
-        best_match = sorted(
-            self.potential_matches.items(), key=lambda t: t[1], reverse=True
-        )
+        best_match = sorted(self.potential_matches.items(), key=lambda t: t[1], reverse=True)
         self.connection.disconnect()
         return best_match[0][0]
 
@@ -479,7 +534,7 @@ class SSHDetect(object):
         search_patterns: Optional[List[str]] = None,
         re_flags: int = re.IGNORECASE,
         priority: int = 99,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> int:
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported

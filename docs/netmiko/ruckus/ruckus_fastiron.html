@@ -180,7 +180,7 @@ hljs.highlightAll();
     def enable(
         self,
         cmd: str = &#34;enable&#34;,
-        pattern: str = r&#34;(ssword|User Name|Login)&#34;,
+        pattern: str = r&#34;(?:ssword|User Name|Login|No password has been assigned)&#34;,
         enable_pattern: Optional[str] = None,
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
@@ -216,6 +216,8 @@ hljs.highlightAll();
                 output += new_data
                 if not re.search(r&#34;error.*incorrect.*password&#34;, new_data, flags=re.I):
                     break
+            if &#34;No password has been assigned&#34; in new_data:
+                break
 
             time.sleep(1)
             i += 1
@@ -251,7 +253,7 @@ hljs.highlightAll();
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.ruckus.ruckus_fastiron.RuckusFastironBase.enable"><code class="name flex">
-<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = '(ssword|User Name|Login)', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
+<span>def <span class="ident">enable</span></span>(<span>self, cmd: str = 'enable', pattern: str = '(?:ssword|User Name|Login|No password has been assigned)', enable_pattern: Optional[str] = None, check_state: bool = True, re_flags: int = re.IGNORECASE) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Enter enable mode.

@@ -15,9 +15,7 @@ class NoConfig:
     ) -> bool:
         return True
 
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
+    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
         return ""
 
     def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:

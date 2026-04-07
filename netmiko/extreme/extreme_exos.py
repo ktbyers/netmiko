@@ -45,9 +45,7 @@ class ExtremeExosBase(NoConfig, CiscoSSHConnection):
         else:
             return self.base_prompt
 
-    def send_command(
-        self, *args: Any, **kwargs: Any
-    ) -> Union[str, List[Any], Dict[str, Any]]:
+    def send_command(self, *args: Any, **kwargs: Any) -> Union[str, List[Any], Dict[str, Any]]:
         """Extreme needs special handler here due to the prompt changes."""
 
         # Change send_command behavior to use self.base_prompt
@@ -64,9 +62,7 @@ class ExtremeExosBase(NoConfig, CiscoSSHConnection):
         confirm_response: str = "",
     ) -> str:
         """Saves configuration."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class ExtremeExosSSH(ExtremeExosBase):
@@ -111,10 +107,7 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
         """Return space available on remote device."""
         remote_cmd = f"ls {self.file_system}"
         remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
-        if (
-            "Invalid pathname" in remote_output
-            or "No such file or directory" in remote_output
-        ):
+        if "Invalid pathname" in remote_output or "No such file or directory" in remote_output:
             msg = f"Invalid file_system: {self.file_system}"
         else:
             match = re.search(search_pattern, remote_output)
@@ -134,10 +127,7 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
             if not remote_cmd:
                 remote_cmd = f"ls {self.file_system}/{self.dest_file}"
             remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
-            if (
-                "No such file or directory" in remote_out
-                or "Invalid pathname" in remote_out
-            ):
+            if "No such file or directory" in remote_out or "Invalid pathname" in remote_out:
                 return False
             elif self.dest_file in remote_out:
                 return True
@@ -148,9 +138,7 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -171,10 +159,7 @@ class ExtremeExosFileTransfer(BaseFileTransfer):
             file_size = line.split()[4]
         else:
             raise IOError("Unable to parse 'ls' output in remote_file_size method")
-        if (
-            "No such file or directory" in remote_out
-            or "Invalid pathname" in remote_out
-        ):
+        if "No such file or directory" in remote_out or "Invalid pathname" in remote_out:
             raise IOError("Unable to find file on remote system")
         else:
             return int(file_size)

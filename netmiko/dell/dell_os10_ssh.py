@@ -38,9 +38,7 @@ class DellOS10SSH(CiscoSSHConnection):
         confirm_response: str = "",
     ) -> str:
         """Saves Config"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class DellOS10FileTransfer(BaseFileTransfer):
@@ -65,9 +63,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
         )
         self.folder_name = "/config"
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -103,9 +99,7 @@ class DellOS10FileTransfer(BaseFileTransfer):
             md5_output, pattern=pattern
         )
 
-    def remote_md5(
-        self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None) -> str:
         """Calculate remote MD5 and returns the hash."""
         if remote_file is None:
             if self.direction == "put":

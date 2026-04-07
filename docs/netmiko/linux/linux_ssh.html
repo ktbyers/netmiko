@@ -53,6 +53,8 @@ hljs.highlightAll();
     Mostly for testing purposes.
     &#34;&#34;&#34;
 
+    prompt_pattern = rf&#34;[{re.escape(LINUX_PROMPT_PRI)}{re.escape(LINUX_PROMPT_ALT)}]&#34;
+
     def __init__(
         self,
         ssh_conn: &#34;BaseConnection&#34;,
@@ -73,18 +75,25 @@ hljs.highlightAll();
 
     def remote_space_available(self, search_pattern: str = &#34;&#34;) -&gt; int:
         &#34;&#34;&#34;Return space available on remote device.&#34;&#34;&#34;
+        search_pattern = self.prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
-        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+        search_pattern = self.prompt_pattern
+        return self._check_file_exists_unix(
+            remote_cmd=remote_cmd, search_pattern=search_pattern
+        )
 
     def remote_file_size(
         self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
     ) -&gt; int:
         &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
+        search_pattern = self.prompt_pattern
         return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
+            remote_cmd=remote_cmd,
+            remote_file=remote_file,
+            search_pattern=search_pattern,
         )
 
     def remote_md5(
@@ -117,6 +126,13 @@ hljs.highlightAll();
 <li><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></li>
 <li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.linux.linux_ssh.LinuxFileTransfer.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></b></code>:
@@ -409,8 +425,16 @@ permissions.
         return output
 
     def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
-        &#34;&#34;&#34;Try to Gracefully exit the SSH session.&#34;&#34;&#34;
-        return super().cleanup(command=command)
+        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+        try:
+            if self.username != &#34;root&#34; and self.check_config_mode():
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final &#39;exit&#39; (command)
+        if self.session_log:
+            self.session_log.fin = True
+        self.write_channel(command + self.RETURN)
 
     def save_config(self, *args: Any, **kwargs: Any) -&gt; str:
         &#34;&#34;&#34;Not Implemented&#34;&#34;&#34;
@@ -425,6 +449,9 @@ permissions.
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco.cisco_apic.CiscoApicSSH" href="../cisco/cisco_apic.html#netmiko.cisco.cisco_apic.CiscoApicSSH">CiscoApicSSH</a></li>
+<li><a title="netmiko.corelight.corelight_linux_ssh.CorelightLinuxSSH" href="../corelight/corelight_linux_ssh.html#netmiko.corelight.corelight_linux_ssh.CorelightLinuxSSH">CorelightLinuxSSH</a></li>
+<li><a title="netmiko.cumulus.cumulus_linux_ssh.CumulusLinuxSSH" href="../cumulus/cumulus_linux_ssh.html#netmiko.cumulus.cumulus_linux_ssh.CumulusLinuxSSH">CumulusLinuxSSH</a></li>
+<li><a title="netmiko.edgecore.edgecore_sonic_ssh.EdgecoreSonicSSH" href="../edgecore/edgecore_sonic_ssh.html#netmiko.edgecore.edgecore_sonic_ssh.EdgecoreSonicSSH">EdgecoreSonicSSH</a></li>
 <li><a title="netmiko.f5.f5_linux_ssh.F5LinuxSSH" href="../f5/f5_linux_ssh.html#netmiko.f5.f5_linux_ssh.F5LinuxSSH">F5LinuxSSH</a></li>
 <li><a title="netmiko.ovs.ovs_linux_ssh.OvsLinuxSSH" href="../ovs/ovs_linux_ssh.html#netmiko.ovs.ovs_linux_ssh.OvsLinuxSSH">OvsLinuxSSH</a></li>
 </ul>
@@ -448,12 +475,6 @@ permissions.
 </code></dt>
 <dd>
 <div class="desc"><p>Verify root</p></div>
-</dd>
-<dt id="netmiko.linux.linux_ssh.LinuxSSH.cleanup"><code class="name flex">
-<span>def <span class="ident">cleanup</span></span>(<span>self, command: str = 'exit') ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Try to Gracefully exit the SSH session.</p></div>
 </dd>
 <dt id="netmiko.linux.linux_ssh.LinuxSSH.config_mode"><code class="name flex">
 <span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = 'sudo -s', pattern: str = 'ssword', re_flags: int = re.IGNORECASE) ‑> str</span>
@@ -508,6 +529,7 @@ permissions.
 <ul class="hlist">
 <li><code><b><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></b></code>:
 <ul class="hlist">
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
@@ -559,13 +581,15 @@ permissions.
 <ul>
 <li>
 <h4><code><a title="netmiko.linux.linux_ssh.LinuxFileTransfer" href="#netmiko.linux.linux_ssh.LinuxFileTransfer">LinuxFileTransfer</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.linux.linux_ssh.LinuxFileTransfer.prompt_pattern" href="#netmiko.linux.linux_ssh.LinuxFileTransfer.prompt_pattern">prompt_pattern</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="netmiko.linux.linux_ssh.LinuxSSH" href="#netmiko.linux.linux_ssh.LinuxSSH">LinuxSSH</a></code></h4>
 <ul class="two-column">
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.check_config_mode" href="#netmiko.linux.linux_ssh.LinuxSSH.check_config_mode">check_config_mode</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.check_enable_mode" href="#netmiko.linux.linux_ssh.LinuxSSH.check_enable_mode">check_enable_mode</a></code></li>
-<li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.cleanup" href="#netmiko.linux.linux_ssh.LinuxSSH.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.config_mode" href="#netmiko.linux.linux_ssh.LinuxSSH.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.disable_paging" href="#netmiko.linux.linux_ssh.LinuxSSH.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.enable" href="#netmiko.linux.linux_ssh.LinuxSSH.enable">enable</a></code></li>
