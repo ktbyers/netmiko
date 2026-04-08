@@ -44,7 +44,9 @@ class RaisecomRosBase(CiscoBaseConnection):
         pattern: str = "",
         re_flags: int = 0,
     ) -> str:
-        return super().config_mode(config_command=config_command, pattern=pattern, re_flags=re_flags)
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
 
     def save_config(
         self,
@@ -55,9 +57,7 @@ class RaisecomRosBase(CiscoBaseConnection):
         """Saves Config."""
         self.exit_config_mode()
         self.enable()
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class RaisecomRosSSH(RaisecomRosBase):
@@ -146,9 +146,9 @@ class RaisecomRosTelnet(RaisecomRosBase):
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                        alt_prompt_terminator, output, flags=re.M
+                    ):
                         return return_msg
 
                 # Check if proper data received
