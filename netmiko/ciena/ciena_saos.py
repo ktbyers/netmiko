@@ -59,9 +59,7 @@ class CienaSaosBase(NoEnable, NoConfig, BaseConnection):
         confirm_response: str = "",
     ) -> str:
         """Saves Config."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class CienaSaosSSH(CienaSaosBase):
@@ -69,7 +67,6 @@ class CienaSaosSSH(CienaSaosBase):
 
 
 class CienaSaos10SSH(NoEnable, BaseConnection):
-
     def session_preparation(self) -> None:
         self._test_channel_read()
         self.set_base_prompt()
@@ -118,9 +115,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         remote_cmd = f"file vols -P {self.file_system}"
         remote_output = self.ssh_ctl_chan._send_command_str(remote_cmd)
         remote_output = remote_output.strip()
-        err_msg = (
-            f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
-        )
+        err_msg = f"Parsing error, unexpected output from {remote_cmd}:\n{remote_output}"
 
         # First line is the header; file_system_line is the output we care about
         header_line, filesystem_line = remote_output.splitlines()
@@ -164,9 +159,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -193,9 +186,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
             file_size = line.split()[4]
             return int(file_size)
 
-        raise ValueError(
-            "Search pattern not found for remote file size during SCP transfer."
-        )
+        raise ValueError("Search pattern not found for remote file size during SCP transfer.")
 
     def remote_md5(self, base_cmd: str = "", remote_file: Optional[str] = None) -> str:
         """Calculate remote MD5 and returns the hash.
@@ -213,9 +204,7 @@ class CienaSaosFileTransfer(BaseFileTransfer):
         remote_md5_cmd = f"{base_cmd} {self.file_system}/{remote_file}"
 
         self.ssh_ctl_chan._enter_shell()
-        dest_md5 = self.ssh_ctl_chan._send_command_str(
-            remote_md5_cmd, expect_string=r"[$#>]"
-        )
+        dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, expect_string=r"[$#>]")
         self.ssh_ctl_chan._return_cli()
         dest_md5 = self.process_md5(dest_md5, pattern=r"([0-9a-f]+)\s+")
         return dest_md5

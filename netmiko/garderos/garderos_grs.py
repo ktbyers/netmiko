@@ -18,7 +18,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
         """Prepare the session after the connection has been established"""
         self.ansi_escape_codes = True
         self._test_channel_read()
-        self.set_base_prompt(pri_prompt_terminator="#")
+        self.set_base_prompt(pri_prompt_terminator="#", alt_prompt_terminator="$")
         self.clear_buffer()
 
     def send_command(
@@ -77,9 +77,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
 
         # Verify success
         if "No configuration to commit" in commit_result:
-            raise ValueError(
-                "No configuration to commit. Please configure device first."
-            )
+            raise ValueError("No configuration to commit. Please configure device first.")
         elif "Values will be reloaded" not in commit_result:
             raise ValueError(f"Commit was unsuccessful. Device said: {commit_result}")
 
@@ -127,9 +125,7 @@ class GarderosGrsSSH(CiscoSSHConnection):
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
-    def _linux_mode(
-        self, linux_command: str = "linux-shell", pattern: str = r"#"
-    ) -> str:
+    def _linux_mode(self, linux_command: str = "linux-shell", pattern: str = r"#") -> str:
         """Enter into Linux mode.
 
         :param config_command: Linux command to send to the device

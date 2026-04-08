@@ -65,9 +65,7 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
             pattern=pattern,
         )
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         if not pattern:
             pattern = self.prompt_pattern
         return super().find_prompt(
@@ -78,21 +76,15 @@ class FortinetSSH(NoConfig, NoEnable, CiscoSSHConnection):
     def _vdoms_enabled(self) -> bool:
         """Determine whether virtual domains are enabled or not."""
         check_command = "get system status | grep Virtual"
-        output = self._send_command_str(
-            check_command, expect_string=self.prompt_pattern
-        )
+        output = self._send_command_str(check_command, expect_string=self.prompt_pattern)
         return bool(
-            re.search(
-                r"Virtual domain configuration: (multiple|enable|split-task)", output
-            )
+            re.search(r"Virtual domain configuration: (multiple|enable|split-task)", output)
         )
 
     def _config_global(self) -> str:
         """Enter 'config global' mode, raise a ValueError exception on failure."""
         try:
-            return self._send_command_str(
-                "config global", expect_string=self.prompt_pattern
-            )
+            return self._send_command_str("config global", expect_string=self.prompt_pattern)
         except Exception:
             msg = """
 Netmiko may require 'config global' access to properly disable output paging.
@@ -129,9 +121,7 @@ Alternatively you can try configuring 'configure system console -> set output st
             "set output standard",
             "end",
         ]
-        output += self.send_multiline(
-            disable_paging_commands, expect_string=self.prompt_pattern
-        )
+        output += self.send_multiline(disable_paging_commands, expect_string=self.prompt_pattern)
         self._output_mode = "standard"
 
         if self._vdoms:
@@ -140,9 +130,7 @@ Alternatively you can try configuring 'configure system console -> set output st
 
     def _determine_os_version(self) -> str:
         check_command = "get system status | grep Version"
-        output = self._send_command_str(
-            check_command, expect_string=self.prompt_pattern
-        )
+        output = self._send_command_str(check_command, expect_string=self.prompt_pattern)
         if re.search(r"^Version: .* (v[78]\.).*$", output, flags=re.M):
             return "v7_or_later"
         elif re.search(r"^Version: .* (v[654]\.).*$", output, flags=re.M):
@@ -180,9 +168,7 @@ Alternatively you can try configuring 'configure system console -> set output st
         if self._vdoms:
             self._config_global()
 
-        output = self._send_command_str(
-            "get system console", expect_string=self.prompt_pattern
-        )
+        output = self._send_command_str("get system console", expect_string=self.prompt_pattern)
 
         if self._vdoms:
             self._exit_config_global()
@@ -223,8 +209,6 @@ Alternatively you can try configuring 'configure system console -> set output st
                 self._exit_config_global()
         return super().cleanup(command=command)
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         """Not Implemented"""
         raise NotImplementedError

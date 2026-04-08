@@ -118,9 +118,7 @@ class EricssonIposSSH(BaseConnection):
         if delay_factor is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
         if confirm_delay and not confirm:
-            raise ValueError(
-                "Invalid arguments supplied to commit method both confirm and check"
-            )
+            raise ValueError("Invalid arguments supplied to commit method both confirm and check")
 
         command_string = "commit"
         commit_marker = "Transaction committed"

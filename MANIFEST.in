@@ -1,5 +1,0 @@
-include *.md
-include requirements.txt
-include LICENSE
-recursive-include tests/ *
-

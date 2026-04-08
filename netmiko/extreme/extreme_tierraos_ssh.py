@@ -27,6 +27,4 @@ class ExtremeTierraSSH(NoEnable, CiscoSSHConnection):
         confirm_response: str = "y",
     ) -> str:
         """Save Config for Extreme TierraOS."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)

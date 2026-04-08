@@ -15,8 +15,9 @@ from netmiko.allied_telesis import AlliedTelesisAwplusSSH
 from netmiko.arista import AristaSSH, AristaTelnet
 from netmiko.arista import AristaFileTransfer
 from netmiko.arris import ArrisCERSSH
+from netmiko.apc import ApcAosSSH
 from netmiko.apresia import ApresiaAeosSSH, ApresiaAeosTelnet
-from netmiko.aruba import ArubaOsSSH, ArubaCxSSH
+from netmiko.aruba import ArubaOsSSH, ArubaCxSSH, ArubaOsFileTransfer
 from netmiko.asterfusion import AsterfusionAsterNOSSSH
 from netmiko.audiocode import (
     Audiocode72SSH,
@@ -30,7 +31,7 @@ from netmiko.aviat import AviatWTMSSH
 from netmiko.bintec import BintecBossSSH, BintecBossTelnet
 from netmiko.brocade import BrocadeFOSSSH
 from netmiko.broadcom import BroadcomIcosSSH
-from netmiko.calix import CalixB6SSH, CalixB6Telnet
+from netmiko.calix import CalixB6SSH, CalixB6Telnet, CalixExaSSH, CalixExaTelnet
 from netmiko.casa import CasaCMTSSSH
 from netmiko.cdot import CdotCrosSSH
 from netmiko.centec import CentecOSSSH, CentecOSTelnet
@@ -43,7 +44,7 @@ from netmiko.ciena import (
     CienaSaosFileTransfer,
 )
 from netmiko.cisco import CiscoAsaSSH, CiscoAsaFileTransfer
-from netmiko.cisco import CiscoApicSSH
+from netmiko.cisco import CiscoApicSSH, CiscoApSSH
 from netmiko.cisco import CiscoFtdSSH
 from netmiko.cisco import (
     CiscoIosSSH,
@@ -106,9 +107,11 @@ from netmiko.fortinet import FortinetSSH
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
+from netmiko.hioso import HiosoOLTTelnet
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
-from netmiko.huawei import HuaweiSmartAXSSH
+from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
+from netmiko.huawei import HuaweiONTSSH, HuaweiONTTelnet
 from netmiko.infinera import InfineraPacketSSH, InfineraPacketTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
@@ -121,10 +124,12 @@ from netmiko.maipu import MaipuTelnet
 from netmiko.mikrotik import MikrotikRouterOsSSH, MikrotikRouterOsFileTransfer
 from netmiko.mikrotik import MikrotikSwitchOsSSH
 from netmiko.mellanox import MellanoxMlnxosSSH
+from netmiko.moxa import MoxaNosSSH
 from netmiko.mrv import MrvLxSSH
 from netmiko.mrv import MrvOptiswitchSSH
 from netmiko.netapp import NetAppcDotSSH
 from netmiko.nokia import (
+    NokiaIsamSSH,
     NokiaSrosSSH,
     NokiaSrosFileTransfer,
     NokiaSrosTelnet,
@@ -133,12 +138,15 @@ from netmiko.nokia import (
 from netmiko.netgear import NetgearProSafeSSH
 from netmiko.nec import NecIxSSH, NecIxTelnet
 from netmiko.oneaccess import OneaccessOneOSTelnet, OneaccessOneOSSSH
+from netmiko.opengear import OpengearLinuxSSH
 from netmiko.optilink import OptilinkEOLT9702Telnet
 from netmiko.optilink import OptilinkEOLT11444Telnet
+from netmiko.optilink import OptilinkGOLT924Telnet
 from netmiko.ovs import OvsLinuxSSH
 from netmiko.paloalto import PaloAltoPanosSSH
 from netmiko.paloalto import PaloAltoPanosTelnet
 from netmiko.pluribus import PluribusSSH
+from netmiko.perle import PerleIolanSSH
 from netmiko.quanta import QuantaMeshSSH
 from netmiko.rad import RadETXSSH
 from netmiko.rad import RadETXTelnet
@@ -149,6 +157,7 @@ from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
 from netmiko.silverpeak import SilverPeakVXOASSH
 from netmiko.sixwind import SixwindOSSSH
+from netmiko.smartoptics import SmartOpticsDWDMSSH
 from netmiko.sophos import SophosSfosSSH
 from netmiko.supermicro import SmciSwitchSmisSSH
 from netmiko.supermicro import SmciSwitchSmisTelnet
@@ -187,6 +196,7 @@ CLASS_MAPPER_BASE = {
     "alcatel_aos": AlcatelAosSSH,
     "alcatel_sros": NokiaSrosSSH,
     "allied_telesis_awplus": AlliedTelesisAwplusSSH,
+    "apc_aos": ApcAosSSH,
     "apresia_aeos": ApresiaAeosSSH,
     "arista_eos": AristaSSH,
     "arris_cer": ArrisCERSSH,
@@ -211,14 +221,16 @@ CLASS_MAPPER_BASE = {
     "brocade_vyos": VyOSSSH,
     "checkpoint_gaia": CheckPointGaiaSSH,
     "calix_b6": CalixB6SSH,
+    "calix_exa": CalixExaSSH,
     "casa_cmts": CasaCMTSSSH,
     "cdot_cros": CdotCrosSSH,
     "centec_os": CentecOSSSH,
     "ciena_saos": CienaSaosSSH,
     "ciena_saos10": CienaSaos10SSH,
     "ciena_waveserver": CienaWaveserverSSH,
-    "cisco_asa": CiscoAsaSSH,
+    "cisco_ap": CiscoApSSH,
     "cisco_apic": CiscoApicSSH,
+    "cisco_asa": CiscoAsaSSH,
     "cisco_ftd": CiscoFtdSSH,
     "cisco_ios": CiscoIosSSH,
     "cisco_nxos": CiscoNxosSSH,
@@ -227,6 +239,7 @@ CLASS_MAPPER_BASE = {
     "cisco_tp": CiscoTpTcCeSSH,
     "cisco_viptela": CiscoViptelaSSH,
     "cisco_wlc": CiscoWlcSSH,
+    "cisco_ioswlc": CiscoIosSSH,
     "cisco_xe": CiscoIosSSH,
     "cisco_xr": CiscoXrSSH,
     "cloudgenix_ion": CloudGenixIonSSH,
@@ -278,8 +291,10 @@ CLASS_MAPPER_BASE = {
     "hp_comware": HPComwareSSH,
     "hp_procurve": HPProcurveSSH,
     "huawei": HuaweiSSH,
+    "huawei_smartaxmmi": HuaweiSmartAXSSHMMI,
     "huawei_smartax": HuaweiSmartAXSSH,
     "huawei_olt": HuaweiSmartAXSSH,
+    "huawei_ont": HuaweiONTSSH,
     "huawei_vrp": HuaweiSSH,
     "huawei_vrpv8": HuaweiVrpv8SSH,
     "infinera_packet": InfineraPacketSSH,
@@ -295,18 +310,22 @@ CLASS_MAPPER_BASE = {
     "mikrotik_switchos": MikrotikSwitchOsSSH,
     "mellanox": MellanoxMlnxosSSH,
     "mellanox_mlnxos": MellanoxMlnxosSSH,
+    "moxa_nos": MoxaNosSSH,
     "mrv_lx": MrvLxSSH,
     "mrv_optiswitch": MrvOptiswitchSSH,
     "nec_ix": NecIxSSH,
     "netapp_cdot": NetAppcDotSSH,
     "netgear_prosafe": NetgearProSafeSSH,
     "netscaler": NetscalerSSH,
+    "nokia_isam": NokiaIsamSSH,
     "nokia_sros": NokiaSrosSSH,
     "nokia_srl": NokiaSrlSSH,
     "oneaccess_oneos": OneaccessOneOSSSH,
+    "opengear_linux": OpengearLinuxSSH,
     "ovs_linux": OvsLinuxSSH,
     "paloalto_panos": PaloAltoPanosSSH,
     "pluribus": PluribusSSH,
+    "perle_iolan": PerleIolanSSH,
     "quanta_mesh": QuantaMeshSSH,
     "rad_etx": RadETXSSH,
     "raisecom_roap": RaisecomRoapSSH,
@@ -314,6 +333,7 @@ CLASS_MAPPER_BASE = {
     "ruijie_os": RuijieOSSSH,
     "silverpeak_vxoa": SilverPeakVXOASSH,
     "sixwind_os": SixwindOSSSH,
+    "smartoptics_dwdm": SmartOpticsDWDMSSH,
     "sophos_sfos": SophosSfosSSH,
     "supermicro_smis": SmciSwitchSmisSSH,
     "telcosystems_binos": TelcoSystemsBinosSSH,
@@ -335,11 +355,13 @@ CLASS_MAPPER_BASE = {
 }
 
 FILE_TRANSFER_MAP = {
+    "aruba_os": ArubaOsFileTransfer,
     "arista_eos": AristaFileTransfer,
     "ciena_saos": CienaSaosFileTransfer,
     "cisco_asa": CiscoAsaFileTransfer,
     "cisco_ios": CiscoIosFileTransfer,
     "cisco_nxos": CiscoNxosFileTransfer,
+    "cisco_ioswlc": CiscoIosFileTransfer,
     "cisco_xe": CiscoIosFileTransfer,
     "cisco_xr": CiscoXrFileTransfer,
     "dell_os10": DellOS10FileTransfer,
@@ -378,10 +400,13 @@ CLASS_MAPPER["bintec_boss_telnet"] = BintecBossTelnet
 CLASS_MAPPER["brocade_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["brocade_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["calix_b6_telnet"] = CalixB6Telnet
+CLASS_MAPPER["calix_exa_telnet"] = CalixExaTelnet
 CLASS_MAPPER["centec_os_telnet"] = CentecOSTelnet
 CLASS_MAPPER["ciena_saos_telnet"] = CienaSaosTelnet
 CLASS_MAPPER["cisco_ios_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_nxos_telnet"] = CiscoNxosTelnet
+CLASS_MAPPER["cisco_ioswlc_telnet"] = CiscoIosTelnet
+CLASS_MAPPER["cisco_xe_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_xr_telnet"] = CiscoXrTelnet
 CLASS_MAPPER["cisco_s200_telnet"] = CiscoS200Telnet
 CLASS_MAPPER["cisco_s300_telnet"] = CiscoS300Telnet
@@ -395,9 +420,11 @@ CLASS_MAPPER["fiberstore_fsosv2_telnet"] = FiberstoreFsosV2Telnet
 CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["genexis_solt33_telnet"] = GenexisSOLT33Telnet
+CLASS_MAPPER["hioso_olt_telnet"] = HiosoOLTTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
 CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
+CLASS_MAPPER["huawei_ont_telnet"] = HuaweiONTTelnet
 CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["infinera_packet_telnet"] = InfineraPacketTelnet
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
@@ -408,6 +435,7 @@ CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
 CLASS_MAPPER["oneaccess_oneos_telnet"] = OneaccessOneOSTelnet
 CLASS_MAPPER["optilink_eolt9702_telnet"] = OptilinkEOLT9702Telnet
 CLASS_MAPPER["optilink_eolt11444_telnet"] = OptilinkEOLT11444Telnet
+CLASS_MAPPER["optilink_golt924_telnet"] = OptilinkGOLT924Telnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
@@ -453,8 +481,7 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         else:
             msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
         raise ValueError(
-            "Unsupported 'device_type' "
-            "currently supported platforms are: {}".format(msg_str)
+            "Unsupported 'device_type' currently supported platforms are: {}".format(msg_str)
         )
     ConnectionClass = ssh_dispatcher(device_type)
     return ConnectionClass(*args, **kwargs)
@@ -513,9 +540,7 @@ def ConnLogOnly(
         logger.info(msg)
         return net_connect
     except NetmikoAuthenticationException as e:
-        msg = (
-            f"Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}"
-        )
+        msg = f"Authentication failure to: {hostname}:{port} ({device_type})\n\n{str(e)}"
         logger.error(msg)
         return None
     except NetmikoTimeoutException as e:
@@ -563,9 +588,7 @@ def ssh_dispatcher(device_type: str) -> Type["BaseConnection"]:
     return CLASS_MAPPER[device_type]
 
 
-def redispatch(
-    obj: "BaseConnection", device_type: str, session_prep: bool = True
-) -> None:
+def redispatch(obj: "BaseConnection", device_type: str, session_prep: bool = True) -> None:
     """Dynamically change Netmiko object's class to proper class.
     Generally used with terminal_server device_type when you need to redispatch after interacting
     with terminal server.
@@ -585,8 +608,9 @@ def FileTransfer(*args: Any, **kwargs: Any) -> "BaseFileTransfer":
         device_type = kwargs["ssh_conn"].device_type
     if device_type not in scp_platforms:
         raise ValueError(
-            "Unsupported SCP device_type: "
-            "currently supported platforms are: {}".format(scp_platforms_str)
+            "Unsupported SCP device_type: currently supported platforms are: {}".format(
+                scp_platforms_str
+            )
         )
     FileTransferClass: Type["BaseFileTransfer"]
     FileTransferClass = FILE_TRANSFER_MAP[device_type]

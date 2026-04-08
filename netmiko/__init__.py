@@ -1,23 +1,21 @@
 import sys
 
-__version__ = "4.5.0"
+__version__ = "4.6.1"
 PY_MAJ_VER = 3
-PY_MIN_VER = 8
-MIN_PYTHON_VER = "3.8"
+PY_MIN_VER = 9
+MIN_PYTHON_VER = "3.9"
 
 
 # Make sure user is using a valid Python version (for Netmiko)
 def check_python_version():  # type: ignore
-    python_snake = "\U0001F40D"
+    python_snake = "\U0001f40d"
 
     # Use old-school .format() method in case someone tries to use Netmiko with very old Python
     msg = """
 
 Netmiko Version {net_ver} requires Python Version {py_ver} or higher.
 
-""".format(
-        net_ver=__version__, py_ver=MIN_PYTHON_VER
-    )
+""".format(net_ver=__version__, py_ver=MIN_PYTHON_VER)
     if sys.version_info.major != PY_MAJ_VER:
         raise ValueError(msg)
     elif sys.version_info.minor < PY_MIN_VER:

@@ -125,6 +125,6 @@ BASE_PARAMS = {"device_type": "cisco_ios", "host": "bogus.domain.com"}
 def test_update_device_params(initial_params, update_args, expected_result):
     result = update_device_params(initial_params, **update_args)
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
-    assert (
-        result is initial_params
-    ), "Function should modify the original dictionary, not create a new one"
+    assert result is initial_params, (
+        "Function should modify the original dictionary, not create a new one"
+    )
