@@ -5,6 +5,7 @@ from netmiko.huawei.huawei_ont import HuaweiONTTelnet, HuaweiONTSSH
 
 __all__ = [
     "HuaweiSmartAXSSH",
+    "HuaweiSmartAXSSHMMI",
     "HuaweiSSH",
     "HuaweiVrpv8SSH",
     "HuaweiTelnet",

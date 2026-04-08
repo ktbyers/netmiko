@@ -8,7 +8,6 @@ from netmiko.exceptions import NetmikoAuthenticationException
 
 class HuaweiONTBase(NoConfig, CiscoBaseConnection):
     prompt_pattern = r"WAP>"
-    su_prompt_pattern = r"SU_WAP>"
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -22,7 +21,7 @@ class HuaweiONTBase(NoConfig, CiscoBaseConnection):
         """In Huawei ONTs, there is no save command. All changes are immediate."""
         raise NotImplementedError("Save config is not supported on Huawei ONTs.")
 
-    def check_enable_mode(self, check_string: str = r"SU_WAP\>") -> bool:
+    def check_enable_mode(self, check_string: str = "SU_WAP>") -> bool:
         """Check if the device is in su mode."""
         return super().check_enable_mode(check_string=check_string)
 
@@ -30,7 +29,7 @@ class HuaweiONTBase(NoConfig, CiscoBaseConnection):
         self,
         cmd: str = "su",
         pattern: str = "",
-        enable_pattern: Optional[str] = r"WAP\>",
+        enable_pattern: Optional[str] = r"SU_WAP>",
         check_state: bool = True,
         re_flags: int = re.IGNORECASE,
     ) -> str:
@@ -86,6 +85,7 @@ class HuaweiONTTelnet(HuaweiONTBase):
             self.write_channel(self.password + self.TELNET_RETURN)
 
             output = self.read_until_pattern(pattern=self.prompt_pattern)
+            return_msg += output
             # Wait for prompt_pattern
             if re.search(self.prompt_pattern, output):
                 return return_msg
@@ -94,7 +94,7 @@ class HuaweiONTTelnet(HuaweiONTBase):
             raise EOFError
 
         except EOFError:
-            assert self.remote_conn is not None
-            self.remote_conn.close()
+            if self.remote_conn is not None:
+                self.remote_conn.close()
             msg = f"Login failed: {self.host}"
             raise NetmikoAuthenticationException(msg)
