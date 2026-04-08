@@ -1,3 +1,3 @@
-from netmiko.hioso.hioso import HiosoTelnet
+from netmiko.hioso.hioso import HiosoOLTTelnet
 
-__all__ = ["HiosoTelnet"]
+__all__ = ["HiosoOLTTelnet"]

@@ -4,9 +4,9 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.exceptions import NetmikoAuthenticationException
 
 
-class HiosoBase(CiscoBaseConnection):
+class HiosoOLTBase(CiscoBaseConnection):
     """
-    Base class for Hioso devices.
+    Base class for Hioso OLT devices.
     It is fairly similar to Cisco devices.
     """
 
@@ -40,7 +40,7 @@ class HiosoBase(CiscoBaseConnection):
         confirm: bool = False,
         confirm_response: str = "y",
     ) -> str:
-        """Save Config for Hioso Telnet."""
+        """Save Config for Hioso OLT."""
         return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def cleanup(self, command: str = "quit") -> None:
@@ -48,8 +48,8 @@ class HiosoBase(CiscoBaseConnection):
         super().cleanup(command=command)
 
 
-class HiosoTelnet(HiosoBase):
-    """Hioso Telnet driver."""
+class HiosoOLTTelnet(HiosoOLTBase):
+    """Hioso OLT Telnet driver."""
 
     def telnet_login(
         self,
@@ -60,7 +60,7 @@ class HiosoTelnet(HiosoBase):
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
-        """Telnet login for Hioso Devices"""
+        """Telnet login for Hioso OLT devices."""
         output = ""
         return_msg = ""
         try:
