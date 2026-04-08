@@ -152,6 +152,8 @@ from netmiko.rad import RadETXSSH
 from netmiko.rad import RadETXTelnet
 from netmiko.raisecom import RaisecomRoapSSH
 from netmiko.raisecom import RaisecomRoapTelnet
+from netmiko.raisecom import RaisecomRosSSH
+from netmiko.raisecom import RaisecomRosTelnet
 from netmiko.ruckus import RuckusFastironSSH
 from netmiko.ruckus import RuckusFastironTelnet
 from netmiko.ruijie import RuijieOSSSH, RuijieOSTelnet
@@ -329,6 +331,7 @@ CLASS_MAPPER_BASE = {
     "quanta_mesh": QuantaMeshSSH,
     "rad_etx": RadETXSSH,
     "raisecom_roap": RaisecomRoapSSH,
+    "raisecom_ros": RaisecomRosSSH,
     "ruckus_fastiron": RuckusFastironSSH,
     "ruijie_os": RuijieOSSSH,
     "silverpeak_vxoa": SilverPeakVXOASSH,
@@ -439,6 +442,7 @@ CLASS_MAPPER["optilink_golt924_telnet"] = OptilinkGOLT924Telnet
 CLASS_MAPPER["paloalto_panos_telnet"] = PaloAltoPanosTelnet
 CLASS_MAPPER["rad_etx_telnet"] = RadETXTelnet
 CLASS_MAPPER["raisecom_telnet"] = RaisecomRoapTelnet
+CLASS_MAPPER["raisecom_ros_telnet"] = RaisecomRosTelnet
 CLASS_MAPPER["ruckus_fastiron_telnet"] = RuckusFastironTelnet
 CLASS_MAPPER["ruijie_os_telnet"] = RuijieOSTelnet
 CLASS_MAPPER["supermicro_smis_telnet"] = SmciSwitchSmisTelnet
