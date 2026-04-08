@@ -10,7 +10,7 @@ class HiosoOLTBase(CiscoBaseConnection):
     It is fairly similar to Cisco devices.
     """
 
-    prompt_pattern = r"[\]>]"
+    prompt_pattern = r"[#>]"
     prompt_or_password_change = rf"(?:Change now|Please choose|{prompt_pattern})"
 
     def session_preparation(self) -> None:
