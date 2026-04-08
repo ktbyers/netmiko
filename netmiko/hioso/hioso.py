@@ -41,9 +41,7 @@ class HiosoBase(CiscoBaseConnection):
         confirm_response: str = "y",
     ) -> str:
         """Save Config for Hioso Telnet."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def cleanup(self, command: str = "quit") -> None:
         """Cleanup the connection."""
