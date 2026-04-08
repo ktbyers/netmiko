@@ -1,4 +1,5 @@
-from typing import Optional
+import re
+from typing import Any, Iterator, Optional, Sequence, TextIO, Union
 from netmiko.no_enable import NoEnable
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -22,37 +23,30 @@ class AviatWTMSSH(NoEnable, CiscoSSHConnection):
             config_commands=command,
         )
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = r"[$>#]"
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = r"[$>#]") -> str:
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def exit_config_mode(
         self,
         exit_config: str = "end",
-        pattern: str = r"(?:Uncommitted changes.*CANCEL|#)",
+        pattern: str = r"(?:Uncommitted changes|#)",
     ) -> str:
+        """Exit configuration mode.
+
+        Raises ValueError if uncommitted changes are detected — call commit() first.
         """
-        Exits from configuration mode. Overwritten from base class because the device
-        prompts to save uncommitted changes when exiting config mode and requires user confirmation.
-        If 'Uncommitted changes found' is detected in the output, the function sends a 'confirm'
-        command.
-        """
-        confirm: str = "yes"
         output = ""
         if self.check_config_mode():
             self.write_channel(self.normalize_cmd(exit_config))
-            # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(pattern=exit_config)
-            # Read until we detect the uncommitted changes pattern or the usual prompt pattern
+                output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
             output += self.read_until_pattern(pattern=pattern)
-            # If uncommitted changes were found, confirm them
-            if "Uncommitted changes found" in output:
-                self.write_channel(self.normalize_cmd(confirm))
-                output += self.read_until_pattern(pattern=r"[$>#]")
+            if "Uncommitted changes" in output:
+                raise ValueError(
+                    "Uncommitted changes detected — call commit() before exiting config mode."
+                )
             if self.check_config_mode():
-                raise ValueError("Failed to exit configuration mode")
+                raise ValueError("Failed to exit configuration mode.")
         return output
 
     def config_mode(
@@ -65,9 +59,37 @@ class AviatWTMSSH(NoEnable, CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
+        *,
+        exit_config_mode: bool = False,
+        **kwargs: Any,
     ) -> str:
+        """Send config commands; defaults to not exiting config mode (call commit() explicitly)."""
+        return super().send_config_set(
+            config_commands=config_commands,
+            exit_config_mode=exit_config_mode,
+            **kwargs,
+        )
+
+    def commit(self, cmd: str = "commit", read_timeout: float = 120.0) -> str:
+        """
+        Commit configuration changes on Aviat WTM devices.
+
+        Changes entered in config mode are staged in a candidate buffer and do not
+        take effect until committed. The commit command moves changes from candidate
+        to running state (and typically saves to flash).
+
+        Must be called from within configuration mode.
+        """
+        if not self.check_config_mode():
+            raise ValueError("Must be in configuration mode to commit.")
+        self.write_channel(self.normalize_cmd(cmd))
+        output = self.read_until_pattern(pattern=r"\)#", read_timeout=read_timeout)
+        return output
+
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         """
         Aviat WTM Outdoor Radio does not have a 'save config' command. Instead,
         when changes are detected in config mode, the user is prompted to commit these
