@@ -7,9 +7,15 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 class AviatWTMSSH(NoEnable, CiscoSSHConnection):
     """Aviat WTM Outdoor Radio support"""
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        kwargs.setdefault("allow_auto_change", False)
+        return super().__init__(*args, **kwargs)
+
     def session_preparation(self) -> None:
         self._test_channel_read()
-        self.disable_paging()
+        if self.allow_auto_change:
+            self.disable_paging()
+            self.commit()
         self.set_base_prompt()
 
     def disable_paging(
