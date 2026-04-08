@@ -114,6 +114,8 @@
 - Fortinet
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
+- Hioso OLT
+- Huawei ONT
 - Lancom LCOS SX4
 - Moxa EDS
 - MRV Communications OptiSwitch
