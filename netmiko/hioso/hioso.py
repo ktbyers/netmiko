@@ -103,7 +103,7 @@ class HiosoOLTTelnet(HiosoOLTBase):
             raise EOFError
 
         except EOFError:
-            assert self.remote_conn is not None
-            self.remote_conn.close()
+            if self.remote_conn is not None:
+                self.remote_conn.close()
             msg = f"Login failed: {self.host}"
             raise NetmikoAuthenticationException(msg)
