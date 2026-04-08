@@ -14,7 +14,6 @@ from netmiko._telnetlib.telnetlib import (
     ECHO,
     SGA,
     NAWS,
-    Telnet,
 )
 from netmiko.exceptions import NetmikoAuthenticationException
 
@@ -36,7 +35,9 @@ class RaisecomRosBase(CiscoBaseConnection):
         """
         Checks if the device is in configuration mode or not.
         """
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def config_mode(
         self,
@@ -119,7 +120,6 @@ class RaisecomRosTelnet(RaisecomRosBase):
     ) -> str:
 
         # set callback function to handle telnet options.
-        assert isinstance(self.remote_conn, Telnet)
         self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
@@ -160,7 +160,8 @@ class RaisecomRosTelnet(RaisecomRosBase):
                 time.sleep(0.5 * delay_factor)
                 i += 1
             except EOFError:
-                self.remote_conn.close()  # type: ignore
+                if self.remote_conn is not None:
+                    self.remote_conn.close()
                 msg = f"Login failed: {self.host}"
                 raise NetmikoAuthenticationException(msg)
 
@@ -175,5 +176,6 @@ class RaisecomRosTelnet(RaisecomRosBase):
             return return_msg
 
         msg = f"Login failed: {self.host}"
-        self.remote_conn.close()  # type: ignore
+        if self.remote_conn is not None:
+            self.remote_conn.close()
         raise NetmikoAuthenticationException(msg)

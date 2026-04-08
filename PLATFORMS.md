@@ -346,6 +346,7 @@
 - optilink_eolt9702_telnet
 - paloalto_panos_telnet
 - rad_etx_telnet
+- raisecom_ros_telnet
 - raisecom_telnet
 - ruckus_fastiron_telnet
 - ruijie_os_telnet
