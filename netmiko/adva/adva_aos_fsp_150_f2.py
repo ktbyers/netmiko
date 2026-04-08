@@ -74,7 +74,7 @@ class AdvaAosFsp150F2SSH(NoEnable, NoConfig, CiscoSSHConnection):
         else:
             prompt = self.find_prompt(delay_factor=delay_factor)
 
-        if not prompt[-3:] in (pri_prompt_terminator, alt_prompt_terminator):
+        if prompt[-3:] not in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
 
         # If all we have is the 'terminator' just use that :-(
