@@ -28,7 +28,9 @@ class HiosoOLTBase(CiscoBaseConnection):
         pattern: str = r"[>#]",
         force_regex: bool = False,
     ) -> bool:
-        return super().check_config_mode(check_string, pattern, force_regex)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#") -> str:
         """Exit configuration mode."""
@@ -78,6 +80,20 @@ class HiosoOLTTelnet(HiosoOLTBase):
             # Waiting for the prompt or password change message
             output = self.read_until_pattern(pattern=self.prompt_or_password_change)
             return_msg += output
+
+            # "Welcome to Hioso OLT. Please choose the management mode
+            #  (1: CLI, 2: Web Management Selection):" — send "1" for CLI
+            if re.search(r"Please choose", output):
+                self.write_channel("1" + self.TELNET_RETURN)
+                output = self.read_until_pattern(pattern=self.prompt_or_password_change)
+                return_msg += output
+
+            # "The current password is the default password. It is recommended
+            #  to change it for security. Change now? [Y/N]" — send "N" to skip
+            if re.search(r"Change now", output):
+                self.write_channel("N" + self.TELNET_RETURN)
+                output = self.read_until_pattern(pattern=self.prompt_pattern)
+                return_msg += output
 
             # Wait for the prompt
             if re.search(self.prompt_pattern, output):
