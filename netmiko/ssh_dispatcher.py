@@ -111,6 +111,7 @@ from netmiko.hioso import HiosoOLTTelnet
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI
+from netmiko.huawei import HuaweiONTSSH, HuaweiONTTelnet
 from netmiko.infinera import InfineraPacketSSH, InfineraPacketTelnet
 from netmiko.ipinfusion import IpInfusionOcNOSSSH, IpInfusionOcNOSTelnet
 from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
@@ -292,6 +293,7 @@ CLASS_MAPPER_BASE = {
     "huawei_smartaxmmi": HuaweiSmartAXSSHMMI,
     "huawei_smartax": HuaweiSmartAXSSH,
     "huawei_olt": HuaweiSmartAXSSH,
+    "huawei_ont": HuaweiONTSSH,
     "huawei_vrp": HuaweiSSH,
     "huawei_vrpv8": HuaweiVrpv8SSH,
     "infinera_packet": InfineraPacketSSH,
@@ -421,6 +423,7 @@ CLASS_MAPPER["hioso_olt_telnet"] = HiosoOLTTelnet
 CLASS_MAPPER["hp_procurve_telnet"] = HPProcurveTelnet
 CLASS_MAPPER["hp_comware_telnet"] = HPComwareTelnet
 CLASS_MAPPER["huawei_telnet"] = HuaweiTelnet
+CLASS_MAPPER["huawei_ont_telnet"] = HuaweiONTTelnet
 CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["infinera_packet_telnet"] = InfineraPacketTelnet
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
