@@ -4,6 +4,7 @@ Use processes and Netmiko to connect to each of the devices. Execute
 'show version' on each device. Use a queue to pass the output back to the parent process.
 Record the amount of time required to do this.
 """
+
 from __future__ import print_function, unicode_literals
 from multiprocessing import Process, Queue
 

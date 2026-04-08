@@ -126,9 +126,7 @@ def log_writes(func: F) -> F:
         func(self, out_data)
         try:
             log.debug(
-                "write_channel: {}".format(
-                    str(write_bytes(out_data, encoding=self.encoding))
-                )
+                "write_channel: {}".format(str(write_bytes(out_data, encoding=self.encoding)))
             )
             if self.session_log:
                 if self.session_log.fin or self.session_log.record_writes:
@@ -178,22 +176,22 @@ class BaseConnection:
         #       --> Auth response (auth_timeout)
         # For telnet 'conn_timeout' is mapped to main telnet timeout (which is used for both the
         # telnet connection and for other blocking operations).
-        conn_timeout: int = 10,
+        conn_timeout: float = 10,
         # Timeout to wait for authentication response
-        auth_timeout: Optional[int] = None,
-        banner_timeout: int = 15,  # Timeout to wait for the banner to be presented
+        auth_timeout: Optional[float] = None,
+        banner_timeout: float = 15,  # Timeout to wait for the banner to be presented
         # Other timeouts
-        blocking_timeout: int = 20,  # Read blocking timeout
+        blocking_timeout: float = 20,  # Read blocking timeout
         timeout: int = 100,  # TCP connect timeout | overloaded to read-loop timeout
-        session_timeout: int = 60,  # Used for locking/sharing the connection
+        session_timeout: float = 60,  # Used for locking/sharing the connection
         read_timeout_override: Optional[float] = None,
-        keepalive: int = 0,
+        keepalive: float = 0,
         default_enter: Optional[str] = None,
         response_return: Optional[str] = None,
         serial_settings: Optional[Dict[str, Any]] = None,
         fast_cli: bool = True,
         _legacy_mode: bool = False,
-        session_log: Optional[SessionLog] = None,
+        session_log: Optional[Union[str, io.BufferedIOBase, SessionLog]] = None,
         session_log_record_writes: bool = False,
         session_log_file_mode: str = "write",
         allow_auto_change: bool = False,
@@ -323,9 +321,7 @@ class BaseConnection:
                 (default: False)
         """
 
-        self.remote_conn: Union[
-            None, telnetlib.Telnet, paramiko.Channel, serial.Serial
-        ] = None
+        self.remote_conn: Union[None, telnetlib.Telnet, paramiko.Channel, serial.Serial] = None
         # Does the platform support a configuration mode
         self._config_mode = True
         self._read_buffer = ""
@@ -463,9 +459,7 @@ class BaseConnection:
 
             # Options for SSH host_keys
             self.use_keys = use_keys
-            self.key_file = (
-                path.abspath(path.expanduser(key_file)) if key_file else None
-            )
+            self.key_file = path.abspath(path.expanduser(key_file)) if key_file else None
             if self.use_keys is True:
                 self._key_check()
             self.pkey = pkey
@@ -483,9 +477,7 @@ class BaseConnection:
                 else:
                     # Merge sha2_pubkeys into pubkeys and prevent duplicates
                     current_pubkeys = self.disabled_algorithms.get("pubkeys", [])
-                    self.disabled_algorithms["pubkeys"] = list(
-                        set(current_pubkeys + sha2_pubkeys)
-                    )
+                    self.disabled_algorithms["pubkeys"] = list(set(current_pubkeys + sha2_pubkeys))
 
             # For SSH proxy support
             self.ssh_config_file = ssh_config_file
@@ -723,7 +715,10 @@ parenthesis completely wrap the pattern '(pattern)'"""
                     pattern = f"({pattern})"
                     results = re.split(pattern, output, maxsplit=1, flags=re_flags)
 
-                if len(results) != 3:
+                if len(results) == 3:
+                    output, match_str, buffer = results
+
+                if len(results) != 3 or match_str is None:
                     # well, we tried
                     msg = f"""Unable to successfully split output based on pattern:
 pattern={pattern}
@@ -734,7 +729,6 @@ results={results}
 
                 # Process such that everything before and including pattern is return.
                 # Everything else is retained in the _read_buffer
-                output, match_str, buffer = results
                 output = output + match_str
                 if buffer:
                     self._read_buffer += buffer
@@ -945,9 +939,9 @@ You can look at the Netmiko session_log or debug log for more information.
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                        alt_prompt_terminator, output, flags=re.M
+                    ):
                         return return_msg
 
                 # Check if proper data received
@@ -1041,9 +1035,7 @@ You can look at the Netmiko session_log or debug log for more information.
         elif "proxyjump" in source:
             hops = list(reversed(source["proxyjump"].split(",")))
             if len(hops) > 1:
-                raise ValueError(
-                    "ProxyJump with more than one proxy server is not supported."
-                )
+                raise ValueError("ProxyJump with more than one proxy server is not supported.")
             port = source.get("port", self.port)
             host = source.get("hostname", self.host)
             # -F {full_path} forces the continued use of the same SSH config file
@@ -1226,9 +1218,7 @@ A paramiko SSHException occurred during connection creation:
         :param pattern: Regular expression pattern used to determine end of channel read
         """
 
-        def _increment_delay(
-            main_delay: float, increment: float = 1.1, maximum: int = 8
-        ) -> float:
+        def _increment_delay(main_delay: float, increment: float = 1.1, maximum: int = 8) -> float:
             """Increment sleep time to a maximum value."""
             main_delay = main_delay * increment
             if main_delay >= maximum:
@@ -1256,10 +1246,14 @@ A paramiko SSHException occurred during connection creation:
 
         raise NetmikoTimeoutException("Timed out waiting for data")
 
+    def _get_ssh_client_instance(self) -> paramiko.SSHClient:
+        """Return the appropriate SSHClient instance for this connection."""
+        return paramiko.SSHClient()
+
     def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
-        remote_conn_pre = paramiko.SSHClient()
+        remote_conn_pre = self._get_ssh_client_instance()
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
@@ -1320,9 +1314,7 @@ A paramiko SSHException occurred during connection creation:
         self.write_channel(command)
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         if cmd_verify and self.global_cmd_verify is not False:
-            output = self.read_until_pattern(
-                pattern=re.escape(command.strip()), read_timeout=20
-            )
+            output = self.read_until_pattern(pattern=re.escape(command.strip()), read_timeout=20)
         elif pattern:
             output = self.read_until_pattern(pattern=pattern, read_timeout=20)
         else:
@@ -1393,7 +1385,7 @@ A paramiko SSHException occurred during connection creation:
             if pri_prompt_terminator and alt_prompt_terminator:
                 pri_term = re.escape(pri_prompt_terminator)
                 alt_term = re.escape(alt_prompt_terminator)
-                pattern = rf"({pri_term}|{alt_term})"
+                pattern = rf"(?:{pri_term}|{alt_term})"
             elif pri_prompt_terminator:
                 pattern = re.escape(pri_prompt_terminator)
             elif alt_prompt_terminator:
@@ -1404,7 +1396,7 @@ A paramiko SSHException occurred during connection creation:
         else:
             prompt = self.find_prompt(delay_factor=delay_factor)
 
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+        if prompt[-1] not in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
 
         # If all we have is the 'terminator' just use that :-(
@@ -1415,15 +1407,14 @@ A paramiko SSHException occurred during connection creation:
             self.base_prompt = prompt[:-1]
         return self.base_prompt
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         """Finds the current network device prompt, last line only.
 
         :param delay_factor: See __init__: global_delay_factor
         :type delay_factor: int
 
-        :param pattern: Regular expression pattern to determine whether prompt is valid
+        :param pattern: Regular expression pattern to read until (not used in
+        most situations).
         """
         delay_factor = self.select_delay_factor(delay_factor)
         sleep_time = delay_factor * 0.25
@@ -1488,9 +1479,7 @@ A paramiko SSHException occurred during connection creation:
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        new_data = self.read_until_pattern(
-            pattern=re.escape(cmd), read_timeout=read_timeout
-        )
+        new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
 
         # There can be echoed prompts that haven't been cleared before the cmd echo
         # this can later mess up the trailing prompt pattern detection. Clear this out.
@@ -1575,9 +1564,7 @@ A paramiko SSHException occurred during connection creation:
         if cmd and cmd_verify:
             new_data = self.command_echo_read(cmd=cmd, read_timeout=10)
         output += new_data
-        output += self.read_channel_timing(
-            last_read=last_read, read_timeout=read_timeout
-        )
+        output += self.read_channel_timing(last_read=last_read, read_timeout=read_timeout)
 
         output = self._sanitize_output(
             output,
@@ -1804,9 +1791,7 @@ before timing out.\n"""
                 # Case where we haven't processed the first_line yet (there is a potential issue
                 # in the first line (in cases where the line is repainted).
                 if not first_line_processed:
-                    output, first_line_processed = self._first_line_handler(
-                        output, search_pattern
-                    )
+                    output, first_line_processed = self._first_line_handler(output, search_pattern)
                     # Check if we have already found our pattern
                     if re.search(search_pattern, output):
                         break
@@ -1908,9 +1893,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             # If list of commands just send directly using default_expect_string (probably prompt)
             for cmd in commands:
                 cmd = str(cmd)
-                output += self._send_command_str(
-                    cmd, expect_string=default_expect_string, **kwargs
-                )
+                output += self._send_command_str(cmd, expect_string=default_expect_string, **kwargs)
         else:
             # If list of lists, then first element is cmd and second element is expect_string
             for cmd_item in commands:
@@ -1918,9 +1901,7 @@ You can also look at the Netmiko session_log or debug log for more information.
                 cmd, expect_string = cmd_item
                 if not expect_string:
                     expect_string = default_expect_string
-                output += self._send_command_str(
-                    cmd, expect_string=expect_string, **kwargs
-                )
+                output += self._send_command_str(cmd, expect_string=expect_string, **kwargs)
         return output
 
     def send_multiline_timing(
@@ -2008,6 +1989,31 @@ You can also look at the Netmiko session_log or debug log for more information.
         output = self.read_until_prompt(read_entire_line=True)
         return check_string in output
 
+    def enable_secret_handler(
+        self,
+        pattern: str,
+        output: str,
+        re_flags: int = re.IGNORECASE,
+    ) -> str:
+        """
+        Some platforms require special handling when entering 'enable' mode.
+
+        Send the "secret" in response to password pattern
+
+        :param pattern: pattern to search for indicating device is waiting for password
+
+        :param output: Accumulated output from 'enable()' method.
+
+        :param re_flags: Regular expression flags used in conjunction with pattern
+
+        """
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+            new_output = self.read_until_prompt()
+        else:
+            new_output = ""
+        return new_output
+
     def enable(
         self,
         cmd: str = "",
@@ -2048,13 +2054,10 @@ You can also look at the Netmiko session_log or debug log for more information.
 
             # Search for trailing prompt or password pattern
             output += self.read_until_prompt_or_pattern(
-                pattern=pattern, re_flags=re_flags
+                pattern=pattern, re_flags=re_flags, read_entire_line=True
             )
 
-            # Send the "secret" in response to password pattern
-            if re.search(pattern, output):
-                self.write_channel(self.normalize_cmd(self.secret))
-                output += self.read_until_prompt()
+            output += self.enable_secret_handler(pattern=pattern, output=output, re_flags=re_flags)
 
             # Search for terminating pattern if defined
             if enable_pattern and not re.search(enable_pattern, output):
@@ -2109,9 +2112,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         else:
             return check_string in output
 
-    def config_mode(
-        self, config_command: str = "", pattern: str = "", re_flags: int = 0
-    ) -> str:
+    def config_mode(self, config_command: str = "", pattern: str = "", re_flags: int = 0) -> str:
         """Enter into config_mode.
 
         :param config_command: Configuration command to send to the device
@@ -2128,9 +2129,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.write_channel(self.normalize_cmd(config_command))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(
-                    pattern=re.escape(config_command.strip())
-                )
+                output += self.read_until_pattern(pattern=re.escape(config_command.strip()))
             if pattern:
                 output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
             else:
@@ -2153,9 +2152,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             self.write_channel(self.normalize_cmd(exit_config))
             # Make sure you read until you detect the command echo (avoid getting out of sync)
             if self.global_cmd_verify is not False:
-                output += self.read_until_pattern(
-                    pattern=re.escape(exit_config.strip())
-                )
+                output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
             if pattern:
                 output += self.read_until_pattern(pattern=pattern)
             else:
@@ -2510,9 +2507,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         """Commit method for platforms that support this."""
         raise AttributeError("Network device does not support 'commit()' method")
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         """Not Implemented"""
         raise NotImplementedError
 
@@ -2548,9 +2543,7 @@ You can also look at the Netmiko session_log or debug log for more information.
         """
         if res_kwargs is None:
             res_kwargs = {}
-        return run_ttp_template(
-            connection=self, template=template, res_kwargs=res_kwargs, **kwargs
-        )
+        return run_ttp_template(connection=self, template=template, res_kwargs=res_kwargs, **kwargs)
 
 
 class TelnetConnection(BaseConnection):

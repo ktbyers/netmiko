@@ -29,9 +29,7 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         """
         no_license_message = 'Please press "Enter" to continue!'
         license_prompt = "Do you want to see the software license"
-        combined_pattern = (
-            rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})"
-        )
+        combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})"
 
         data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
         if no_license_message in data:
@@ -61,6 +59,20 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
     def disable_paging(self, *args: Any, **kwargs: Any) -> str:
         """Mikrotik does not have paging by default."""
         return ""
+
+    def _prompt_handler(self, auto_find_prompt: bool) -> str:
+        """Prompt regex for MikroTik is generated to match
+        only if the prompt string is at the end of the string
+        (with no more printable characters printed after it)
+        """
+        if auto_find_prompt:
+            try:
+                prompt = self.find_prompt()
+            except ValueError:
+                prompt = self.base_prompt
+        else:
+            prompt = self.base_prompt
+        return re.escape(prompt.strip()) + r"[ \t]*$"
 
     def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output.
@@ -189,10 +201,7 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
             # Output will look like
             # 0 name="flash/test9.txt" type=".txt file" size=19 creation-time=jun...
             # fail case will be blank line (all whitespace)
-            if (
-                "size" in remote_out
-                and f"{self.file_system}/{self.dest_file}" in remote_out
-            ):
+            if "size" in remote_out and f"{self.file_system}/{self.dest_file}" in remote_out:
                 return True
             elif not remote_out.strip():
                 return False
@@ -208,13 +217,11 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
         sys_res = self.ssh_ctl_chan._send_command_timing_str(remote_cmd).splitlines()
         for res in sys_res:
             if "free-memory" in res:
-                spaceMib = res.strip().replace("free-memory: ", "").replace("MiB", "")
-                return int(float(spaceMib) * 1048576)
+                space_str = res.strip().replace("free-memory: ", "")
+                return self._format_to_bytes(space_str)
         raise ValueError("Unexpected output from remote_space_available")
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -225,9 +232,7 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
                 raise ValueError("Invalid value for file transfer direction.")
 
         if not remote_cmd:
-            remote_cmd = (
-                f'/file print detail where name="{self.file_system}/{remote_file}"'
-            )
+            remote_cmd = f'/file print detail where name="{self.file_system}/{remote_file}"'
         remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
         try:
             size = remote_out.split("size=")[1].split(" ")[0]
@@ -236,25 +241,17 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
             raise ValueError("Unable to find file on remote system")
 
     def file_md5(self, file_name: str, add_newline: bool = False) -> str:
-        raise AttributeError(
-            "RouterOS does not natively support an MD5-hash operation."
-        )
+        raise AttributeError("RouterOS does not natively support an MD5-hash operation.")
 
     @staticmethod
     def process_md5(md5_output: str, pattern: str = "") -> str:
-        raise AttributeError(
-            "RouterOS does not natively support an MD5-hash operation."
-        )
+        raise AttributeError("RouterOS does not natively support an MD5-hash operation.")
 
     def compare_md5(self) -> bool:
-        raise AttributeError(
-            "RouterOS does not natively support an MD5-hash operation."
-        )
+        raise AttributeError("RouterOS does not natively support an MD5-hash operation.")
 
     def remote_md5(self, base_cmd: str = "", remote_file: Optional[str] = None) -> str:
-        raise AttributeError(
-            "RouterOS does not natively support an MD5-hash operation."
-        )
+        raise AttributeError("RouterOS does not natively support an MD5-hash operation.")
 
     def verify_file(self) -> bool:
         """
@@ -264,15 +261,11 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
         """
         if self.direction == "put":
             local_size = self._format_bytes(os.stat(self.source_file).st_size)
-            remote_size = self._format_bytes(
-                self.remote_file_size(remote_file=self.dest_file)
-            )
+            remote_size = self._format_bytes(self.remote_file_size(remote_file=self.dest_file))
             return local_size == remote_size
         elif self.direction == "get":
             local_size = self._format_bytes(os.stat(self.dest_file).st_size)
-            remote_size = self._format_bytes(
-                self.remote_file_size(remote_file=self.source_file)
-            )
+            remote_size = self._format_bytes(self.remote_file_size(remote_file=self.source_file))
             return local_size == remote_size
         else:
             raise ValueError("Unexpected value of self.direction")

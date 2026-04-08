@@ -11,7 +11,6 @@ A set of common Netmiko use cases.
 
 #### Available Device Types
 - [Available device types](#available-device-types-1)
-
 #### Simple Examples
 - [Simple example](#simple-example)
 - [Connect using a dictionary](#connect-using-a-dictionary)
@@ -662,6 +661,9 @@ device = {
 commands = ["logging buffered 100000"]
 with ConnectHandler(**device) as net_connect:
     output = net_connect.send_config_set(commands)
+    # use the appropriate function for your Netmiko platform:
+    # commit for Cisco-XR, Juniper-Junos, Palo Alto; save_config for others
+    # output += net_connect.commit()
     output += net_connect.save_config()
 
 print()
@@ -713,6 +715,9 @@ device1 = {
 cfg_file = "config_changes.txt"
 with ConnectHandler(**device1) as net_connect:
     output = net_connect.send_config_from_file(cfg_file)
+    # use the appropriate function for your Netmiko platform:
+    # commit for Cisco-XR, Juniper-Junos, Palo Alto; save_config for others
+    # output += net_connect.commit()
     output += net_connect.save_config()
 
 print()

@@ -38,9 +38,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         """Not Implemented (use commit() method)"""
         raise NotImplementedError
 
-    def commit(
-        self, read_timeout: float = 120.0, delay_factor: Optional[float] = None
-    ) -> str:
+    def commit(self, read_timeout: float = 120.0, delay_factor: Optional[float] = None) -> str:
         """
         Commit the candidate configuration.
         Commit the entered configuration.
@@ -62,19 +60,13 @@ class EltexEsrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        output = self._send_command_str(
-            command_string=command_string, read_timeout=read_timeout
-        )
+        output = self._send_command_str(command_string=command_string, read_timeout=read_timeout)
 
         if error_marker in output:
-            raise ValueError(
-                "Commit failed with following errors:\n\n{}".format(output)
-            )
+            raise ValueError("Commit failed with following errors:\n\n{}".format(output))
         return output
 
-    def _confirm(
-        self, read_timeout: float = 120.0, delay_factor: Optional[float] = None
-    ) -> str:
+    def _confirm(self, read_timeout: float = 120.0, delay_factor: Optional[float] = None) -> str:
         """
         Confirm the candidate configuration.
         Raise an error and return the failure if the confirm fails.
@@ -92,19 +84,13 @@ class EltexEsrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        output = self._send_command_str(
-            command_string=command_string, read_timeout=read_timeout
-        )
+        output = self._send_command_str(command_string=command_string, read_timeout=read_timeout)
 
         if error_marker in output:
-            raise ValueError(
-                "Confirm failed with following errors:\n\n{}".format(output)
-            )
+            raise ValueError("Confirm failed with following errors:\n\n{}".format(output))
         return output
 
-    def _restore(
-        self, read_timeout: float = 120.0, delay_factor: Optional[float] = None
-    ) -> str:
+    def _restore(self, read_timeout: float = 120.0, delay_factor: Optional[float] = None) -> str:
         """
         Restore the candidate configuration.
 
@@ -123,12 +109,8 @@ class EltexEsrSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        output = self._send_command_str(
-            command_string=command_string, read_timeout=read_timeout
-        )
+        output = self._send_command_str(command_string=command_string, read_timeout=read_timeout)
 
         if error_marker in output:
-            raise ValueError(
-                "Restore failed with following errors:\n\n{}".format(output)
-            )
+            raise ValueError("Restore failed with following errors:\n\n{}".format(output))
         return output

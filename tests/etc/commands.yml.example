@@ -67,6 +67,12 @@ cisco_asa:
   config_verification: "show run | inc logging buffer"
   config_file: "cisco_asa_commands.txt"
 
+cisco_ap:
+  version: "show version"
+  basic: "show ip interface brief"
+  wide_command: "show configuration wlan myverybiglonglistthatdoesntexistandwherethisexceeds80characterssolinewrappingoccurs"
+  extended_output: "show version" # requires paging to be disabled
+
 arista_eos:
   version: "show version"
   basic: "show ip int brief"
@@ -618,3 +624,14 @@ fiberstore_fsos:
     - 'no logging console'
     - 'logging buffered severity 3'
   config_verification: "show run"
+
+fs_os:
+  version: "show version"
+  basic: "show ip interface brief"
+  extended_output: "show run"
+  config:
+    - "logging buffered 4096"
+  config_verification: "show run | inc logging buffer"
+  save_config_cmd: 'write'
+  save_config_confirm: False
+  save_config_response: 'OK'

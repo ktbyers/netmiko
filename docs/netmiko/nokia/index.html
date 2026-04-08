@@ -283,7 +283,7 @@ A:ams01#</p>
 
     def check_config_mode(
         self,
-        check_string: str = r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate&#34;,
+        check_string: str = r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* | \+\!\* | \+\! )candidate&#34;,
         pattern: str = r&#34;#&#34;,
         force_regex: bool = True,
     ) -&gt; bool:
@@ -365,7 +365,9 @@ A:ams01#</p>
         The exclamation mark (!) in the prompt indicates that another user has commited
         changes to the running datastore.
         &#34;&#34;&#34;
-        matches = re.search(r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* )candidate&#34;, prompt)
+        matches = re.search(
+            r&#34;\n--{( | \* | \+ | \+\* | \!\+ | \!\* | \+\!\* | \+\! )candidate&#34;, prompt
+        )
         return True if matches and &#34;*&#34; in matches.group() else False</code></pre>
 </details>
 <h3>Ancestors</h3>

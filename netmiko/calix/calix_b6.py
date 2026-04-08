@@ -2,7 +2,6 @@
 
 from typing import Any
 import time
-from os import path
 
 from paramiko import SSHClient
 
@@ -75,9 +74,7 @@ Login process failed to Calix B6 device. Unable to login in {login_timeout} seco
         confirm: bool = False,
         confirm_response: str = "",
     ) -> str:
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class CalixB6SSH(CalixB6Base):
@@ -87,24 +84,11 @@ class CalixB6SSH(CalixB6Base):
     the username/password.
     """
 
-    def _build_ssh_client(self) -> SSHClient:
-        """Prepare for Paramiko SSH connection."""
-        # Create instance of SSHClient object
-        # If not using SSH keys, we use noauth
-        if not self.use_keys:
-            remote_conn_pre: SSHClient = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """If not using SSH keys or agent, use noauth."""
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_noauth()
+        return SSHClient()
 
 
 class CalixB6Telnet(CalixB6Base):

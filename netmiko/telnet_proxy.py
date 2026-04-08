@@ -50,9 +50,7 @@ class Telnet(telnetlib.Telnet):
         self.timeout = timeout
 
         if SOCKS_SUPPORTED:
-            self.sock = socks.create_connection(
-                (host, port), timeout, **self.proxy_dict
-            )
+            self.sock = socks.create_connection((host, port), timeout, **self.proxy_dict)
         else:
             msg = """
 In order to use the telnet socks proxy, you must 'pip install pysocks'. Note, pysocks is
