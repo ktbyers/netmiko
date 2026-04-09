@@ -1,5 +1,5 @@
 import re
-from typing import Any, Optional
+from typing import Any, Iterator, Optional, Sequence, TextIO, Union
 
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.exceptions import NetmikoTimeoutException
@@ -91,7 +91,7 @@ class AvaraAosSSH(CiscoSSHConnection):
 
     def send_config_set(
         self,
-        config_commands: Any = None,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         terminator: str = "%",
         **kwargs: Any,
