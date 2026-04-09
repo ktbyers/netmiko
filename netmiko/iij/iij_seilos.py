@@ -1,4 +1,4 @@
-"""IIJ SEIL device support (currently tested on SEIL/x86 Ayame)."""
+"""IIJ SEIL OS device support (currently tested on SEIL/x86 Ayame)."""
 
 import re
 import time
@@ -9,8 +9,8 @@ from netmiko.no_config import NoConfig
 from netmiko.base_connection import BaseConnection
 
 
-class SeilBase(NoEnable, NoConfig, BaseConnection):
-    """Common methods for IIJ SEIL devices."""
+class IIJSeilosBase(NoEnable, NoConfig, BaseConnection):
+    """Common methods for IIJ SEIL OS devices."""
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -39,18 +39,18 @@ class SeilBase(NoEnable, NoConfig, BaseConnection):
     ) -> str:
         """Save the running configuration to flash memory."""
         if confirm is True:
-            raise ValueError("SEIL does not support save_config confirmation.")
+            raise ValueError("IIJ SEIL OS does not support save_config confirmation.")
         return self._send_command_str(command_string=cmd)
 
 
-class SeilSSH(SeilBase):
-    """IIJ SEIL SSH driver."""
+class IIJSeilosSSH(IIJSeilosBase):
+    """IIJ SEIL OS SSH driver."""
 
     pass
 
 
-class SeilTelnet(SeilBase):
-    """IIJ SEIL Telnet driver."""
+class IIJSeilosTelnet(IIJSeilosBase):
+    """IIJ SEIL OS Telnet driver."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         default_enter = kwargs.get("default_enter")

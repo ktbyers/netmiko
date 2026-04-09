@@ -116,6 +116,7 @@
 - Genexis Saturn SOLT33 (telnet only)
 - Hioso OLT
 - Huawei ONT
+- IIJ SEIL
 - Lancom LCOS SX4
 - Moxa EDS
 - MRV Communications OptiSwitch
@@ -280,6 +281,7 @@
 - raisecom_ros
 - ruckus_fastiron
 - ruijie_os
+- iij_seilos
 - silverpeak_vxoa
 - sixwind_os
 - sophos_sfos
@@ -350,6 +352,7 @@
 - raisecom_telnet
 - ruckus_fastiron_telnet
 - ruijie_os_telnet
+- iij_seilos_telnet
 - supermicro_smis_telnet
 - telcosystems_binos_telnet
 - teldat_cit_telnet
