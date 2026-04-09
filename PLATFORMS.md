@@ -127,6 +127,7 @@
 - QuantaMesh
 - Rad ETX
 - Raisecom ROAP
+- Raisecom ROS
 - Silver Peak VXOA
 - Sophos SFOS
 - Telco Systems BiNOS
@@ -276,6 +277,7 @@
 - quanta_mesh
 - rad_etx
 - raisecom_roap
+- raisecom_ros
 - ruckus_fastiron
 - ruijie_os
 - silverpeak_vxoa
@@ -344,6 +346,7 @@
 - optilink_eolt9702_telnet
 - paloalto_panos_telnet
 - rad_etx_telnet
+- raisecom_ros_telnet
 - raisecom_telnet
 - ruckus_fastiron_telnet
 - ruijie_os_telnet
