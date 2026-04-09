@@ -1,5 +1,3 @@
-from netmiko.avara.avara import AvaraSSH
+from netmiko.avara.avara_aos import AvaraAosSSH
 
-__all__ = [
-    "AvaraSSH",
-]
+__all__ = ["AvaraAosSSH"]
