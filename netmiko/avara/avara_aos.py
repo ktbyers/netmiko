@@ -27,7 +27,7 @@ class AvaraAosSSH(CiscoSSHConnection):
         check_state: bool = False,
         re_flags: int = re.IGNORECASE,
     ) -> str:
-        """Enter enable mode, which is configuration mode on Avara AOS devices."""
+        """Enable mode and config mode on Avara are the same."""
         error_msg = (
             "Failed to enter enable mode. Please ensure you pass "
             "the 'secret' argument to ConnectHandler."
@@ -61,11 +61,22 @@ class AvaraAosSSH(CiscoSSHConnection):
         pattern: str = "",
         re_flags: int = 0,
     ) -> str:
-        """Redirect config_mode to enable — Avara AOS has no separate config mode."""
+        """Enable mode and config mode on Avara are the same."""
         return self.enable()
 
     def exit_enable_mode(self, exit_command: str = "disable") -> str:
+        """Enable mode and config mode on Avara are the same."""
         return self.exit_config_mode(exit_config=exit_command)
+
+    def exit_config_mode(
+        self, exit_config: str = "disable", pattern: str = r"Edit mode exited\."
+    ) -> str:
+        """Enable mode and config mode on Avara are the same."""
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
+
+    def check_enable_mode(self, check_string: str = "* %") -> bool:
+        """Enable mode and config mode on Avara are the same."""
+        return self.check_config_mode(check_string=check_string)
 
     def check_config_mode(
         self,
@@ -73,6 +84,7 @@ class AvaraAosSSH(CiscoSSHConnection):
         pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
+        """Enable mode and config mode on Avara are the same."""
         self.write_channel(self.RETURN)
         output = self.read_channel_timing(read_timeout=0.5)
         return check_string in output
@@ -90,11 +102,6 @@ class AvaraAosSSH(CiscoSSHConnection):
             terminator=terminator,
             **kwargs,
         )
-
-    def exit_config_mode(
-        self, exit_config: str = "disable", pattern: str = r"Edit mode exited\."
-    ) -> str:
-        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def save_config(
         self, cmd: str = "save flash", confirm: bool = False, confirm_response: str = ""
