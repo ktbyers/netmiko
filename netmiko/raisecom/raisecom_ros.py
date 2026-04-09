@@ -1,7 +1,9 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.ssh_auth import SSHClient_noauth
 import re
 import time
 from socket import socket
+from paramiko import SSHClient
 
 from netmiko._telnetlib.telnetlib import (
     IAC,
@@ -38,6 +40,12 @@ class RaisecomRosBase(CiscoBaseConnection):
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
+
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """If not using SSH keys or agent, use noauth."""
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_noauth()
+        return SSHClient()
 
     def config_mode(
         self,
