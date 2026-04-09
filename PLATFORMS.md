@@ -113,7 +113,7 @@
 - Fiberstore NetworkOS
 - Fiberstore FS-OS (V2)
 - Fortinet
-- Fsas Technologies (Fujitsu) Si-R
+- Fujitsu Si-R (Fsas Technologies)
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
 - Hioso OLT
@@ -238,7 +238,7 @@
 - fiberstore_networkos
 - flexvnf
 - fortinet
-- fsas_sir
+- fujitsu_sir
 - garderos_grs
 - generic
 - generic_termserver

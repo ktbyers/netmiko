@@ -5,7 +5,7 @@ from typing import Optional
 from netmiko.base_connection import BaseConnection
 
 
-class FsasSirBase(BaseConnection):
+class FujitsuSirBase(BaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -63,31 +63,14 @@ class FsasSirBase(BaseConnection):
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
-    def commit(
-        self,
-        cmd: str = "commit",
-        read_timeout: float = 120.0,
-    ) -> str:
-        """Commit the candidate configuration."""
-        self.config_mode()
-        return self._send_command_str(
-            command_string=cmd,
-            strip_prompt=False,
-            strip_command=False,
-            read_timeout=read_timeout,
-        )
-
     def save_config(
         self,
-        cmd: str = "save",
+        cmd: str = "commit",
         confirm: bool = False,
         confirm_response: str = "",
         read_timeout: float = 120.0,
     ) -> str:
-        """Saves Config."""
-        if confirm is True:
-            raise ValueError("Fsas Si-R does not support save_config confirmation.")
-        self.config_mode()
+        """Persist running configuration to flash memory."""
         return self._send_command_str(
             command_string=cmd,
             strip_prompt=False,
@@ -96,7 +79,7 @@ class FsasSirBase(BaseConnection):
         )
 
 
-class FsasSirSSH(FsasSirBase):
-    """FsasSir SSH driver."""
+class FujitsuSirSSH(FujitsuSirBase):
+    """Fujitsu Si-R SSH driver."""
 
     pass
