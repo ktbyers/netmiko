@@ -7,9 +7,7 @@ from netmiko import ReadTimeout
 
 def execute_cmd(conn, pattern, read_timeout, cmd="show tech-support\n", max_loops=None):
     conn.write_channel("show tech-support\n")
-    return conn.read_until_pattern(
-        pattern=pattern, read_timeout=read_timeout, max_loops=max_loops
-    )
+    return conn.read_until_pattern(pattern=pattern, read_timeout=read_timeout, max_loops=max_loops)
 
 
 def my_cleanup(conn, sleep=180):
@@ -53,9 +51,7 @@ def show_long_running_notimeout(conn, read_timeout):
 def test_read_longrunning_cmd(net_connect_newconn):
 
     read_timeout = 300
-    output, exec_time = show_long_running_notimeout(
-        net_connect_newconn, read_timeout=read_timeout
-    )
+    output, exec_time = show_long_running_notimeout(net_connect_newconn, read_timeout=read_timeout)
     assert "show interface" in output
     assert exec_time.total_seconds() > 10
 

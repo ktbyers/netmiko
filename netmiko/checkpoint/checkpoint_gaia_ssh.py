@@ -35,6 +35,18 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
+    def cleanup(self, command: str = "exit") -> None:
+        """Gracefully exit the SSH session."""
+        try:
+            if self.check_enable_mode():
+                self.exit_enable_mode()
+        except Exception:
+            pass
+        # Always try to send final 'exit' (command)
+        if self.session_log:
+            self.session_log.fin = True
+        self.write_channel(command + self.RETURN)
+
     def check_enable_mode(self, check_string: str = "#") -> bool:
         """Check if in enable mode. Return boolean."""
         return super().check_enable_mode(check_string=check_string)
@@ -94,6 +106,21 @@ class CheckPointGaiaSSH(NoConfig, BaseConnection):
         return output
 
     def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
+        self,
+        cmd: str = "save config",
+        confirm: bool = False,
+        confirm_response: str = "",
     ) -> str:
-        raise NotImplementedError
+        output = ""
+        if self.check_enable_mode():
+            self.write_channel(self.normalize_cmd("exit"))
+            output += self.read_until_pattern(pattern=r">")
+            self.set_base_prompt()
+
+        output += self._send_command_str(
+            command_string=cmd,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=100.0,
+        )
+        return output

@@ -61,6 +61,4 @@ class EndaceSSH(CiscoSSHConnection):
     ) -> str:
         self.enable()
         self.config_mode()
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)

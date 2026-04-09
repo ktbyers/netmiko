@@ -182,9 +182,7 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
 
     if config_list and error_pattern:
         with pytest.raises(ConfigInvalidException):
-            net_connect.send_config_set(
-                config_commands=config_list, error_pattern=error_pattern
-            )
+            net_connect.send_config_set(config_commands=config_list, error_pattern=error_pattern)
 
         # Try it with cmd_verify=True also
         with pytest.raises(ConfigInvalidException):

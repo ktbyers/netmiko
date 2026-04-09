@@ -1,7 +1,9 @@
 from netmiko.cisco_base_connection import CiscoBaseConnection
+from netmiko.ssh_auth import SSHClient_noauth
 import re
 import time
 from socket import socket
+from paramiko import SSHClient
 
 from netmiko._telnetlib.telnetlib import (
     IAC,
@@ -38,6 +40,12 @@ class RaisecomRoapBase(CiscoBaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """If not using SSH keys or agent, use noauth."""
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_noauth()
+        return SSHClient()
+
     def save_config(
         self,
         cmd: str = "write startup-config",
@@ -47,9 +55,7 @@ class RaisecomRoapBase(CiscoBaseConnection):
         """Saves Config."""
         self.exit_config_mode()
         self.enable()
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class RaisecomRoapSSH(RaisecomRoapBase):
@@ -138,9 +144,9 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
                     time.sleep(0.5 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
-                    if re.search(
-                        pri_prompt_terminator, output, flags=re.M
-                    ) or re.search(alt_prompt_terminator, output, flags=re.M):
+                    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                        alt_prompt_terminator, output, flags=re.M
+                    ):
                         return return_msg
 
                 # Check if proper data received

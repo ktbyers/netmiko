@@ -30,9 +30,7 @@ class FlexvnfSSH(NoEnable, BaseConnection):
             self.write_channel(self.RETURN)
             time.sleep(0.1 * delay_factor)
             cur_prompt = self.read_channel()
-            if re.search(r"admin@", cur_prompt) or re.search(
-                r"\$$", cur_prompt.strip()
-            ):
+            if re.search(r"admin@", cur_prompt) or re.search(r"\$$", cur_prompt.strip()):
                 self.write_channel("cli" + self.RETURN)
                 time.sleep(0.3 * delay_factor)
                 self.clear_buffer()
@@ -115,9 +113,7 @@ class FlexvnfSSH(NoEnable, BaseConnection):
             raise ValueError("Invalid arguments supplied with commit check")
 
         if confirm_delay and not confirm:
-            raise ValueError(
-                "Invalid arguments supplied to commit method both confirm and check"
-            )
+            raise ValueError("Invalid arguments supplied to commit method both confirm and check")
 
         # Select proper command string based on arguments provided
         command_string = "commit"
