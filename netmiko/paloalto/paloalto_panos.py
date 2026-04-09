@@ -1,7 +1,6 @@
 from typing import Optional, List, Any, Tuple
 import re
 import warnings
-from os import path
 from paramiko import SSHClient, Transport
 
 from netmiko.no_enable import NoEnable
@@ -84,9 +83,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         self._test_channel_read(pattern=r"operational-mode")
         self._test_channel_read(pattern=self.prompt_pattern)
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         """PA devices can be very slow to respond (in certain situations)"""
         if pattern is None:
             pattern = self.prompt_pattern
@@ -143,9 +140,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         if delay_factor is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
-        if (
-            device_and_network or policy_and_objects or vsys or no_vsys
-        ) and not partial:
+        if (device_and_network or policy_and_objects or vsys or no_vsys) and not partial:
             raise ValueError(
                 "'partial' must be True when using "
                 "device_and_network or policy_and_objects "
@@ -235,25 +230,11 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
 
 
 class PaloAltoPanosSSH(PaloAltoPanosBase):
-    def _build_ssh_client(self) -> SSHClient:
-        """Prepare for Paramiko SSH connection."""
-        # Create instance of SSHClient object
-        # If not using SSH keys, we use noauth
-
-        if not self.use_keys:
-            remote_conn_pre: SSHClient = SSHClient_interactive()
-        else:
-            remote_conn_pre = SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """If not using SSH keys or agent, use interactive auth for PAN-OS banner handling."""
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_interactive()
+        return SSHClient()
 
 
 class PaloAltoPanosTelnet(PaloAltoPanosBase):

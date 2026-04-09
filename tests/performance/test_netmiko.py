@@ -29,9 +29,7 @@ def write_csv(device_name, netmiko_results):
     results_file = "netmiko_performance.csv"
     file_exists = os.path.isfile(results_file)
     with open(results_file, "a") as csv_file:
-        field_names = ["date", "netmiko_version", "device_name"] + list(
-            netmiko_results.keys()
-        )
+        field_names = ["date", "netmiko_version", "device_name"] + list(netmiko_results.keys())
         t_stamp = generate_csv_timestamp()
         csv_write = csv.DictWriter(csv_file, fieldnames=field_names)
 
@@ -155,9 +153,7 @@ def remove_old_data(device_name):
         for entry in read_csv:
             entry = dict(entry)
             version, device = entry["netmiko_version"], entry["device_name"]
-            if (
-                version != __version__ and device == device_name
-            ) or device_name != device:
+            if (version != __version__ and device == device_name) or device_name != device:
                 entries.append(entry)
 
     with open(results_file, "w", newline="") as csv_file:

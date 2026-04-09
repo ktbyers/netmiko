@@ -12,9 +12,7 @@ class CiscoNxosBase(CiscoSSHConnection):
         self.ansi_escape_codes = True
         # NX-OS has an issue where it echoes the command even though it hasn't returned the prompt
         self._test_channel_read(pattern=r"[>#]")
-        self.set_terminal_width(
-            command="terminal width 511", pattern=r"terminal width 511"
-        )
+        self.set_terminal_width(command="terminal width 511", pattern=r"terminal width 511")
         self.disable_paging()
         self.set_base_prompt()
 
@@ -133,9 +131,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         else:
             raise ValueError("Invalid value for file transfer direction.")
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -167,9 +163,7 @@ class CiscoNxosFileTransfer(CiscoFileTransfer):
         """Not needed on NX-OS."""
         raise NotImplementedError
 
-    def remote_md5(
-        self, base_cmd: str = "show file", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "show file", remote_file: Optional[str] = None) -> str:
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file

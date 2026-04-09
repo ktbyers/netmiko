@@ -15,9 +15,7 @@ class FiberstoreNetworkOSSSH(CiscoBaseConnection):
         time.sleep(0.3 * self.global_delay_factor)
         self.clear_buffer()
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         """Not Implemented"""
         raise NotImplementedError
 

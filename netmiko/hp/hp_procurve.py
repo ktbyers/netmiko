@@ -1,7 +1,6 @@
 import re
 import time
 import socket
-from os import path
 from typing import Optional, Any
 
 from paramiko import SSHClient
@@ -42,9 +41,7 @@ class HPProcurveBase(CiscoSSHConnection):
 
         # Procurve uses 'Press any key to continue'
         try:
-            data = self.read_until_pattern(
-                pattern=r"(any key to continue|[>#])", read_timeout=3.0
-            )
+            data = self.read_until_pattern(pattern=r"(any key to continue|[>#])", read_timeout=3.0)
             if "any key to continue" in data:
                 self.write_channel(self.RETURN)
                 self.read_until_pattern(pattern=r"[>#]", read_timeout=3.0)
@@ -100,26 +97,20 @@ class HPProcurveBase(CiscoSSHConnection):
 
         # Send the enable command
         self.write_channel(cmd + self.RETURN)
-        new_output = self.read_until_pattern(
-            full_pattern, read_timeout=15, re_flags=re_flags
-        )
+        new_output = self.read_until_pattern(full_pattern, read_timeout=15, re_flags=re_flags)
 
         # Send the username
         if re.search(username_pattern, new_output, flags=re_flags):
             output += new_output
             self.write_channel(default_username + self.RETURN)
             full_pattern = rf"({pwd_pattern}|{prompt_pattern})"
-            new_output = self.read_until_pattern(
-                full_pattern, read_timeout=15, re_flags=re_flags
-            )
+            new_output = self.read_until_pattern(full_pattern, read_timeout=15, re_flags=re_flags)
 
         # Send the password
         if re.search(pwd_pattern, new_output, flags=re_flags):
             output += new_output
             self.write_channel(self.secret + self.RETURN)
-            new_output = self.read_until_pattern(
-                prompt_pattern, read_timeout=15, re_flags=re_flags
-            )
+            new_output = self.read_until_pattern(prompt_pattern, read_timeout=15, re_flags=re_flags)
 
         output += new_output
         log.debug(f"{output}")
@@ -147,7 +138,6 @@ class HPProcurveBase(CiscoSSHConnection):
 
         output = ""
         for _ in range(10):
-
             # The connection might be dead here.
             try:
                 # "Do you want to log out"
@@ -181,31 +171,15 @@ class HPProcurveBase(CiscoSSHConnection):
         confirm_response: str = "",
     ) -> str:
         """Save Config."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class HPProcurveSSH(HPProcurveBase):
-    def _build_ssh_client(self) -> SSHClient:
-        """Allow passwordless authentication for HP devices being provisioned."""
-
-        # Create instance of SSHClient object. If no SSH keys and no password, then use noauth
-        remote_conn_pre: SSHClient
-        if not self.use_keys and not self.password:
-            remote_conn_pre = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """If no SSH keys, no agent, and no password, use noauth."""
+        if not self.use_keys and not self.allow_agent and not self.password:
+            return SSHClient_noauth()
+        return SSHClient()
 
 
 class HPProcurveTelnet(HPProcurveBase):

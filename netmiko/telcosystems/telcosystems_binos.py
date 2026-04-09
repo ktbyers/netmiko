@@ -2,7 +2,6 @@ from netmiko.cisco_base_connection import CiscoBaseConnection
 
 
 class TelcoSystemsBinosBase(CiscoBaseConnection):
-
     def session_preparation(self) -> None:
         self._test_channel_read()
         self.set_base_prompt()
@@ -20,9 +19,7 @@ class TelcoSystemsBinosBase(CiscoBaseConnection):
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         raise NotImplementedError
 
 

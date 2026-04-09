@@ -68,9 +68,7 @@ class SSHChannel(Channel):
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
-            raise WriteException(
-                "Attempt to write data, but there is no active channel."
-            )
+            raise WriteException("Attempt to write data, but there is no active channel.")
         self.remote_conn.sendall(write_bytes(out_data, encoding=self.encoding))
 
     def read_buffer(self) -> str:
@@ -110,9 +108,7 @@ class TelnetChannel(Channel):
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
-            raise WriteException(
-                "Attempt to write data, but there is no active channel."
-            )
+            raise WriteException("Attempt to write data, but there is no active channel.")
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))  # type: ignore
 
     def read_buffer(self) -> str:
@@ -138,9 +134,7 @@ class SerialChannel(Channel):
 
     def write_channel(self, out_data: str) -> None:
         if self.remote_conn is None:
-            raise WriteException(
-                "Attempt to write data, but there is no active channel."
-            )
+            raise WriteException("Attempt to write data, but there is no active channel.")
         self.remote_conn.write(write_bytes(out_data, encoding=self.encoding))
         self.remote_conn.flush()
 

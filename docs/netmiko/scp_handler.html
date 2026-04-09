@@ -140,10 +140,12 @@ hljs.highlightAll();
 
     def _remote_space_available_unix(self, search_pattern: str = &#34;&#34;) -&gt; int:
         &#34;&#34;&#34;Return space available on *nix system (BSD/Linux).&#34;&#34;&#34;
+        if not search_pattern:
+            search_pattern = r&#34;[\$#]&#34;
         self.ssh_ctl_chan._enter_shell()
         remote_cmd = f&#34;/bin/df -k {self.file_system}&#34;
         remote_output = self.ssh_ctl_chan._send_command_str(
-            remote_cmd, expect_string=r&#34;[\$#]&#34;
+            remote_cmd, expect_string=search_pattern
         )
 
         # Try to ensure parsing is correct:
@@ -219,13 +221,17 @@ hljs.highlightAll();
         else:
             raise ValueError(&#34;Unexpected value for self.direction&#34;)
 
-    def _check_file_exists_unix(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
+    def _check_file_exists_unix(
+        self, remote_cmd: str = &#34;&#34;, search_pattern: str = &#34;&#34;
+    ) -&gt; bool:
         &#34;&#34;&#34;Check if the dest_file already exists on the file system (return boolean).&#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
+            if not search_pattern:
+                search_pattern = r&#34;[\$#]&#34;
             self.ssh_ctl_chan._enter_shell()
             remote_cmd = f&#34;/bin/ls {self.file_system}/{self.dest_file} 2&gt; /dev/null&#34;
             remote_out = self.ssh_ctl_chan._send_command_str(
-                remote_cmd, expect_string=r&#34;[\$#]&#34;
+                remote_cmd, expect_string=search_pattern
             )
             self.ssh_ctl_chan._return_cli()
             return self.dest_file in remote_out
@@ -268,7 +274,10 @@ hljs.highlightAll();
             return int(file_size)
 
     def _remote_file_size_unix(
-        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
+        self,
+        remote_cmd: str = &#34;&#34;,
+        remote_file: Optional[str] = None,
+        search_pattern: str = &#34;&#34;,
     ) -&gt; int:
         &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
         if remote_file is None:
@@ -279,10 +288,12 @@ hljs.highlightAll();
         remote_file = f&#34;{self.file_system}/{remote_file}&#34;
         if not remote_cmd:
             remote_cmd = f&#34;/bin/ls -l {remote_file}&#34;
+        if not search_pattern:
+            search_pattern = r&#34;[\$#]&#34;
 
         self.ssh_ctl_chan._enter_shell()
         remote_out = self.ssh_ctl_chan._send_command_str(
-            remote_cmd, expect_string=r&#34;[\$#]&#34;
+            remote_cmd, expect_string=search_pattern
         )
         self.ssh_ctl_chan._return_cli()
 
@@ -298,9 +309,7 @@ hljs.highlightAll();
             file_size = line.split()[4]
             return int(file_size)
 
-        raise ValueError(
-            &#34;Search pattern not found for remote file size during SCP transfer.&#34;
-        )
+        raise ValueError(&#34;Pattern not found for remote file size during SCP transfer.&#34;)
 
     def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of file.
@@ -414,6 +423,7 @@ hljs.highlightAll();
 <li><a title="netmiko.ciena.ciena_saos.CienaSaosFileTransfer" href="ciena/ciena_saos.html#netmiko.ciena.ciena_saos.CienaSaosFileTransfer">CienaSaosFileTransfer</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></li>
 <li><a title="netmiko.dell.dell_os10_ssh.DellOS10FileTransfer" href="dell/dell_os10_ssh.html#netmiko.dell.dell_os10_ssh.DellOS10FileTransfer">DellOS10FileTransfer</a></li>
+<li><a title="netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer" href="dell/dell_sonic_ssh.html#netmiko.dell.dell_sonic_ssh.DellSonicFileTransfer">DellSonicFileTransfer</a></li>
 <li><a title="netmiko.extreme.extreme_exos.ExtremeExosFileTransfer" href="extreme/extreme_exos.html#netmiko.extreme.extreme_exos.ExtremeExosFileTransfer">ExtremeExosFileTransfer</a></li>
 <li><a title="netmiko.juniper.juniper.JuniperFileTransfer" href="juniper/juniper.html#netmiko.juniper.juniper.JuniperFileTransfer">JuniperFileTransfer</a></li>
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer" href="mikrotik/mikrotik_ssh.html#netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer">MikrotikRouterOsFileTransfer</a></li>

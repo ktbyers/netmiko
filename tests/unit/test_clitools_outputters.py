@@ -33,13 +33,8 @@ def test_output_raw(sample_results, capsys):
     captured = capsys.readouterr()
     assert "arista1" in captured.out
     assert "arista2" in captured.out
-    assert (
-        "Interface         IP Address            Status           Protocol"
-        in captured.out
-    )
-    assert (
-        "Management1       unassigned            admin down       down" in captured.out
-    )
+    assert "Interface         IP Address            Status           Protocol" in captured.out
+    assert "Management1       unassigned            admin down       down" in captured.out
     assert "Vlan1             10.220.88.28/24       up               up" in captured.out
     assert "Vlan1             10.220.88.29/24       up               up" in captured.out
 
@@ -59,12 +54,7 @@ def test_output_raw_single_device(sample_results, capsys):
     outputters.output_raw(single_result)
     captured = capsys.readouterr()
     assert "arista1" not in captured.out  # Device name should not be in raw output
-    assert (
-        "Interface         IP Address            Status           Protocol"
-        in captured.out
-    )
-    assert (
-        "Management1       unassigned            admin down       down" in captured.out
-    )
+    assert "Interface         IP Address            Status           Protocol" in captured.out
+    assert "Management1       unassigned            admin down       down" in captured.out
     assert "Vlan1             10.220.88.28/24       up               up" in captured.out
     assert "10.220.88.29" not in captured.out  # Ensure arista2 data is not present

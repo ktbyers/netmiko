@@ -39,7 +39,7 @@ class AudiocodeBase(BaseConnection):
         else:
             prompt = self.find_prompt(delay_factor=delay_factor)
 
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
+        if prompt[-1] not in (pri_prompt_terminator, alt_prompt_terminator):
             raise ValueError(f"Router prompt not found: {repr(prompt)}")
 
         # If all we have is the 'terminator' just use that :-(
@@ -125,9 +125,7 @@ class AudiocodeBase(BaseConnection):
 
                 # Make sure you read until you detect the command echo (avoid getting out of sync)
                 if self.global_cmd_verify is not False:
-                    output += self.read_until_pattern(
-                        pattern=re.escape(exit_config.strip())
-                    )
+                    output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
                 if pattern:
                     output += self.read_until_pattern(pattern=pattern)
                 else:
@@ -454,9 +452,7 @@ class AudiocodeShellBase(NoEnable, AudiocodeBase):
         confirm: bool = False,
         confirm_response: str = "",
     ) -> str:
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def _reload_device(
         self,

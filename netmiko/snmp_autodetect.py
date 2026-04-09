@@ -173,16 +173,17 @@ def identify_address_type(entry: str) -> List[str]:
         addrinfo = socket.getaddrinfo(entry, None)
         for info in addrinfo:
             ip = info[4][0]
-            try:
-                socket.inet_pton(socket.AF_INET, ip)
-                ip_types.append("IPv4")
-            except socket.error:
-                pass
-            try:
-                socket.inet_pton(socket.AF_INET6, ip)
-                ip_types.append("IPv6")
-            except socket.error:
-                pass
+            if isinstance(ip, str):
+                try:
+                    socket.inet_pton(socket.AF_INET, ip)
+                    ip_types.append("IPv4")
+                except socket.error:
+                    pass
+                try:
+                    socket.inet_pton(socket.AF_INET6, ip)
+                    ip_types.append("IPv6")
+                except socket.error:
+                    pass
     except socket.gaierror:
         pass
     return ip_types
@@ -460,7 +461,8 @@ class SNMPDetect(object):
         for k, v in SNMP_MAPPER.items():
             snmp_mapper_orig.append({k: v})
         snmp_mapper_list = sorted(
-            snmp_mapper_orig, key=lambda x: list(x.values())[0]["priority"]  # type: ignore
+            snmp_mapper_orig,
+            key=lambda x: list(x.values())[0]["priority"],  # type: ignore
         )
         snmp_mapper_list.reverse()
 
