@@ -119,6 +119,7 @@
 - Huawei ONT
 - IIJ SEIL
 - Lancom LCOS SX4
+- Lancom LCOS SX5
 - Moxa EDS
 - MRV Communications OptiSwitch
 - MRV LX
@@ -258,6 +259,7 @@
 - keymile
 - keymile_nos
 - lancom_lcossx4
+- lancom_lcossx5
 - linux
 - maipu
 - mellanox

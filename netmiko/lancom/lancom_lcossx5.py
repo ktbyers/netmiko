@@ -11,8 +11,8 @@ class LancomLCOSSX5SSH(CiscoSSHConnection):
         """
         self._test_channel_read()
         self.enable(enable_pattern=r"#")
-        super().set_base_prompt()
-        super().disable_paging()
+        self.set_base_prompt()
+        self.disable_paging()
         self.clear_buffer()
 
     def check_config_mode(
@@ -21,20 +21,6 @@ class LancomLCOSSX5SSH(CiscoSSHConnection):
         pattern: str = "#",
         force_regex: bool = False,
     ) -> bool:
-        """
-        Checks if the device is in configuration mode or not.
-
-        :param check_string: Identification of configuration mode from the device
-        :type check_string: str
-
-        :param pattern: Pattern to terminate reading of channel
-        :type pattern: str
-
-        :param force_regex: Use regular expression pattern to find check_string in output
-        :type force_regex: bool
-
-        :return: True if in configuration mode, False if not
-        """
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
@@ -44,16 +30,10 @@ class LancomLCOSSX5SSH(CiscoSSHConnection):
         return super().exit_enable_mode(exit_command=exit_command)
 
     def cleanup(self, command: str = "logout") -> None:
-        """
-        Cleanup / Gracefully exit the SSH session
-
-        :param command: LANCOM LCOS SX 5.x uses logout to exit the session
-        :type command: str
-        """
-        # LANCOM does not allow running "Exec" commands in configuration mode
+        """Cleanup / Gracefully exit the SSH session."""
         if self.check_config_mode():
-            command = "do " + command
-        return super().cleanup(command)
+            self.exit_config_mode()
+        return super().cleanup(command=command)
 
     def save_config(
         self,
@@ -61,25 +41,9 @@ class LancomLCOSSX5SSH(CiscoSSHConnection):
         confirm: bool = False,
         confirm_response: str = "y",
     ) -> str:
-        """
-        Save the running Config.
-
-        :param cmd: The command to send to the device to save the configuration
-        :type cmd: str
-
-        :param confirm: Whether to confirm the save or not
-        :type confirm: bool
-
-        :param confirm_response: The response to send to the device to confirm the save
-        :type confirm_response: str
-
-        :param output_pattern: The pattern to match the output of the save command
-        :type output_pattern: str
-        """
-
-        # LANCOM does not allow running "Exec" commands in configuration mode
+        """Save the running configuration to memory."""
         if self.check_config_mode():
-            cmd = "do " + cmd
+            self.exit_config_mode()
         return super().save_config(
             cmd=cmd,
             confirm=confirm,
