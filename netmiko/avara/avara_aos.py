@@ -8,19 +8,15 @@ from netmiko.exceptions import NetmikoTimeoutException
 # - User:   `DEVNAME % `
 # - Config: `DEVNAME* % `
 
-USER_PROMPT: str = " %"
-CONFIG_PROMPT: str = "* %"
-# The user prompt regex needs to exclude matches with the '*'
-# Otherwise, it will also match the config prompt.
-USER_MODE_REGEX: str = r"[^\*]\s%"
-CONFIG_MODE_REGEX: str = r"\*\s%"
-
 
 class AvaraAosSSH(CiscoSSHConnection):
     """Avara AOS SSH Driver for Netmiko."""
 
+    prompt_pattern = r"\w\s%"  # user mode: `DEVNAME % `
+    config_prompt = r"\*\s%"  # config mode: `DEVNAME* % `
+
     def session_preparation(self) -> None:
-        self._test_channel_read(pattern=USER_MODE_REGEX)
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.base_prompt = self.find_prompt()
 
     def enable(
@@ -44,9 +40,7 @@ class AvaraAosSSH(CiscoSSHConnection):
                 if self.global_cmd_verify is not False:
                     output += self.read_until_pattern(pattern=re.escape(cmd.strip()))
 
-                output += self.read_until_prompt_or_pattern(
-                    pattern=pattern, re_flags=re_flags
-                )
+                output += self.read_until_prompt_or_pattern(pattern=pattern, re_flags=re_flags)
 
                 if re.search(pattern, output):
                     self.write_channel(self.normalize_cmd(self.secret))
@@ -75,7 +69,7 @@ class AvaraAosSSH(CiscoSSHConnection):
 
     def check_config_mode(
         self,
-        check_string: str = CONFIG_PROMPT,
+        check_string: str = "* %",
         pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
