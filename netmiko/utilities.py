@@ -137,7 +137,7 @@ def load_devices(file_name: Union[str, bytes, "PathLike[Any]", None] = None) -> 
 
 
 def find_cfg_file(
-    file_name: Union[str, bytes, "PathLike[Any]", None] = None
+    file_name: Union[str, bytes, "PathLike[Any]", None] = None,
 ) -> Union[str, bytes, "PathLike[Any]"]:
     """
     Search for netmiko_tools inventory file in the following order:
@@ -191,7 +191,7 @@ def display_inventory(my_devices: Dict[str, Union[List[str], Dict[str, Any]]]) -
 
 
 def obtain_all_devices(
-    my_devices: Dict[str, Union[List[str], Dict[str, Any]]]
+    my_devices: Dict[str, Union[List[str], Dict[str, Any]]],
 ) -> Dict[str, Dict[str, Any]]:
     """Dynamically create 'all' group."""
     new_devices = {}
@@ -255,8 +255,7 @@ def check_serial_port(name: str) -> str:
 
     if not PYSERIAL_INSTALLED:
         msg = (
-            "\npyserial is not installed. Please PIP install pyserial:\n\n"
-            "pip install pyserial\n\n"
+            "\npyserial is not installed. Please PIP install pyserial:\n\npip install pyserial\n\n"
         )
         raise ValueError(msg)
 
@@ -320,9 +319,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
                     if _skip_ntc_package:
                         raise ModuleNotFoundError()
             else:
-                with pkg_resources.path(
-                    package="ntc_templates", resource="parse.py"
-                ) as posix_path:
+                with pkg_resources.path(package="ntc_templates", resource="parse.py") as posix_path:
                     # Example: /opt/venv/netmiko/lib/python3.9/site-packages/ntc_templates/templates
                     template_dir = str(posix_path.parent.joinpath("templates"))
                     # This is for Netmiko automated testing
@@ -331,9 +328,7 @@ Alternatively, `pip install ntc-templates` (if using ntc-templates).
         except ModuleNotFoundError:
             # Finally check in ~/ntc-templates/ntc_templates/templates
             home_dir = os.path.expanduser("~")
-            template_dir = os.path.join(
-                home_dir, "ntc-templates", "ntc_templates", "templates"
-            )
+            template_dir = os.path.join(home_dir, "ntc-templates", "ntc_templates", "templates")
 
     index = os.path.join(template_dir, "index")
     if not os.path.isdir(template_dir) or not os.path.isfile(index):
@@ -406,9 +401,7 @@ def get_structured_data_textfsm(
 
     if template is None:
         if attrs == {}:
-            raise ValueError(
-                "Either 'platform/command' or 'template' must be specified."
-            )
+            raise ValueError("Either 'platform/command' or 'template' must be specified.")
         template_dir = get_template_dir()
         index_file = os.path.join(template_dir, "index")
         textfsm_obj = clitable.CliTable(index_file, template_dir)
@@ -468,9 +461,7 @@ Empty results returned (TTP template could not be found?)"""
         return result
     except Exception as exception:
         if raise_parsing_error:
-            raise NetmikoParsingException(
-                f"Failed to parse CLI output using TTP\n{exception}"
-            )
+            raise NetmikoParsingException(f"Failed to parse CLI output using TTP\n{exception}")
         return raw_output
 
 
@@ -492,7 +483,7 @@ def run_ttp_template(
     :param kwargs: ``**kwargs`` for TTP object instantiation
     """
     if not TTP_INSTALLED:
-        msg = "\nTTP is not installed. Please PIP install ttp:\n" "pip install ttp\n"
+        msg = "\nTTP is not installed. Please PIP install ttp:\npip install ttp\n"
         raise ValueError(msg)
 
     parser = ttp(template=template, **kwargs)
@@ -532,9 +523,7 @@ def run_ttp_template(
             output = "\n".join(out_list)
 
             # add collected output to TTP parser object
-            parser.add_input(
-                data=output, input_name=input_name, template_name=template_name
-            )
+            parser.add_input(data=output, input_name=input_name, template_name=template_name)
 
     # run parsing in single process
     parser.parse(one=True)
@@ -594,9 +583,7 @@ def get_structured_data_genie(
         return parsed_output
     except Exception as exception:
         if raise_parsing_error:
-            raise NetmikoParsingException(
-                f"Failed to parse CLI output using Genie\n{exception}"
-            )
+            raise NetmikoParsingException(f"Failed to parse CLI output using Genie\n{exception}")
         return raw_output
 
 

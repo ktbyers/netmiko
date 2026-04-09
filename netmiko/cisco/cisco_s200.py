@@ -1,5 +1,4 @@
 import re
-from os import path
 
 from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
@@ -20,21 +19,11 @@ class CiscoS200Base(CiscoSSHConnection):
 
     prompt_pattern = r"(?m:[>#]\s*$)"  # force re.Multiline
 
-    def _build_ssh_client(self) -> SSHClient:
-        """Allow passwordless authentication for Cisco SG200 devices being provisioned."""
-
-        # Create instance of SSHClient object. Use noauth
-        remote_conn_pre = SSHClient_noauth()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """SG200 devices always require noauth SSH authentication."""
+        if self.use_keys or self.allow_agent:
+            raise ValueError("Cisco SG200 does not support SSH key or agent authentication.")
+        return SSHClient_noauth()
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """Cisco SG2xx presents with the following on login
@@ -91,9 +80,7 @@ output:
         confirm: bool = True,
         confirm_response: str = "Y",
     ) -> str:
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class CiscoS200SSH(CiscoS200Base):

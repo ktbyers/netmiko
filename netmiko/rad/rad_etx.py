@@ -56,9 +56,7 @@ class RadETXBase(NoEnable, BaseConnection):
         """
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
-    def exit_config_mode(
-        self, exit_config: str = "exit all", pattern: str = "#"
-    ) -> str:
+    def exit_config_mode(self, exit_config: str = "exit all", pattern: str = "#") -> str:
         """Exit from configuration mode."""
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 

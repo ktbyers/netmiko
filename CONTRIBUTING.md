@@ -89,12 +89,12 @@ source .venv/bin/activate
 
 ```
 # Should report all files as 'unchanged'
-$ black --check .
-All done! ✨ 🍰 ✨
-264 files would be left unchanged.
+$ ruff format --check .
+323 files already formatted
 
 # Linter should report nothing (at this point)
-$ pylama .
+$ ruff check .
+All checks passed!
 
 # Type hints should be happy 😃
 $ mypy netmiko/
@@ -104,20 +104,19 @@ Success: no issues found in 194 source files
 Unit tests should pass (once again we are testing on unchanged 'develop' branch at this point so everything should pass)
 
 ```
-$ py.test tests/unit/
+$ py.test tests/unit
 ============================= test session starts ==============================
-platform linux -- Python 3.9.12, pytest-7.1.2, pluggy-1.3.0
-rootdir: /home/ktbyers/netmiko_tmp/netmiko, configfile: setup.cfg
-plugins: pylama-8.3.8
-collected 58 items                                                             
-
+platform linux -- Python 3.13.12, pytest-8.3.3, pluggy-1.6.0
+rootdir: /home/ktbyers/netmiko
+configfile: setup.cfg
+collected 89 items                                                                                      
 tests/unit/test_base_connection.py ........................              [ 41%]
 tests/unit/test_connection.py ....                                       [ 48%]
 tests/unit/test_entry_points.py .                                        [ 50%]
 tests/unit/test_ssh_autodetect.py .                                      [ 51%]
 tests/unit/test_utilities.py ............................                [100%]
 
-============================== 58 passed in 6.41s ==============================
+============================== 89 passed in 6.41s ==============================
 ```
 
 #### Create a branch for your work:
@@ -135,11 +134,11 @@ At the end of your changes the linters and unit tests MUST all pass.
 
 ```
 cd {{ repo_base }}
-# Use black to autoformat the code
-black .
+# Use 'ruff format' to autoformat the code
+ruff format .
 
 # Fix any linting errors
-pylama .
+ruff check .
 
 # Type hints (if you struggle with this, submit PR and ask for assistance)
 mypy netmiko/
@@ -154,6 +153,6 @@ Place a clear statement regarding the purpose of the PR (bug it is fixing, featu
 
 For any more meaningful feature, you should open a GitHub issue or discussion first and make sure that we agree on implementing this feature.
 
-The PR will will be sourced from your forked repository + the forked repository branch in use, with the destination of Netmiko's develop branch.
+The PR will be sourced from your forked repository + the forked repository branch in use, with the destination of Netmiko's develop branch.
 
 ![An example PR from a forked repository](./images/03-contrib.png)

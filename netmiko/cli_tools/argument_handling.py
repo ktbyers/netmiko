@@ -16,18 +16,10 @@ def common_args(parser):
     parser.add_argument("--username", help="Username", action="store", type=str)
     parser.add_argument("--password", help="Password", action="store_true")
     parser.add_argument("--secret", help="Enable Secret", action="store_true")
-    parser.add_argument(
-        "--list-devices", help="List devices from inventory", action="store_true"
-    )
-    parser.add_argument(
-        "--display-runtime", help="Display program runtime", action="store_true"
-    )
-    parser.add_argument(
-        "--hide-failed", help="Hide failed devices", action="store_true"
-    )
-    parser.add_argument(
-        "--json", help="Output results in JSON format", action="store_true"
-    )
+    parser.add_argument("--list-devices", help="List devices from inventory", action="store_true")
+    parser.add_argument("--display-runtime", help="Display program runtime", action="store_true")
+    parser.add_argument("--hide-failed", help="Hide failed devices", action="store_true")
+    parser.add_argument("--json", help="Output results in JSON format", action="store_true")
     parser.add_argument("--raw", help="Display raw output", action="store_true")
     parser.add_argument("--version", help="Display version", action="store_true")
 
@@ -52,9 +44,7 @@ def cfg_args(parser):
         type=str,
         nargs="?",
     )
-    parser.add_argument(
-        "--infile", help="Read commands from file", type=argparse.FileType("r")
-    )
+    parser.add_argument("--infile", help="Read commands from file", type=argparse.FileType("r"))
 
 
 def grep_args(parser):

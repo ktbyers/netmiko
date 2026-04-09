@@ -34,9 +34,7 @@ class HillstoneStoneosBase(NoEnable, CiscoBaseConnection):
         self, cmd: str = "save all", confirm: bool = True, confirm_response: str = "y"
     ) -> str:
         """Saves Config Using Copy Run Start"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class HillstoneStoneosSSH(HillstoneStoneosBase):

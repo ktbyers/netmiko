@@ -18,9 +18,7 @@ def my_cleanup(conn, sleep=180):
         pass
 
 
-def show_long_running(
-    conn, read_timeout, expect_string, delay_factor=None, max_loops=None
-):
+def show_long_running(conn, read_timeout, expect_string, delay_factor=None, max_loops=None):
     start_time = datetime.now()
     my_exception = None
     try:
@@ -53,9 +51,7 @@ def show_long_running_notimeout(conn, read_timeout):
 def test_read_longrunning_cmd(net_connect_newconn):
 
     read_timeout = 300
-    output, exec_time = show_long_running_notimeout(
-        net_connect_newconn, read_timeout=read_timeout
-    )
+    output, exec_time = show_long_running_notimeout(net_connect_newconn, read_timeout=read_timeout)
     assert "show interface" in output
     assert exec_time.total_seconds() > 10
 

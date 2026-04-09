@@ -64,9 +64,7 @@ class CiscoTpTcCeSSH(CiscoSSHConnection):
         else:
             return a_string
 
-    def send_command(
-        self, *args: Any, **kwargs: Any
-    ) -> Union[str, List[Any], Dict[str, Any]]:
+    def send_command(self, *args: Any, **kwargs: Any) -> Union[str, List[Any], Dict[str, Any]]:
         """
         Send command to network device retrieve output until router_prompt or expect_string
 

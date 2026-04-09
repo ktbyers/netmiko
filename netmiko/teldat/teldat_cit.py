@@ -69,9 +69,7 @@ class TeldatCITBase(NoEnable, BaseConnection):
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
-    def _check_running_config_mode(
-        self, check_string: str = "$", pattern: str = ""
-    ) -> bool:
+    def _check_running_config_mode(self, check_string: str = "$", pattern: str = "") -> bool:
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def _monitor_mode(
@@ -89,9 +87,7 @@ class TeldatCITBase(NoEnable, BaseConnection):
         self.write_channel(self.normalize_cmd(monitor_command))
         # Make sure you read until you detect the command echo (avoid getting out of sync)
         if self.global_cmd_verify is not False:
-            output += self.read_until_pattern(
-                pattern=re.escape(monitor_command.strip())
-            )
+            output += self.read_until_pattern(pattern=re.escape(monitor_command.strip()))
         if not re.search(pattern, output, flags=re_flags):
             output += self.read_until_pattern(pattern=pattern, re_flags=re_flags)
         if not self._check_monitor_mode():
@@ -145,9 +141,7 @@ class TeldatCITBase(NoEnable, BaseConnection):
         if not self.check_config_mode() or not self._check_running_config_mode():
             raise ValueError("Cannot save if not in config or running config mode")
         # Some devices are slow so match on trailing-prompt if you can
-        output = self._send_command_str(
-            command_string=cmd, strip_prompt=False, strip_command=False
-        )
+        output = self._send_command_str(command_string=cmd, strip_prompt=False, strip_command=False)
         return output
 
     def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:

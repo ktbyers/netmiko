@@ -16,14 +16,14 @@ class ZyxelSSH(NoEnable, NoConfig, CiscoSSHConnection):
         config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
         exit_config_mode: bool = False,
         enter_config_mode: bool = False,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> str:
         """No config mode on Zyxel"""
         return super().send_config_set(
             config_commands=config_commands,
             exit_config_mode=exit_config_mode,
             enter_config_mode=enter_config_mode,
-            **kwargs
+            **kwargs,
         )
 
     def session_preparation(self) -> None:
