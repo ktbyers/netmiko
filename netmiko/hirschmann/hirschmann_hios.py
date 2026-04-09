@@ -18,9 +18,7 @@ class HirschmannHiOSBase(CiscoBaseConnection):
         self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save the configuration."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class HirschmannHiOSSSH(HirschmannHiOSBase):

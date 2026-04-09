@@ -110,7 +110,7 @@ from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
 from netmiko.hioso import HiosoOLTTelnet
-from netmiko.hirschmann.hirschmann_hios import HirschmannHiOSSSH
+from netmiko.hirschmann import HirschmannHiOSSSH
 from netmiko.hp import HPProcurveSSH, HPProcurveTelnet, HPComwareSSH, HPComwareTelnet
 from netmiko.huawei import HuaweiSSH, HuaweiVrpv8SSH, HuaweiTelnet
 from netmiko.huawei import HuaweiSmartAXSSH, HuaweiSmartAXSSHMMI

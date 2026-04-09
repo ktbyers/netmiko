@@ -584,7 +584,7 @@ class SSHDetect(object):
         search_patterns: Optional[List[str]] = None,
         re_flags: int = re.IGNORECASE,
         priority: int = 99,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> int:
         """
         Method to try auto-detect the device type, by matching a regular expression on the
