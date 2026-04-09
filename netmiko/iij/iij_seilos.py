@@ -38,8 +38,6 @@ class IIJSeilosBase(NoEnable, NoConfig, BaseConnection):
         confirm_response: str = "",
     ) -> str:
         """Save the running configuration to flash memory."""
-        if confirm is True:
-            raise ValueError("IIJ SEIL OS does not support save_config confirmation.")
         return self._send_command_str(command_string=cmd)
 
 
