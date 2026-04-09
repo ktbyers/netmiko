@@ -27,6 +27,7 @@ from netmiko.audiocode import (
     Audiocode66Telnet,
     AudiocodeShellTelnet,
 )
+from netmiko.avara import AvaraSSH
 from netmiko.aviat import AviatWTMSSH
 from netmiko.bintec import BintecBossSSH, BintecBossTelnet
 from netmiko.brocade import BrocadeFOSSSH
@@ -213,6 +214,7 @@ CLASS_MAPPER_BASE = {
     "audiocode_shell": AudiocodeShellSSH,
     "avaya_ers": ExtremeErsSSH,
     "avaya_vsp": ExtremeVspSSH,
+    "avara_oap": AvaraSSH,
     "aviat_wtm": AviatWTMSSH,
     "bintec_boss": BintecBossSSH,
     "broadcom_icos": BroadcomIcosSSH,
