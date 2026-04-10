@@ -38,8 +38,6 @@ class A10SSH(CiscoSSHConnection):
         else:
             return check_string in output
 
-    def save_config(
-        self, cmd: str = "", confirm: bool = False, confirm_response: str = ""
-    ) -> str:
+    def save_config(self, cmd: str = "", confirm: bool = False, confirm_response: str = "") -> str:
         """Not Implemented"""
         raise NotImplementedError

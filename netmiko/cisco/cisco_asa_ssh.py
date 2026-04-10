@@ -82,9 +82,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
             self.set_base_prompt()
         return output
 
-    def send_command(
-        self, *args: Any, **kwargs: Any
-    ) -> Union[str, List[Any], Dict[str, Any]]:
+    def send_command(self, *args: Any, **kwargs: Any) -> Union[str, List[Any], Dict[str, Any]]:
         """
         If the ASA is in multi-context mode, then the base_prompt needs to be
         updated after each context change.
@@ -161,9 +159,7 @@ class CiscoAsaSSH(CiscoSSHConnection):
         self, cmd: str = "write mem", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Saves Config"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def normalize_linefeeds(self, a_string: str) -> str:
         """Cisco ASA needed that extra \r\n\r"""

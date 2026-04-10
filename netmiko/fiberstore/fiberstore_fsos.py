@@ -5,7 +5,6 @@ from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
 from netmiko.no_enable import NoEnable
 import time
-from os import path
 from netmiko.cisco_base_connection import CiscoBaseConnection
 from netmiko.exceptions import NetmikoAuthenticationException
 
@@ -66,25 +65,11 @@ class FiberstoreFsosSSH(NoEnable, CiscoBaseConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def _build_ssh_client(self) -> SSHClient:
-        """Allows you to bypass standard SSH auth while still supporting SSH keys."""
-
-        # If user does not provide SSH key, we use noauth
-        remote_conn_pre: SSHClient
-        if not self.use_keys:
-            remote_conn_pre = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """If not using SSH keys or agent, use noauth."""
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_noauth()
+        return SSHClient()
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
@@ -133,9 +118,7 @@ class FiberstoreFsosV2Base(CiscoBaseConnection):
         self, cmd: str = "write", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save config: write"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def check_config_mode(
         self,

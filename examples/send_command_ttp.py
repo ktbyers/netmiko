@@ -22,9 +22,7 @@ with open("show_run_interfaces.ttp", "w") as writer:
 command = "show run"
 with ConnectHandler(**cisco1) as net_connect:
     # Use TTP to retrieve structured data
-    output = net_connect.send_command(
-        command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
-    )
+    output = net_connect.send_command(command, use_ttp=True, ttp_template="show_run_interfaces.ttp")
 
 print()
 pprint(output)

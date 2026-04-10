@@ -3,7 +3,6 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class SilverPeakVXOASSH(CiscoSSHConnection):
-
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r"

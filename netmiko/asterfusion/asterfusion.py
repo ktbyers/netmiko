@@ -65,6 +65,4 @@ class AsterfusionAsterNOSSSH(NoEnable, CiscoSSHConnection):
         confirm: bool = True,
         confirm_response: str = "y",
     ) -> str:
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)

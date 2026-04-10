@@ -13,9 +13,7 @@ def main_ep():
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Encrypt data using Netmiko's encryption."
-    )
+    parser = argparse.ArgumentParser(description="Encrypt data using Netmiko's encryption.")
     parser.add_argument("data", help="The data to encrypt", nargs="?")
     parser.add_argument(
         "--key",

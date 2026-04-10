@@ -38,9 +38,7 @@ class CasaCMTSBase(NoEnable, CiscoSSHConnection):
             re_flags=re_flags,
         )
 
-    def exit_config_mode(
-        self, exit_config: str = chr(26), pattern: str = r"#.*"
-    ) -> str:
+    def exit_config_mode(self, exit_config: str = chr(26), pattern: str = r"#.*") -> str:
         """
         Exits configuration mode.
 

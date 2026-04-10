@@ -36,9 +36,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
-    def exit_config_mode(
-        self, exit_config: str = "exit", pattern: str = r"exit"
-    ) -> str:
+    def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"exit") -> str:
         """Exit configuration mode"""
         output = ""
         if self.check_config_mode():
@@ -137,9 +135,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
     ) -> str:
         """Saves Config."""
         output = self.config_mode()
-        output += super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        output += super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
         output += self.exit_config_mode()
         if "Done" not in output:
             raise ValueError(f"Save failed with following errors:\n\n{output}")

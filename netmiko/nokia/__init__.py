@@ -5,5 +5,12 @@ from netmiko.nokia.nokia_sros import (
 )
 
 from netmiko.nokia.nokia_srl import NokiaSrlSSH
+from netmiko.nokia.nokia_isam import NokiaIsamSSH
 
-__all__ = ["NokiaSrosSSH", "NokiaSrosFileTransfer", "NokiaSrosTelnet", "NokiaSrlSSH"]
+__all__ = [
+    "NokiaSrosSSH",
+    "NokiaSrosFileTransfer",
+    "NokiaSrosTelnet",
+    "NokiaSrlSSH",
+    "NokiaIsamSSH",
+]

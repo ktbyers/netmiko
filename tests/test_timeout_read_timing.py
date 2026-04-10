@@ -22,9 +22,7 @@ def execute_cmd(conn, cmd="show tech-support", read_timeout=None, last_read=2.0)
     if read_timeout is None:
         output = conn.read_channel_timing(last_read=last_read)
     else:
-        output = conn.read_channel_timing(
-            read_timeout=read_timeout, last_read=last_read
-        )
+        output = conn.read_channel_timing(read_timeout=read_timeout, last_read=last_read)
     end_time = datetime.now()
     exec_time = end_time - start_time
     return (output, exec_time)
@@ -33,9 +31,7 @@ def execute_cmd(conn, cmd="show tech-support", read_timeout=None, last_read=2.0)
 def test_read_show_tech(net_connect_newconn):
 
     read_timeout = 0
-    output, exec_time = execute_cmd(
-        net_connect_newconn, read_timeout=read_timeout, last_read=8.0
-    )
+    output, exec_time = execute_cmd(net_connect_newconn, read_timeout=read_timeout, last_read=8.0)
 
     assert "show interface" in output
     assert "cisco3#" in output
