@@ -290,6 +290,7 @@ CLASS_MAPPER_BASE = {
     "fiberstore_networkos": FiberstoreNetworkOSSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
+    "fsas_sir": FujitsuSirSSH,
     "fujitsu_sir": FujitsuSirSSH,
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
