@@ -2340,7 +2340,9 @@ You can also look at the Netmiko session_log or debug log for more information.
                     error_match = re.search(error_pattern, output, flags=re.M)
                     if error_match:
                         error_msg = error_match.group(0)
-                        msg = f"Invalid input detected at command: {cmd}, matched error: {error_msg}"
+                        msg = (
+                            f"Invalid input detected at command: {cmd}, matched error: {error_msg}"
+                        )
                         raise ConfigInvalidException(msg)
 
         if exit_config_mode:
