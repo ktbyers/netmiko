@@ -58,61 +58,54 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
 
         output = ""
         return_msg = ""
-        outer_loops = 3
-        inner_loops = int(max_loops / outer_loops)
         i = 1
-        for _ in range(outer_loops):
-            while i <= inner_loops:
-                try:
+        while i <= max_loops:
+            try:
+                output = self.read_channel()
+                return_msg += output
+
+                # Search for username pattern / send username
+                if re.search(username_pattern, output, flags=re.I):
+                    self.write_channel(self.username + "\r")
+                    time.sleep(1 * delay_factor)
                     output = self.read_channel()
                     return_msg += output
 
-                    # Search for username pattern / send username
-                    if re.search(username_pattern, output, flags=re.I):
-                        self.write_channel(self.username + "\r")
-                        time.sleep(1 * delay_factor)
-                        output = self.read_channel()
-                        return_msg += output
+                # FITELnet fix: check for prompt BEFORE password pattern.
+                # This prevents matching 'password' in <WARNING> messages.
+                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+                    alt_prompt_terminator, output, flags=re.M
+                ):
+                    return return_msg
 
-                    # FITELnet fix: check for prompt BEFORE password pattern.
-                    # This prevents matching 'password' in <WARNING> messages.
+                # Only check for password if no prompt was detected
+                if re.search(pwd_pattern, output, flags=re.I):
+                    assert isinstance(self.password, str)
+                    self.write_channel(self.password + "\r")
+                    time.sleep(0.5 * delay_factor)
+                    output = self.read_channel()
+                    return_msg += output
                     if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
                         alt_prompt_terminator, output, flags=re.M
                     ):
                         return return_msg
 
-                    # Only check for password if no prompt was detected
-                    if re.search(pwd_pattern, output, flags=re.I):
-                        assert isinstance(self.password, str)
-                        self.write_channel(self.password + "\r")
-                        time.sleep(0.5 * delay_factor)
-                        output = self.read_channel()
-                        return_msg += output
-                        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                            alt_prompt_terminator, output, flags=re.M
-                        ):
-                            return return_msg
-
-                    # Check for device with no password configured
-                    if re.search(r"assword required, but none set", output):
-                        assert self.remote_conn is not None
-                        self.remote_conn.close()
-                        msg = f"Login failed - Password required, but none set: {self.host}"
-                        raise NetmikoAuthenticationException(msg)
-
-                    time.sleep(0.5 * delay_factor)
-                    i += 1
-
-                except EOFError:
+                # Check for device with no password configured
+                if re.search(r"assword required, but none set", output):
                     assert self.remote_conn is not None
                     self.remote_conn.close()
-                    msg = f"Login failed: {self.host}"
+                    msg = f"Login failed - Password required, but none set: {self.host}"
                     raise NetmikoAuthenticationException(msg)
 
-            # Send RETURN to prompt the device (especially needed for serial)
-            self.write_channel(self.TELNET_RETURN)
-            time.sleep(0.5 * delay_factor)
-            i = 1
+                self.write_channel(self.TELNET_RETURN)
+                time.sleep(0.5 * delay_factor)
+                i += 1
+
+            except EOFError:
+                assert self.remote_conn is not None
+                self.remote_conn.close()
+                msg = f"Login failed: {self.host}"
+                raise NetmikoAuthenticationException(msg)
 
         # Last try to see if we already logged in
         self.write_channel(self.TELNET_RETURN)
@@ -267,20 +260,7 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
 
         FITELnet prompts 'save ok?[y/N]:' by default.
         """
-        if self.check_config_mode():
-            self.exit_config_mode()
-        # Drain any buffered data (especially on serial)
-        time.sleep(0.5)
-        self.clear_buffer()
-        # Use \r only (not \r\n) to avoid the trailing \n being
-        # interpreted as the answer to the [y/N] confirmation prompt
-        # on serial connections where characters arrive sequentially.
-        self.write_channel(cmd + "\r")
-        output = self.read_until_pattern(pattern=r"\[y/N\]")
-        if confirm and confirm_response:
-            self.write_channel(confirm_response + self.RETURN)
-            output += self.read_until_pattern(pattern=r"#")
-        return output
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def strip_command(self, command_string: str, output: str) -> str:
         """Strip command echo from output.
@@ -293,7 +273,7 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         """
         cmd = command_string.strip()
         if output.startswith(cmd):
-            return super().strip_command(command_string, output)
+            return super().strip_command(command_string=command_string, output=output)
 
         output_lines = output.split(self.RESPONSE_RETURN)
         for i, line in enumerate(output_lines):
