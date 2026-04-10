@@ -2474,10 +2474,10 @@ You can also look at the Netmiko session_log or debug log for more information.
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
         if self.remote_conn is not None:
             self.remote_conn.close()
-            del self.remote_conn
+            self.remote_conn = None
         if self.remote_conn_pre is not None:
             self.remote_conn_pre.close()
-            del self.remote_conn_pre
+            self.remote_conn_pre = None
 
     def disconnect(self) -> None:
         """Try to gracefully close the session."""
