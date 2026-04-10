@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Create grep like remote behavior on show run or command output."""
+
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime

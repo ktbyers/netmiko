@@ -25,9 +25,7 @@ class AristaBase(CiscoSSHConnection):
         self.disable_paging(cmd_verify=False, pattern=r"Pagination disabled")
         self.set_base_prompt()
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -> str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -> str:
         """
         Arista's sometimes duplicate the command echo if they fall behind.
 
@@ -151,17 +149,11 @@ class AristaFileTransfer(CiscoFileTransfer):
         """Check if the dest_file already exists on the file system (return boolean)."""
         return self._check_file_exists_unix(remote_cmd=remote_cmd)
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
-        return self._remote_file_size_unix(
-            remote_cmd=remote_cmd, remote_file=remote_file
-        )
+        return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
 
-    def remote_md5(
-        self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None) -> str:
         if remote_file is None:
             if self.direction == "put":
                 remote_file = self.dest_file

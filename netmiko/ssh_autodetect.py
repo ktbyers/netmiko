@@ -31,11 +31,11 @@ Examples
                      'password': 'foo'}
 >>> guesser = SSHDetect(**remote_device)
 >>> best_match = guesser.autodetect()
->>> print(best_match) # Name of the best device_type to use further
->>> print(guesser.potential_matches) # Dictionary of the whole matching result
+>>> print(best_match)  # Name of the best device_type to use further
+>>> print(guesser.potential_matches)  # Dictionary of the whole matching result
 
 # Netmiko connection creation section
->>> remote_device['device_type'] = best_match
+>>> remote_device["device_type"] = best_match
 >>> connection = ConnectHandler(**remote_device)
 """
 
@@ -85,7 +85,7 @@ SSH_MAPPER_DICT = {
     },
     "aruba_aoscx": {
         "cmd": "show version",
-        "search_patterns": [r"ArubaOS-CX"],
+        "search_patterns": [r"ArubaOS-CX", r"AOS-CX"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -98,6 +98,12 @@ SSH_MAPPER_DICT = {
     "ciena_waveserver": {
         "cmd": "software show",
         "search_patterns": [r"WAVESERVER"],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
+    "cisco_ap": {
+        "cmd": "show version",
+        "search_patterns": [r"Cisco AP Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
@@ -200,6 +206,13 @@ SSH_MAPPER_DICT = {
         "search_patterns": ["H3C Comware Software"],
         "priority": 99,
         "dispatch": "_autodetect_std",
+    },
+    "hirschmann_hios": {
+        "cmd": "",
+        "search_patterns": [r"Release HiOS-"],
+        "re_flags": 0,
+        "priority": 99,
+        "dispatch": "_autodetect_login_banner",
     },
     "hp_comware": {
         "cmd": "display version",
@@ -343,6 +356,12 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "moxa_nos": {
+        "cmd": "",
+        "dispatch": "_autodetect_remote_version",
+        "search_patterns": [r"[Mm]oxa"],
+        "priority": 99,
+    },
     "huawei_smartax": {
         "cmd": "display version",
         "search_patterns": [r"Huawei Integrated Access Software"],
@@ -470,9 +489,7 @@ class SSHDetect(object):
             self.connection.disconnect()
             return None
 
-        best_match = sorted(
-            self.potential_matches.items(), key=lambda t: t[1], reverse=True
-        )
+        best_match = sorted(self.potential_matches.items(), key=lambda t: t[1], reverse=True)
         self.connection.disconnect()
         return best_match[0][0]
 
@@ -524,7 +541,7 @@ class SSHDetect(object):
         search_patterns: Optional[List[str]] = None,
         re_flags: int = re.IGNORECASE,
         priority: int = 99,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> int:
         """
         Method to try auto-detect the device type, by matching a regular expression on the reported
@@ -560,6 +577,35 @@ class SSHDetect(object):
                     return priority
         except Exception:
             return 0
+        return 0
+
+    def _autodetect_login_banner(
+        self,
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+        **kwargs: Any,
+    ) -> int:
+        """
+        Method to try auto-detect the device type, by matching a regular expression on the
+        login banner.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the login banner (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression
+            (default: re.IGNORECASE).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        """
+        if not search_patterns:
+            return 0
+        for pattern in search_patterns:
+            match = re.search(pattern, self.initial_buffer, flags=re_flags)
+            if match:
+                return priority
         return 0
 
     def _autodetect_std(

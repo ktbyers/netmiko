@@ -140,9 +140,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
 
-    def exit_config_mode(
-        self, exit_config: str = "return", pattern: str = r"#.*"
-    ) -> str:
+    def exit_config_mode(self, exit_config: str = "return", pattern: str = r"#.*") -> str:
         return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
@@ -182,9 +180,7 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
         self, cmd: str = "save", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save Config for HuaweiSSH"""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def cleanup(self, command: str = "quit") -> None:
         """Gracefully exit the SSH session."""
@@ -208,7 +204,6 @@ class HuaweiSmartAXSSH(CiscoBaseConnection):
 
 
 class HuaweiSmartAXSSHMMI(HuaweiSmartAXSSH):
-
     def session_preparation(self) -> None:
         super().session_preparation()
         self._enter_mmi_mode()

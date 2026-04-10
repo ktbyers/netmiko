@@ -14,9 +14,7 @@ class UbiquitiUnifiSwitchSSH(UbiquitiEdgeSSH):
 
         self._test_channel_read()
         self.set_base_prompt()
-        self.send_command(
-            command_string="telnet localhost", expect_string=r"\(UBNT\) >"
-        )
+        self.send_command(command_string="telnet localhost", expect_string=r"\(UBNT\) >")
         self.set_base_prompt()
         self.enable()
         self.disable_paging()
