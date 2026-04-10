@@ -20,14 +20,14 @@ while true; do
     esac
 done
 
-pylama .
+ruff check .
 if [ $? -eq 0 ]; then
     echo
-    echo "pylama ... [OK]"
+    echo "ruff check ... [OK]"
     echo
 else
     echo
-    echo "pylama ... [FAIL]"
+    echo "ruff check ... [FAIL]"
     exit 1
 fi
 

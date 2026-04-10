@@ -175,6 +175,8 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
     methods.  Overrides several methods for PaloAlto-specific compatibility.
     &#34;&#34;&#34;
 
+    prompt_pattern = r&#34;[&gt;#]&#34;
+
     def session_preparation(self) -&gt; None:
         &#34;&#34;&#34;
         Prepare the session after the connection has been established.
@@ -183,11 +185,11 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         Set the base prompt for interaction (&#39;&gt;&#39;).
         &#34;&#34;&#34;
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.disable_paging(
             command=&#34;set cli scripting-mode on&#34;,
             cmd_verify=False,
-            pattern=r&#34;[&gt;#].*mode on&#34;,
+            pattern=rf&#34;{self.prompt_pattern}.*mode on&#34;,
         )
         self.set_terminal_width(
             command=&#34;set cli terminal width 500&#34;, pattern=r&#34;set cli terminal width 500&#34;
@@ -196,14 +198,16 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         self.set_base_prompt()
 
         # PA devices can be really slow--try to make sure we are caught up
-        self.write_channel(&#34;show admins\n&#34;)
-        self._test_channel_read(pattern=r&#34;Client&#34;)
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.write_channel(&#34;show system info\n&#34;)
+        self._test_channel_read(pattern=r&#34;operational-mode&#34;)
+        self._test_channel_read(pattern=self.prompt_pattern)
 
     def find_prompt(
-        self, delay_factor: float = 5.0, pattern: Optional[str] = None
+        self, delay_factor: float = 1.0, pattern: Optional[str] = None
     ) -&gt; str:
         &#34;&#34;&#34;PA devices can be very slow to respond (in certain situations)&#34;&#34;&#34;
+        if pattern is None:
+            pattern = self.prompt_pattern
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
     def check_config_mode(
@@ -280,7 +284,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
             if device_and_network:
                 command_string += &#34; device-and-network&#34;
             if policy_and_objects:
-                command_string += &#34; device-and-network&#34;
+                command_string += &#34; policy-and-objects&#34;
             if no_vsys:
                 command_string += &#34; no-vsys&#34;
             command_string += &#34; excluded&#34;
@@ -357,6 +361,13 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosSSH" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosSSH">PaloAltoPanosSSH</a></li>
 <li><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosTelnet" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosTelnet">PaloAltoPanosTelnet</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.check_config_mode"><code class="name flex">
@@ -399,7 +410,7 @@ Exception</p>
 <div class="desc"><p>Exit configuration mode.</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.find_prompt"><code class="name flex">
-<span>def <span class="ident">find_prompt</span></span>(<span>self, delay_factor: float = 5.0, pattern: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">find_prompt</span></span>(<span>self, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>PA devices can be very slow to respond (in certain situations)</p></div>
@@ -963,6 +974,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.config_mode" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_config_mode" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.find_prompt" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.find_prompt">find_prompt</a></code></li>
+<li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.session_preparation" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.strip_command" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.strip_command">strip_command</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.strip_context_items" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.strip_context_items">strip_context_items</a></code></li>

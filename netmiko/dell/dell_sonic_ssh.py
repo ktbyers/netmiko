@@ -66,9 +66,7 @@ class DellSonicFileTransfer(BaseFileTransfer):
         )
         self.ssh_ctl_chan: DellSonicSSH = ssh_conn
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
         if remote_file is None:
             if self.direction == "put":
@@ -111,9 +109,7 @@ class DellSonicFileTransfer(BaseFileTransfer):
         """Process the md5 output and return the hash."""
         return BaseFileTransfer.process_md5(md5_output, pattern=pattern)
 
-    def remote_md5(
-        self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None
-    ) -> str:
+    def remote_md5(self, base_cmd: str = "verify /md5", remote_file: Optional[str] = None) -> str:
         """Calculate remote MD5 and returns the hash."""
         if remote_file is None:
             if self.direction == "put":

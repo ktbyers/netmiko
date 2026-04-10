@@ -44,9 +44,7 @@ class NokiaSros(BaseConnection):
         # "@" indicates model-driven CLI (vs Classical CLI)
         if "@" in self.base_prompt:
             self._disable_complete_on_space()
-            self.set_terminal_width(
-                command="environment console width 512", pattern="environment"
-            )
+            self.set_terminal_width(command="environment console width 512", pattern="environment")
             self.disable_paging(command="environment more false")
             self.disable_paging(command="//environment no more")
         else:
@@ -112,9 +110,7 @@ class NokiaSros(BaseConnection):
         if "@" not in self.base_prompt:
             cmd = "enable-admin"
         self.write_channel(self.normalize_cmd(cmd))
-        output = self.read_until_prompt_or_pattern(
-            pattern="ssword", read_entire_line=True
-        )
+        output = self.read_until_prompt_or_pattern(pattern="ssword", read_entire_line=True)
         if "ssword" in output:
             self.write_channel(self.RETURN)  # send ENTER to pass the password prompt
             self.read_until_prompt(read_entire_line=True)
@@ -307,9 +303,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         """
         return "file list " if "@" in self.ssh_ctl_chan.base_prompt else "file dir "
 
-    def remote_space_available(
-        self, search_pattern: str = r"(\d+)\s+\w+\s+free"
-    ) -> int:
+    def remote_space_available(self, search_pattern: str = r"(\d+)\s+\w+\s+free") -> int:
         """Return space available on remote device."""
 
         # Sample text for search_pattern.
@@ -341,9 +335,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
         else:
             raise ValueError("Unexpected value for self.direction")
 
-    def remote_file_size(
-        self, remote_cmd: str = "", remote_file: Optional[str] = None
-    ) -> int:
+    def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
 
         if remote_file is None:
@@ -354,9 +346,7 @@ class NokiaSrosFileTransfer(BaseFileTransfer):
             else:
                 raise ValueError("Unexpected value for self.direction")
         if not remote_cmd:
-            remote_cmd = self._file_list_command() + "{}/{}".format(
-                self.file_system, remote_file
-            )
+            remote_cmd = self._file_list_command() + "{}/{}".format(self.file_system, remote_file)
         remote_out = self.ssh_ctl_chan._send_command_str(remote_cmd)
 
         if "File Not Found" in remote_out or "Invalid element value" in remote_out:

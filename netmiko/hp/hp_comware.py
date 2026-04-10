@@ -143,9 +143,7 @@ class HPComwareBase(CiscoSSHConnection):
         self, cmd: str = "save force", confirm: bool = False, confirm_response: str = ""
     ) -> str:
         """Save Config."""
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
 class HPComwareSSH(HPComwareBase):

@@ -14,9 +14,7 @@ class NetAppcDotSSH(NoEnable, BaseConnection):
     def send_command_with_y(self, *args: Any, **kwargs: Any) -> str:
         output = self._send_command_timing_str(*args, **kwargs)
         if "{y|n}" in output:
-            output += self._send_command_timing_str(
-                "y", strip_prompt=False, strip_command=False
-            )
+            output += self._send_command_timing_str("y", strip_prompt=False, strip_command=False)
         return output
 
     def check_config_mode(

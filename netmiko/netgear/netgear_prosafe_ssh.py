@@ -57,6 +57,4 @@ class NetgearProSafeSSH(CiscoSSHConnection):
         if self.check_config_mode():
             self.exit_config_mode()
 
-        return super().save_config(
-            cmd=save_cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=save_cmd, confirm=confirm, confirm_response=confirm_response)

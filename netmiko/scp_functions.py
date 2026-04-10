@@ -16,9 +16,7 @@ if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
 
 
-def progress_bar(
-    filename: AnyStr, size: int, sent: int, peername: Optional[str] = None
-) -> None:
+def progress_bar(filename: AnyStr, size: int, sent: int, peername: Optional[str] = None) -> None:
     max_width = 50
     if isinstance(filename, bytes):
         filename_str = filename.decode()
@@ -102,7 +100,7 @@ def file_transfer(
     if verify_file is None:
         verify_file = not disable_md5
 
-    scp_args = {
+    scp_args: Dict[str, Any] = {
         "ssh_conn": ssh_conn,
         "source_file": source_file,
         "dest_file": dest_file,
@@ -132,9 +130,7 @@ def file_transfer(
                         if scp_transfer.verify_file():
                             return transferred_and_verified
                         else:
-                            raise ValueError(
-                                "MD5 failure between source and destination files"
-                            )
+                            raise ValueError("MD5 failure between source and destination files")
                 else:
                     # File exists, you can overwrite it, but MD5 not allowed (transfer file)
                     verifyspace_and_transferfile(scp_transfer)

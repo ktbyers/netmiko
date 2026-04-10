@@ -23,9 +23,7 @@ import pytest
 def gen_random(N=6):
     return "".join(
         [
-            random.choice(
-                string.ascii_lowercase + string.ascii_uppercase + string.digits
-            )
+            random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits)
             for x in range(N)
         ]
     )
@@ -218,9 +216,7 @@ def test_clear_msg(net_connect, commands, expected_responses):
 
     if net_connect.device_type == "cisco_xr":
         output = net_connect.send_config_set(config_commands)
-        output += net_connect.send_command_expect(
-            "commit", expect_string=r"Do you wish to"
-        )
+        output += net_connect.send_command_expect("commit", expect_string=r"Do you wish to")
         output += net_connect.send_command_expect("yes", auto_find_prompt=False)
 
     assert True
@@ -234,7 +230,6 @@ def test_commit_check(net_connect, commands, expected_responses):
     if net_connect.device_type in ["cisco_xr", "nokia_sros"]:
         assert pytest.skip()
     else:
-
         # Setup the initial config state
         config_commands, support_commit, config_verify = setup_initial_state(
             net_connect, commands, expected_responses
@@ -293,7 +288,6 @@ def test_commit_andquit(net_connect, commands, expected_responses):
     if net_connect.device_type in ["cisco_xr", "nokia_sros"]:
         assert pytest.skip()
     else:
-
         # Setup the initial config state
         config_commands, support_commit, config_verify = setup_initial_state(
             net_connect, commands, expected_responses

@@ -42,6 +42,9 @@ hljs.highlightAll();
 </code></dt>
 <dd>
 <div class="desc"><p>Netmiko support for Extreme Ethernet Routing Switch.</p>
+<p>Note, ExtremeVspSSH inherits from this class to re-use 'special_login_handler'
+so be careful about adding extra methods here (i.e. make sure no negative side
+effects to VSP class.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
@@ -166,7 +169,13 @@ hljs.highlightAll();
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ExtremeErsSSH(CiscoSSHConnection):
-    &#34;&#34;&#34;Netmiko support for Extreme Ethernet Routing Switch.&#34;&#34;&#34;
+    &#34;&#34;&#34;Netmiko support for Extreme Ethernet Routing Switch.
+
+    Note, ExtremeVspSSH inherits from this class to re-use &#39;special_login_handler&#39;
+    so be careful about adding extra methods here (i.e. make sure no negative side
+    effects to VSP class.
+
+    &#34;&#34;&#34;
 
     prompt_pattern = r&#34;(?m:[&gt;#]\s*$)&#34;  # force re.Multiline
 
@@ -249,6 +258,10 @@ output:
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH" href="extreme_vsp_ssh.html#netmiko.extreme.extreme_vsp_ssh.ExtremeVspSSH">ExtremeVspSSH</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>

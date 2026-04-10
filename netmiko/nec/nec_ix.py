@@ -67,9 +67,7 @@ class NecIxBase(BaseConnection):
             re_flags=re_flags,
         )
         # ensure at top-level of config/enable mode.
-        output += self._send_command_str(
-            command_string="configure", expect_string=r"\)\#"
-        )
+        output += self._send_command_str(command_string="configure", expect_string=r"\)\#")
         return output
 
     def check_enable_mode(self, check_string: str = ")#") -> bool:
@@ -80,9 +78,7 @@ class NecIxBase(BaseConnection):
         output = ""
         if self.check_enable_mode():
             # ensure at top-level of config/enable mode.
-            output += self._send_command_str(
-                command_string="configure", expect_string=r"\)\#"
-            )
+            output += self._send_command_str(command_string="configure", expect_string=r"\)\#")
             self.write_channel(self.normalize_cmd(exit_command))
             time.sleep(1)
             output += self.read_channel()
