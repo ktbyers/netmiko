@@ -52,9 +52,7 @@ class CiscoXrBase(CiscoBaseConnection):
             config_commands=config_commands, exit_config_mode=exit_config_mode, **kwargs
         )
 
-    def _commit_handler(
-        self, command_string: str, expect_string: str, read_timeout: float
-    ) -> str:
+    def _commit_handler(self, command_string: str, expect_string: str, read_timeout: float) -> str:
         """Wrapper for commit call to simplify code and arguments."""
         return self._send_command_str(
             command_string,
@@ -142,9 +140,7 @@ Other commits occurred during this configuration operation--commit aborted!
             if comment:
                 command_string = f"{command_string} label {label} comment {comment}"
             elif confirm:
-                command_string = (
-                    f"{command_string} label {label} confirmed {confirm_delay}"
-                )
+                command_string = f"{command_string} label {label} confirmed {confirm_delay}"
             else:
                 command_string = f"{command_string} label {label}"
         elif confirm:
@@ -167,9 +163,7 @@ Other commits occurred during this configuration operation--commit aborted!
         pattern = rf"(?:#|{large_config}|{other_changes})"
 
         if replace:
-            replace_msg = (
-                "This commit will replace or remove the entire running configuration"
-            )
+            replace_msg = "This commit will replace or remove the entire running configuration"
             pattern = rf"(?:#|{large_config}|{other_changes}|{replace_msg})"
 
         new_data = self._commit_handler(command_string, pattern, read_timeout)
