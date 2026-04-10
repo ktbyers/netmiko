@@ -347,7 +347,7 @@ class BaseConnection:
         if not ip and not host and "serial" not in device_type:
             raise ValueError("Either ip or host must be set")
         if port is None:
-            if "telnet" in device_type:
+            if "_telnet" in device_type:
                 port = 23
             else:
                 port = 22

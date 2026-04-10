@@ -492,7 +492,7 @@ scp_platforms.sort()
 scp_platforms_str = "\n".join(scp_platforms)
 scp_platforms_str = "\n" + scp_platforms_str
 
-telnet_platforms = [x for x in platforms if "telnet" in x]
+telnet_platforms = [x for x in platforms if "_telnet" in x]
 telnet_platforms_str = "\n".join(telnet_platforms)
 telnet_platforms_str = "\n" + telnet_platforms_str
 

@@ -54,10 +54,6 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         real password prompts.
         """
         delay_factor = self.select_delay_factor(delay_factor)
-        if delay_factor < 1:
-            if not self._legacy_mode and self.fast_cli:
-                delay_factor = 1
-
         time.sleep(1 * delay_factor)
 
         output = ""
@@ -232,10 +228,8 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         else:
             command_string = "commit"
 
-        # Enter config mode (if necessary)
-        output = self.config_mode()
-
-        confirmation = r"onfirm|\[y/n\]|\[y/N\]"
+        output = ""
+        confirmation = r"onfirm|\[y/[nN]\]"
         pattern = rf"(?:#|{confirmation})"
         new_data = self._send_command_str(
             command_string,
@@ -245,7 +239,7 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
             read_timeout=read_timeout,
         )
 
-        if "onfirm" in new_data or "[y/n]" in new_data or "[y/N]" in new_data:
+        if re.search(confirmation, new_data):
             output += new_data
             new_data = self._send_command_str(
                 "y",
@@ -342,11 +336,7 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
 class FurukawaFitelnetSSH(FurukawaFitelnetBase):
     """Furukawa FITELnet SSH driver."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        # "fitelnet" contains "telnet" as a substring, causing the default
-        # port to be set to 23 instead of 22. Force SSH port.
-        kwargs.setdefault("port", 22)
-        super().__init__(**kwargs)
+    pass
 
 
 class FurukawaFitelnetTelnet(FurukawaFitelnetBase):
@@ -356,6 +346,10 @@ class FurukawaFitelnetTelnet(FurukawaFitelnetBase):
 
 
 class FurukawaFitelnetSerial(FurukawaFitelnetBase):
-    """Furukawa FITELnet Serial driver."""
+    """Furukawa FITELnet Serial driver.
+
+    serial_login() ultimately calls telnet_login(), so the above telnet_login() code is shared
+    between both telnet and serial driver.
+    """
 
     pass
