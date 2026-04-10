@@ -183,7 +183,9 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
     if config_list and error_pattern:
         with pytest.raises(ConfigInvalidException) as exc_info:
             net_connect.send_config_set(config_commands=config_list, error_pattern=error_pattern)
-        assert "matched error" in str(exc_info.value)
+        exc_str = str(exc_info.value)
+        assert config_err in exc_str
+        assert re.search(error_pattern, exc_str)
 
         # Try it with cmd_verify=True also
         with pytest.raises(ConfigInvalidException) as exc_info:
@@ -192,7 +194,9 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
                 error_pattern=error_pattern,
                 cmd_verify=True,
             )
-        assert "matched error" in str(exc_info.value)
+        exc_str = str(exc_info.value)
+        assert config_err in exc_str
+        assert re.search(error_pattern, exc_str)
 
     else:
         print("Skipping test: no error_pattern supplied.")
