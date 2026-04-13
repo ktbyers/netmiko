@@ -1,6 +1,5 @@
 """A10 support."""
 
-from typing import Optional
 import re
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
@@ -17,27 +16,6 @@ class A10SSH(CiscoSSHConnection):
         # terminal width ill not do anything without A10 specific command
         # self.set_terminal_width()
         self.disable_paging(command="terminal length 0")
-
-    def read_until_prompt(
-        self,
-        read_timeout: float = 10.0,
-        read_entire_line: bool = False,
-        re_flags: int = 0,
-        max_loops: Optional[int] = None,
-    ) -> str:
-
-        # delete the string "NOLICENSE" from base_prompt
-        if self.base_prompt.find("(NOLICENSE)"):
-            self.base_prompt = self.base_prompt.replace("(NOLICENSE)", "")
-        pattern = re.escape(self.base_prompt)
-        if read_entire_line:
-            pattern = f"{pattern}.*"
-        return self.read_until_pattern(
-            pattern=pattern,
-            re_flags=re_flags,
-            max_loops=max_loops,
-            read_timeout=read_timeout,
-        )
 
     def check_config_mode(
         self, check_string: str = ")#", pattern: str = "", force_regex: bool = False
