@@ -184,6 +184,7 @@ from netmiko.vyos import VyOSSSH
 from netmiko.watchguard import WatchguardFirewareSSH
 from netmiko.yamaha import YamahaSSH
 from netmiko.yamaha import YamahaTelnet
+from netmiko.zpe import ZpeNodegridSSH, ZpeNodegridFileTransfer
 from netmiko.zte import ZteZxrosSSH
 from netmiko.zte import ZteZxrosTelnet
 from netmiko.zyxel import ZyxelSSH
@@ -368,6 +369,7 @@ CLASS_MAPPER_BASE = {
     "vyatta_vyos": VyOSSSH,
     "vyos": VyOSSSH,
     "watchguard_fireware": WatchguardFirewareSSH,
+    "zpe_nodegrid": ZpeNodegridSSH,
     "zte_zxros": ZteZxrosSSH,
     "yamaha": YamahaSSH,
     "zyxel_os": ZyxelSSH,
@@ -392,6 +394,7 @@ FILE_TRANSFER_MAP = {
     "nokia_sros": NokiaSrosFileTransfer,
     "mikrotik_routeros": MikrotikRouterOsFileTransfer,
     "ubiquiti_edgerouter": UbiquitiEdgeRouterFileTransfer,
+    "zpe_nodegrid": ZpeNodegridFileTransfer,
 }
 
 # Also support keys that end in _ssh
