@@ -16,12 +16,11 @@ from netmiko._telnetlib.telnetlib import (
     ECHO,
     SGA,
     NAWS,
-    Telnet,
 )
 from netmiko.exceptions import NetmikoAuthenticationException
 
 
-class RaisecomRoapBase(CiscoBaseConnection):
+class RaisecomRosBase(CiscoBaseConnection):
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=r"[>#]")
@@ -38,7 +37,9 @@ class RaisecomRoapBase(CiscoBaseConnection):
         """
         Checks if the device is in configuration mode or not.
         """
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
 
     def _get_ssh_client_instance(self) -> SSHClient:
         """If not using SSH keys or agent, use noauth."""
@@ -46,9 +47,19 @@ class RaisecomRoapBase(CiscoBaseConnection):
             return SSHClient_noauth()
         return SSHClient()
 
+    def config_mode(
+        self,
+        config_command: str = "config",
+        pattern: str = "",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
+
     def save_config(
         self,
-        cmd: str = "write startup-config",
+        cmd: str = "write",
         confirm: bool = False,
         confirm_response: str = "",
     ) -> str:
@@ -58,7 +69,7 @@ class RaisecomRoapBase(CiscoBaseConnection):
         return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
 
-class RaisecomRoapSSH(RaisecomRoapBase):
+class RaisecomRosSSH(RaisecomRosBase):
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
         """
         Raisecom presents with the following on login (in certain OS versions)
@@ -85,7 +96,7 @@ class RaisecomRoapSSH(RaisecomRoapBase):
             i += 1
 
 
-class RaisecomRoapTelnet(RaisecomRoapBase):
+class RaisecomRosTelnet(RaisecomRosBase):
     @staticmethod
     def _process_option(telnet_sock: socket, cmd: bytes, opt: bytes) -> None:
         """
@@ -117,7 +128,6 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
     ) -> str:
 
         # set callback function to handle telnet options.
-        assert isinstance(self.remote_conn, Telnet)
         self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
         delay_factor = self.select_delay_factor(delay_factor)
         time.sleep(1 * delay_factor)
@@ -158,7 +168,8 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
                 time.sleep(0.5 * delay_factor)
                 i += 1
             except EOFError:
-                self.remote_conn.close()  # type: ignore
+                if self.remote_conn is not None:
+                    self.remote_conn.close()
                 msg = f"Login failed: {self.host}"
                 raise NetmikoAuthenticationException(msg)
 
@@ -173,5 +184,6 @@ class RaisecomRoapTelnet(RaisecomRoapBase):
             return return_msg
 
         msg = f"Login failed: {self.host}"
-        self.remote_conn.close()  # type: ignore
+        if self.remote_conn is not None:
+            self.remote_conn.close()
         raise NetmikoAuthenticationException(msg)

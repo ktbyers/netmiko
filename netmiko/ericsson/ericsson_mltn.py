@@ -2,7 +2,6 @@
 
 import time
 import re
-from os import path
 from typing import Any
 from paramiko import SSHClient
 from netmiko.ssh_auth import SSHClient_noauth
@@ -40,20 +39,11 @@ class EricssonMinilinkBase(NoEnable, BaseConnection):
         if self._real_username:
             kwargs["username"] = self._real_username
 
-    def _build_ssh_client(self) -> SSHClient:
-        remote_conn_pre: SSHClient
-        if not self.use_keys:
-            remote_conn_pre = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
-
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
+    def _get_ssh_client_instance(self) -> SSHClient:
+        """If not using SSH keys or agent, use noauth."""
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_noauth()
+        return SSHClient()
 
     def session_preparation(self) -> None:
         self._test_channel_read(pattern=self.prompt_pattern)

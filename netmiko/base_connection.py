@@ -1246,10 +1246,14 @@ A paramiko SSHException occurred during connection creation:
 
         raise NetmikoTimeoutException("Timed out waiting for data")
 
+    def _get_ssh_client_instance(self) -> paramiko.SSHClient:
+        """Return the appropriate SSHClient instance for this connection."""
+        return paramiko.SSHClient()
+
     def _build_ssh_client(self) -> paramiko.SSHClient:
         """Prepare for Paramiko SSH connection."""
         # Create instance of SSHClient object
-        remote_conn_pre = paramiko.SSHClient()
+        remote_conn_pre = self._get_ssh_client_instance()
 
         # Load host_keys for better SSH security
         if self.system_host_keys:
@@ -2333,8 +2337,12 @@ You can also look at the Netmiko session_log or debug log for more information.
                 )
 
                 if error_pattern:
-                    if re.search(error_pattern, output, flags=re.M):
-                        msg = f"Invalid input detected at command: {cmd}"
+                    error_match = re.search(error_pattern, output, flags=re.M)
+                    if error_match:
+                        error_msg = error_match.group(0)
+                        msg = (
+                            f"Invalid input detected at command: {cmd}, matched error: {error_msg}"
+                        )
                         raise ConfigInvalidException(msg)
 
         if exit_config_mode:
@@ -2468,9 +2476,12 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def paramiko_cleanup(self) -> None:
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
+        if self.remote_conn is not None:
+            self.remote_conn.close()
+            self.remote_conn = None
         if self.remote_conn_pre is not None:
             self.remote_conn_pre.close()
-        del self.remote_conn_pre
+            self.remote_conn_pre = None
 
     def disconnect(self) -> None:
         """Try to gracefully close the session."""
