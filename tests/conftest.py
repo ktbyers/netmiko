@@ -629,4 +629,9 @@ def get_platform_args():
             "enable_scp": True,
             "delete_file": delete_file_generic,
         },
+        "zpe_nodegrid": {
+            "file_system": "/var/tmp",
+            "enable_scp": False,
+            "delete_file": delete_file_generic,
+        },
     }
