@@ -243,6 +243,7 @@ CLASS_MAPPER_BASE = {
     "cisco_nxos": CiscoNxosSSH,
     "cisco_s200": CiscoS200SSH,
     "cisco_s300": CiscoS300SSH,
+    "cisco_s500": CiscoS300SSH,
     "cisco_tp": CiscoTpTcCeSSH,
     "cisco_viptela": CiscoViptelaSSH,
     "cisco_wlc": CiscoWlcSSH,
@@ -423,6 +424,7 @@ CLASS_MAPPER["cisco_xe_telnet"] = CiscoIosTelnet
 CLASS_MAPPER["cisco_xr_telnet"] = CiscoXrTelnet
 CLASS_MAPPER["cisco_s200_telnet"] = CiscoS200Telnet
 CLASS_MAPPER["cisco_s300_telnet"] = CiscoS300Telnet
+CLASS_MAPPER["cisco_s500_telnet"] = CiscoS300Telnet
 CLASS_MAPPER["dell_dnos6_telnet"] = DellDNOS6Telnet
 CLASS_MAPPER["dell_powerconnect_telnet"] = DellPowerConnectTelnet
 CLASS_MAPPER["dlink_ds_telnet"] = DlinkDSTelnet

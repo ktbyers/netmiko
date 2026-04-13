@@ -70,10 +70,7 @@ class CiscoIosSSH(CiscoIosBase):
 class CiscoIosTelnet(CiscoIosBase):
     """Cisco IOS Telnet driver."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        if "device_type" not in kwargs:
-            kwargs["device_type"] = "cisco_ios_telnet"
-        super().__init__(**kwargs)
+    pass
 
 
 class CiscoIosSerial(CiscoIosBase):

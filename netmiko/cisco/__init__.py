@@ -20,8 +20,6 @@ from netmiko.cisco.cisco_s200 import CiscoS200SSH
 from netmiko.cisco.cisco_s200 import CiscoS200Telnet
 from netmiko.cisco.cisco_s300 import CiscoS300SSH
 from netmiko.cisco.cisco_s300 import CiscoS300Telnet
-from netmiko.cisco.cisco_s500 import CiscoS500SSH
-from netmiko.cisco.cisco_s500 import CiscoS500Telnet
 from netmiko.cisco.cisco_tp_tcce import CiscoTpTcCeSSH
 from netmiko.cisco.cisco_viptela import CiscoViptelaSSH
 from netmiko.cisco.cisco_apic import CiscoApicSSH
@@ -41,8 +39,6 @@ __all__ = [
     "CiscoS200Telnet",
     "CiscoS300SSH",
     "CiscoS300Telnet",
-    "CiscoS500SSH",
-    "CiscoS500Telnet",
     "CiscoTpTcCeSSH",
     "CiscoViptelaSSH",
     "CiscoIosBase",
