@@ -290,26 +290,27 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         FITELnet devices may echo the prompt multiple times (especially on
         serial/telnet), so this override uses a loop to strip all trailing
         empty lines and prompt lines.
-
-        Uses a strict regex so that only actual prompt lines are removed --
-        content lines that happen to contain the hostname are preserved.
         """
         response_list = a_string.split(self.RESPONSE_RETURN)
         base = self.base_prompt.strip()
-        if len(base) <= 1:
-            # Bare prompt: match "#", ">", "(config)#", etc.
-            prompt_re = re.compile(r"^(?:\([^)]*\))?[#>]\s*$")
-        else:
-            # Hostname prompt: match "F220#", "F220(config)#", etc.
-            prompt_re = re.compile(rf"^{re.escape(base)}(?:\([^)]*\))?[#>]\s*$")
-        while response_list:
+        valid_prompts = {"#", ">", f"{base}#", f"{base}>"}
+
+        while True:
+            if not response_list:
+                break
             last_line = response_list[-1].strip()
+
             # Remove control characters (e.g. BEL \x07) before matching
             clean_line = re.sub(r"[\x00-\x1f\x7f]", "", last_line)
-            if clean_line == "" or prompt_re.match(clean_line):
-                response_list.pop()
+
+            if clean_line in valid_prompts:
+                # Drop the last line
+                response_list = response_list[:-1]
+                # valid_prompts must now be what we just matched
+                valid_prompts = {clean_line}
             else:
                 break
+
         return self.RESPONSE_RETURN.join(response_list)
 
 

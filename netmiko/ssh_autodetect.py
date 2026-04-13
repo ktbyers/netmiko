@@ -320,12 +320,6 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "furukawa_fitelnet": {
-        "cmd": "show boot",
-        "search_patterns": [r"next-boot-side"],
-        "priority": 99,
-        "dispatch": "_autodetect_std",
-    },
     "paloalto_panos": {
         "cmd": "show system info",
         "search_patterns": [r"model:\s+PA"],
