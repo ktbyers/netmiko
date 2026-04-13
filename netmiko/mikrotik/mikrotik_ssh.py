@@ -198,12 +198,18 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
             if not remote_cmd:
                 remote_cmd = f'/file print detail where name="{self.file_system}/{self.dest_file}"'
             remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
-            # Output will look like
-            # 0 name="flash/test9.txt" type=".txt file" size=19 creation-time=jun...
-            # fail case will be blank line (all whitespace)
+            # Possible outputs:
+            # - Normal entry containing 'size' and the filename
+            #   0 name="flash/test9.txt" type=".txt file" size=19 creation-time=...
+            # - Some firmware versions print flags then the entry
+            #   Flags: S - shared
+            #   0 name="flash/test9.txt" type=".txt file" size=19 creation-time=...
+            # - Or only the flags (no matching file), or entirely blank on failure
+            #   Flags: S - shared
+            #   <no matching file line>
             if "size" in remote_out and f"{self.file_system}/{self.dest_file}" in remote_out:
                 return True
-            elif not remote_out.strip():
+            elif not remote_out.strip() or ("Flags:" in remote_out and "size" not in remote_out):
                 return False
             raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":
