@@ -39,11 +39,8 @@ CUSTOM_THEME = Theme(
 )
 
 
-def output_raw(results, hide_empty=False):
+def output_raw(results):
     border_color = CUSTOM_THEME.styles.get("border").color.name
-
-    if hide_empty:
-        results = {device_name: output for device_name, output in results.items() if output}
 
     if len(results) == 1:
         for device_name, output in results.items():
@@ -57,7 +54,7 @@ def output_raw(results, hide_empty=False):
             print()
 
 
-def output_text(results, pattern=None, hide_empty=False):
+def output_text(results, pattern=None):
     console = Console(theme=CUSTOM_THEME)
 
     for device_name, output in results.items():
@@ -66,9 +63,6 @@ def output_text(results, pattern=None, hide_empty=False):
             output = highlight_regex_with_context(output, pattern)
         else:
             output = Text(output)
-
-        if hide_empty and not output:
-            continue
 
         panel = Panel(
             output,
@@ -208,6 +202,9 @@ def output_dispatcher(out_format, results, pattern=None, hide_empty=False):
     # Sort the results dictionary by device_name
     results = dict(sorted(results.items()))
 
+    if hide_empty:
+        results = {device_name: output for device_name, output in results.items() if output}
+
     output_functions = {
         "text": output_text,
         "text_highlighted": output_text,
@@ -224,8 +221,5 @@ def output_dispatcher(out_format, results, pattern=None, hide_empty=False):
         kwargs["pattern"] = pattern
     elif out_format == "json_raw":
         kwargs["raw"] = True
-
-    if hide_empty:
-        kwargs["hide_empty"] = True
 
     return func(results, **kwargs)
