@@ -158,6 +158,12 @@ class InLineTransfer(CiscoIosFileTransfer):
         if re.search(r"[{}]", tmp_string):
             msg = "Curly brace detected in string; TCL requires this be escaped."
             raise ValueError(msg)
+        if re.search(r"\\$", tmp_string, re.MULTILINE):
+            msg = (
+                "Trailing backslash detected in string; TCL treats a backslash at the end "
+                "of a line as a line continuation, which will corrupt the transferred config."
+            )
+            raise ValueError(msg)
         return tmp_string
 
     def __enter__(self) -> "InLineTransfer":
