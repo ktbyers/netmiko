@@ -33,30 +33,25 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         license_prompt = "Do you want to see the software license"
         new_password_promt = "new password>"
         default_config_prompt = 'remove this default configuration type "r"'
-        combined_pattern = (
-            rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt}|{new_password_promt}|{default_config_prompt})"
-        )
+        combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt}|{new_password_promt}|{default_config_prompt})"
 
-        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-        for i in range(1,15):
+        for _ in range(15):
+            data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
             if no_license_message in data:
                 # Handle "no license" message
                 self.write_channel(self.RETURN)
-                data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
             elif license_prompt in data:
                 # Handle software license prompt
                 self.write_channel("n")
-                data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
             elif default_config_prompt in data:
                 # Handle default config notice
-                self.write_channel("\n")
-                data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+                self.write_channel(self.RETURN)
             elif new_password_promt in data:
                 # Handle new password request
-                self.write_channel('\x03')
-                data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-            else: # must have matched the regular promt 
-                break
+                self.write_channel("\x03")
+            elif re.search(self.prompt_pattern, data, re.I):
+                return
+        raise ValueError("Unexpected output in special_login_handler")
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
