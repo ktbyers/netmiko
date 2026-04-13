@@ -41,8 +41,8 @@ mypy-extensions = "1.0.0"
 pytest = "8.3.3"
 twine = "6.2.0"
 docutils = "0.22.4"
-# Genie/Pyats requires pysnmp 6.1.4
-# Netmiko can't use pysnmp (as they totally changed the library to async).
+# genie (parsers group) requires exactly pysnmp 6.1.4 (latest 6.1.x, disallows >=6.2)
+# pysnmp 7.x is excluded as it is a completely different async library incompatible with Netmiko
 pysnmp = ">=6.1.4,<7"
 pdoc3 = "0.11.6"
 types-paramiko = "4.0.0.20250822"

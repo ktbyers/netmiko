@@ -31,6 +31,7 @@ def main(args):
         cmd_arg = True
     device_or_group = cli_args.devices.strip()
     hide_failed = cli_args.hide_failed
+    hide_empty = cli_args.hide_empty
     pattern = cli_args.pattern
 
     # DEVICE LOADING #####
@@ -88,7 +89,7 @@ def main(args):
         out_format = "raw"
     # elif output_yaml:
     #    out_format = "yaml"
-    output_dispatcher(out_format, valid_results, pattern=pattern)
+    output_dispatcher(out_format, valid_results, pattern=pattern, hide_empty=hide_empty)
 
     if cli_args.display_runtime:
         print("Total time: {0}".format(datetime.now() - start_time))

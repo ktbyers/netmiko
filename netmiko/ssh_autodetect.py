@@ -207,6 +207,13 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "hirschmann_hios": {
+        "cmd": "",
+        "search_patterns": [r"Release HiOS-"],
+        "re_flags": 0,
+        "priority": 99,
+        "dispatch": "_autodetect_login_banner",
+    },
     "hp_comware": {
         "cmd": "display version",
         "search_patterns": ["HPE Comware", "HP Comware"],
@@ -570,6 +577,35 @@ class SSHDetect(object):
                     return priority
         except Exception:
             return 0
+        return 0
+
+    def _autodetect_login_banner(
+        self,
+        search_patterns: Optional[List[str]] = None,
+        re_flags: int = re.IGNORECASE,
+        priority: int = 99,
+        **kwargs: Any,
+    ) -> int:
+        """
+        Method to try auto-detect the device type, by matching a regular expression on the
+        login banner.
+
+        Parameters
+        ----------
+        search_patterns : list
+            A list of regular expression to look for in the login banner (default: None).
+        re_flags: re.flags, optional
+            Any flags from the python re module to modify the regular expression
+            (default: re.IGNORECASE).
+        priority: int, optional
+            The confidence the match is right between 0 and 99 (default: 99).
+        """
+        if not search_patterns:
+            return 0
+        for pattern in search_patterns:
+            match = re.search(pattern, self.initial_buffer, flags=re_flags)
+            if match:
+                return priority
         return 0
 
     def _autodetect_std(
