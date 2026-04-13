@@ -106,6 +106,11 @@ from netmiko.fiberstore import (
 from netmiko.flexvnf import FlexvnfSSH
 from netmiko.fortinet import FortinetSSH
 from netmiko.fujitsu import FujitsuSirSSH
+from netmiko.furukawa import (
+    FurukawaFitelnetSSH,
+    FurukawaFitelnetTelnet,
+    FurukawaFitelnetSerial,
+)
 from netmiko.garderos import GarderosGrsSSH
 from netmiko.genexis import GenexisSOLT33Telnet
 from netmiko.hillstone import HillstoneStoneosSSH
@@ -293,6 +298,7 @@ CLASS_MAPPER_BASE = {
     "fortinet": FortinetSSH,
     "fsas_sir": FujitsuSirSSH,
     "fujitsu_sir": FujitsuSirSSH,
+    "furukawa_fitelnet": FurukawaFitelnetSSH,
     "garderos_grs": GarderosGrsSSH,
     "generic": GenericSSH,
     "generic_termserver": TerminalServerSSH,
@@ -432,6 +438,7 @@ CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["fiberstore_fsosv2_telnet"] = FiberstoreFsosV2Telnet
+CLASS_MAPPER["furukawa_fitelnet_telnet"] = FurukawaFitelnetTelnet
 CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
 CLASS_MAPPER["genexis_solt33_telnet"] = GenexisSOLT33Telnet
@@ -467,6 +474,7 @@ CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
+CLASS_MAPPER["furukawa_fitelnet_serial"] = FurukawaFitelnetSerial
 
 # Add general terminal_server driver and autodetect
 CLASS_MAPPER["terminal_server"] = TerminalServerSSH
