@@ -29,7 +29,7 @@
 - Check Point GAiA
 - Cisco AireOS (Wireless LAN Controllers)
 - Cisco ASA
-- Cisco S200
+- Cisco S200/S300/S500
 - CloudGenix ION
 - Dell OS9 (Force10)
 - Dell OS10
@@ -193,6 +193,7 @@
 - cisco_nxos
 - cisco_s200
 - cisco_s300
+- cisco_s500
 - cisco_tp
 - cisco_viptela
 - cisco_wlc
@@ -328,6 +329,7 @@
 - cisco_nxos_telnet
 - cisco_s200_telnet
 - cisco_s300_telnet
+- cisco_s500_telnet
 - cisco_xr_telnet
 - dell_dnos6_telnet
 - dell_powerconnect_telnet
