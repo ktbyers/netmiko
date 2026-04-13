@@ -2337,8 +2337,12 @@ You can also look at the Netmiko session_log or debug log for more information.
                 )
 
                 if error_pattern:
-                    if re.search(error_pattern, output, flags=re.M):
-                        msg = f"Invalid input detected at command: {cmd}"
+                    error_match = re.search(error_pattern, output, flags=re.M)
+                    if error_match:
+                        error_msg = error_match.group(0)
+                        msg = (
+                            f"Invalid input detected at command: {cmd}, matched error: {error_msg}"
+                        )
                         raise ConfigInvalidException(msg)
 
         if exit_config_mode:
@@ -2472,9 +2476,12 @@ You can also look at the Netmiko session_log or debug log for more information.
 
     def paramiko_cleanup(self) -> None:
         """Cleanup Paramiko to try to gracefully handle SSH session ending."""
+        if self.remote_conn is not None:
+            self.remote_conn.close()
+            self.remote_conn = None
         if self.remote_conn_pre is not None:
             self.remote_conn_pre.close()
-        del self.remote_conn_pre
+            self.remote_conn_pre = None
 
     def disconnect(self) -> None:
         """Try to gracefully close the session."""
