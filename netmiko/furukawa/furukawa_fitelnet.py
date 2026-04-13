@@ -291,6 +291,7 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         serial/telnet), so this override uses a loop to strip all trailing
         empty lines and prompt lines.
         """
+        a_string = a_string.rstrip()
         response_list = a_string.split(self.RESPONSE_RETURN)
         base = self.base_prompt.strip()
         valid_prompts = {"#", ">", f"{base}#", f"{base}>"}
