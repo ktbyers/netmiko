@@ -21,6 +21,7 @@
 - ARRIS CER
 - Aruba OS Switch
 - AudioCodes Gateways & Controllers
+- Aviat WTM Outdoor Radio
 - Broadcom ICOS
 - Calix B6
 - Casa Systems CMTS
@@ -28,7 +29,7 @@
 - Check Point GAiA
 - Cisco AireOS (Wireless LAN Controllers)
 - Cisco ASA
-- Cisco S200
+- Cisco S200/S300/S500
 - CloudGenix ION
 - Dell OS9 (Force10)
 - Dell OS10
@@ -77,12 +78,13 @@
 
 - A10
 - Accedian
-- Alaxala AX2600S and AX3600S 
+- Alaxala AX2600S and AX3600S
 - Allied Telesis AlliedWare Plus
 - Arris CER
 - Aruba OS (Wireless Controllers/WAPs)
 - Aruba AOS-CX
 - AsterFusion AsterNOS SONiC
+- Avara OAP800
 - Bintec BOSS (Bintec/Funkwerk)
 - Brocade Fabric OS
 - C-DOT CROS
@@ -111,9 +113,15 @@
 - Fiberstore NetworkOS
 - Fiberstore FS-OS (V2)
 - Fortinet
+- Fujitsu Si-R (Fsas Technologies)
 - Garderos GRS
 - Genexis Saturn SOLT33 (telnet only)
+- Hioso OLT
+- Hirschmann HiOS
+- Huawei ONT
+- IIJ SEIL
 - Lancom LCOS SX4
+- Lancom LCOS SX5
 - Moxa EDS
 - MRV Communications OptiSwitch
 - MRV LX
@@ -124,6 +132,7 @@
 - QuantaMesh
 - Rad ETX
 - Raisecom ROAP
+- Raisecom ROS
 - Silver Peak VXOA
 - Sophos SFOS
 - Telco Systems BiNOS
@@ -157,8 +166,10 @@
 - audiocode_66
 - audiocode_72
 - audiocode_shell
+- avara_aos
 - avaya_ers
 - avaya_vsp
+- aviat_wtm
 - bintec_boss
 - broadcom_icos
 - brocade_fastiron
@@ -182,6 +193,7 @@
 - cisco_nxos
 - cisco_s200
 - cisco_s300
+- cisco_s500
 - cisco_tp
 - cisco_viptela
 - cisco_wlc
@@ -228,15 +240,18 @@
 - fiberstore_networkos
 - flexvnf
 - fortinet
+- fujitsu_sir
 - garderos_grs
 - generic
 - generic_termserver
 - h3c_comware
 - hillstone_stoneos
+- hirschmann_hios
 - hp_comware
 - hp_procurve
 - huawei
 - huawei_olt
+- huawei_ont
 - huawei_smartax
 - huawei_smartaxmmi
 - huawei_vrp
@@ -249,6 +264,7 @@
 - keymile
 - keymile_nos
 - lancom_lcossx4
+- lancom_lcossx5
 - linux
 - maipu
 - mellanox
@@ -271,8 +287,10 @@
 - quanta_mesh
 - rad_etx
 - raisecom_roap
+- raisecom_ros
 - ruckus_fastiron
 - ruijie_os
+- iij_seilos
 - silverpeak_vxoa
 - sixwind_os
 - sophos_sfos
@@ -291,7 +309,7 @@
 - yamaha
 - zte_zxros
 - zyxel_os
- 
+
 ###### Supported Telnet device_type values
 
 - adtran_os_telnet
@@ -311,6 +329,7 @@
 - cisco_nxos_telnet
 - cisco_s200_telnet
 - cisco_s300_telnet
+- cisco_s500_telnet
 - cisco_xr_telnet
 - dell_dnos6_telnet
 - dell_powerconnect_telnet
@@ -324,7 +343,9 @@
 - genexis_solt33_telnet
 - hp_comware_telnet
 - hp_procurve_telnet
+- hioso_olt_telnet
 - huawei_olt_telnet
+- huawei_ont_telnet
 - huawei_telnet
 - infinera_packet_telnet
 - ipinfusion_ocnos_telnet
@@ -337,9 +358,11 @@
 - optilink_eolt9702_telnet
 - paloalto_panos_telnet
 - rad_etx_telnet
+- raisecom_ros_telnet
 - raisecom_telnet
 - ruckus_fastiron_telnet
 - ruijie_os_telnet
+- iij_seilos_telnet
 - supermicro_smis_telnet
 - telcosystems_binos_telnet
 - teldat_cit_telnet

@@ -26,20 +26,32 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         Special cases:
         Mikrotik might prompt to read software licenses before displaying the initial prompt.
         Mikrotik might also prompt for acknowledging no software key message if unlicensed.
+        Mikrotik might present a "default config" screen.
+        Mikrotik might ask for a new password.
         """
         no_license_message = 'Please press "Enter" to continue!'
         license_prompt = "Do you want to see the software license"
-        combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})"
+        new_password_promt = "new password>"
+        default_config_prompt = 'remove this default configuration type "r"'
+        combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt}|{new_password_promt}|{default_config_prompt})"
 
-        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-        if no_license_message in data:
-            # Handle "no license" message
-            self.write_channel(self.RETURN)
-            self.read_until_pattern(pattern=self.prompt_pattern)
-        elif license_prompt in data:
-            # Handle software license prompt
-            self.write_channel("n")
-            self.read_until_pattern(pattern=self.prompt_pattern)
+        for _ in range(15):
+            data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+            if no_license_message in data:
+                # Handle "no license" message
+                self.write_channel(self.RETURN)
+            elif license_prompt in data:
+                # Handle software license prompt
+                self.write_channel("n")
+            elif default_config_prompt in data:
+                # Handle default config notice
+                self.write_channel(self.RETURN)
+            elif new_password_promt in data:
+                # Handle new password request
+                self.write_channel("\x03")
+            elif re.search(self.prompt_pattern, data, re.I):
+                return
+        raise ValueError("Unexpected output in special_login_handler")
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
@@ -198,12 +210,18 @@ class MikrotikRouterOsFileTransfer(BaseFileTransfer):
             if not remote_cmd:
                 remote_cmd = f'/file print detail where name="{self.file_system}/{self.dest_file}"'
             remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
-            # Output will look like
-            # 0 name="flash/test9.txt" type=".txt file" size=19 creation-time=jun...
-            # fail case will be blank line (all whitespace)
+            # Possible outputs:
+            # - Normal entry containing 'size' and the filename
+            #   0 name="flash/test9.txt" type=".txt file" size=19 creation-time=...
+            # - Some firmware versions print flags then the entry
+            #   Flags: S - shared
+            #   0 name="flash/test9.txt" type=".txt file" size=19 creation-time=...
+            # - Or only the flags (no matching file), or entirely blank on failure
+            #   Flags: S - shared
+            #   <no matching file line>
             if "size" in remote_out and f"{self.file_system}/{self.dest_file}" in remote_out:
                 return True
-            elif not remote_out.strip():
+            elif not remote_out.strip() or ("Flags:" in remote_out and "size" not in remote_out):
                 return False
             raise ValueError("Unexpected output from check_file_exists")
         elif self.direction == "get":

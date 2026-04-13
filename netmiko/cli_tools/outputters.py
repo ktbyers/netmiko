@@ -197,10 +197,13 @@ def highlight_regex_with_context(text, pattern, highlight_color="red", context_l
     return text_obj
 
 
-def output_dispatcher(out_format, results, pattern=None):
+def output_dispatcher(out_format, results, pattern=None, hide_empty=False):
 
     # Sort the results dictionary by device_name
     results = dict(sorted(results.items()))
+
+    if hide_empty:
+        results = {device_name: output for device_name, output in results.items() if output}
 
     output_functions = {
         "text": output_text,

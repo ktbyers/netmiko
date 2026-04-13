@@ -52,8 +52,8 @@ types-PyYAML = "6.0.12.20250915"
 optional = true
 
 [tool.poetry.group.parsers.dependencies]
-pyats = "26.2"
-genie = "26.2"
+pyats = ">=26.2"
+genie = ">=26.2"
 ttp = ">=0.9.5"
 
 [tool.poetry.scripts]

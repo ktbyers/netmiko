@@ -116,7 +116,7 @@ tests/unit/test_entry_points.py .                                        [ 50%]
 tests/unit/test_ssh_autodetect.py .                                      [ 51%]
 tests/unit/test_utilities.py ............................                [100%]
 
-============================== 58 passed in 6.41s ==============================
+============================== 89 passed in 6.41s ==============================
 ```
 
 #### Create a branch for your work:
@@ -153,6 +153,6 @@ Place a clear statement regarding the purpose of the PR (bug it is fixing, featu
 
 For any more meaningful feature, you should open a GitHub issue or discussion first and make sure that we agree on implementing this feature.
 
-The PR will will be sourced from your forked repository + the forked repository branch in use, with the destination of Netmiko's develop branch.
+The PR will be sourced from your forked repository + the forked repository branch in use, with the destination of Netmiko's develop branch.
 
 ![An example PR from a forked repository](./images/03-contrib.png)
