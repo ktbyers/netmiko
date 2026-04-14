@@ -6,9 +6,14 @@ body:
     attributes:
       value: |
         ## New Platform Request
-        Use this form to request support for a new network device or platform.
+
+        Since AI/LLMs can write Python code essentially for free, I am experimenting with a new
+        model for Netmiko driver submissions. Rather than accepting code contributions via pull
+        requests, end-users submit the behavior of the platform (CLI captures, prompts, commands),
+        and I work with an LLM to generate the driver code. This ensures more consistent code is
+        added to the Netmiko codebase and makes the review and new-driver workflow easier to manage.
+
         **Do not open a pull request for a new driver** — PRs for new drivers are not accepted.
-        The maintainer will implement accepted requests using AI tooling.
 
         Fill in as much detail as possible. The CLI captures are the most important fields —
         without them the driver cannot be implemented reliably.
