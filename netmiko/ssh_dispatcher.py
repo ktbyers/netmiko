@@ -505,7 +505,7 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         if device_type is None:
             msg_str = platforms_str
         else:
-            msg_str = telnet_platforms_str if "_telnet" in device_type else platforms_str
+            msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
         raise ValueError(
             "Unsupported 'device_type' currently supported platforms are: {}".format(msg_str)
         )
