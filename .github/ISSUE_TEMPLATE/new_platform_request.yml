@@ -1,0 +1,131 @@
+name: New Platform Request
+description: Request support for a new network device/platform. Do NOT open a PR for a new driver — it will be closed.
+labels: ["New Platform"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## New Platform Request
+        Use this form to request support for a new network device or platform.
+        **Do not open a pull request for a new driver** — PRs for new drivers are not accepted.
+        The maintainer will implement accepted requests using AI tooling.
+
+        Fill in as much detail as possible. The CLI captures are the most important fields —
+        without them the driver cannot be implemented reliably.
+
+  - type: input
+    id: vendor
+    attributes:
+      label: Vendor
+      description: The vendor/manufacturer name. e.g. `cisco`, `huawei`, `juniper`
+      placeholder: e.g. cisco
+    validations:
+      required: true
+
+  - type: input
+    id: nos
+    attributes:
+      label: Network Operating System (NOS)
+      description: |
+        The name of the NOS/firmware. e.g. `ios`, `eos`, `vrp`.
+        Do NOT use transport (`ssh`, `telnet`) or device category (`router`, `switch`, `olt`) here —
+        those are separate. The device_type will be composed as `{vendor}_{nos}_ssh` / `{vendor}_{nos}_telnet`.
+      placeholder: e.g. ios
+    validations:
+      required: true
+
+  - type: input
+    id: device_models
+    attributes:
+      label: Device model(s) tested on
+      placeholder: e.g. Catalyst 9300, ASR 1001-X
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: transport
+    attributes:
+      label: Transport support
+      description: Which transport protocols does this device support?
+      options:
+        - label: SSH
+        - label: Telnet
+
+  - type: checkboxes
+    id: modes
+    attributes:
+      label: CLI modes
+      description: Which privileged CLI modes does this device support?
+      options:
+        - label: Enable mode (privileged exec, e.g. `enable` command)
+        - label: Config mode (configuration terminal, e.g. `configure terminal`)
+
+  - type: textarea
+    id: ssh_capture
+    attributes:
+      label: SSH login CLI capture
+      description: |
+        Paste a raw CLI capture of the full SSH login process — from the moment you connect
+        to the point where you see the first prompt. Include any banners or interactive prompts.
+        Leave blank if SSH is not supported.
+      render: shell
+
+  - type: textarea
+    id: mode_transitions_capture
+    attributes:
+      label: CLI mode transitions capture (required)
+      description: |
+        Paste a CLI capture showing the complete session:
+        login → normal mode → enable mode (if supported) → config mode (if supported)
+        → exit config mode → exit enable mode → logout.
+        This is the single most valuable field — include it even if incomplete.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: telnet_capture
+    attributes:
+      label: Telnet login CLI capture
+      description: |
+        Paste a raw CLI capture of the full Telnet login process. Include any banners,
+        management-mode selection prompts, or password-change warnings.
+        Leave blank if Telnet is not supported.
+      render: shell
+
+  - type: input
+    id: paging_disable
+    attributes:
+      label: Disable output paging command
+      description: Command to disable `--More--` / paging so full output is returned.
+      placeholder: e.g. terminal length 0
+    validations:
+      required: true
+
+  - type: input
+    id: terminal_width
+    attributes:
+      label: Set terminal width command
+      description: Command to set terminal width to prevent line wrapping.
+      placeholder: e.g. terminal width 511
+    validations:
+      required: true
+
+  - type: textarea
+    id: quirks
+    attributes:
+      label: CLI oddities or other behavior issues
+      description: |
+        Document anything unusual: interactive prompts during login, default-password warnings,
+        management-mode selection menus, ANSI escape codes in output, commit-based config model,
+        non-standard prompt characters, or any other quirks that would affect the driver.
+      placeholder: |
+        e.g. Device prompts for management mode during Telnet login:
+        "Please choose the management mode (1: CLI, 2: Web): " → send "1"
+
+  - type: input
+    id: closest_analog
+    attributes:
+      label: Closest existing Netmiko device_type
+      description: Which existing Netmiko driver is most similar to this device? Helps select the right base class.
+      placeholder: e.g. cisco_ios
