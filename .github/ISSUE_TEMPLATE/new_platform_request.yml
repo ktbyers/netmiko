@@ -119,13 +119,3 @@ body:
         Document anything unusual: interactive prompts during login, default-password warnings,
         management-mode selection menus, ANSI escape codes in output, commit-based config model,
         non-standard prompt characters, or any other quirks that would affect the driver.
-      placeholder: |
-        e.g. Device prompts for management mode during Telnet login:
-        "Please choose the management mode (1: CLI, 2: Web): " → send "1"
-
-  - type: input
-    id: closest_analog
-    attributes:
-      label: Closest existing Netmiko device_type
-      description: Which existing Netmiko driver is most similar to this device? Helps select the right base class.
-      placeholder: e.g. cisco_ios
