@@ -2313,8 +2313,12 @@ You can also look at the Netmiko session_log or debug log for more information.
                 # Gather the output incrementally due to error_pattern requirements
                 if error_pattern:
                     output += self.read_channel_timing(read_timeout=read_timeout)
-                    if re.search(error_pattern, output, flags=re.M):
-                        msg = f"Invalid input detected at command: {cmd}"
+                    error_match = re.search(error_pattern, output, flags=re.M)
+                    if error_match:
+                        error_msg = error_match.group(0)
+                        msg = (
+                            f"Invalid input detected at command: {cmd}, matched error: {error_msg}"
+                        )
                         raise ConfigInvalidException(msg)
 
             # Standard output gathering (no error_pattern)
