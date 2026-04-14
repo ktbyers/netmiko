@@ -37,16 +37,14 @@ body:
   - type: input
     id: device_models
     attributes:
-      label: Device model(s) tested on
+      label: Device model examples are from
       placeholder: e.g. Catalyst 9300, ASR 1001-X
-    validations:
-      required: true
 
   - type: checkboxes
     id: transport
     attributes:
       label: Transport support
-      description: Which transport protocols does this device support?
+      description: Which transport protocols do you need the Netmiko driver to support?
       options:
         - label: SSH
         - label: Telnet
