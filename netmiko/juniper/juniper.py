@@ -191,7 +191,7 @@ class JuniperBase(NoEnable, BaseConnection):
 
         # hostname might change on commit, and-quit might result in exiting config mode.
         re_prompt = re.escape(self.base_prompt)
-        expect_string = rf"(?:{re_prompt}|[>#])"
+        expect_string = rf"(?:{re_prompt}|[>#]\s*$)"
         output += self._send_command_str(
             command_string,
             expect_string=expect_string,
