@@ -1,15 +1,16 @@
 import re
-from typing import Any, Optional, Union, Sequence, Iterator, TextIO, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from netmiko.base_connection import BaseConnection
 
 from netmiko.no_enable import NoEnable
+from netmiko.no_config import NoConfig
 from netmiko.linux.linux_ssh import LinuxSSH
 from netmiko.scp_handler import BaseFileTransfer
 
 
-class ZpeNodegridSSH(NoEnable, LinuxSSH):
+class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
     """ZPE Systems Nodegrid SSH driver.
 
     The Nodegrid OS uses a directory-based virtual configuration tree.
@@ -36,7 +37,7 @@ class ZpeNodegridSSH(NoEnable, LinuxSSH):
     """
 
     # Matches: [admin@nodegrid /]# and [+admin@nodegrid ETH0]#
-    prompt_pattern = r"\[\+?[^\]]+\]#"
+    prompt_pattern = r"\[\+?.*\]#"
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -48,7 +49,7 @@ class ZpeNodegridSSH(NoEnable, LinuxSSH):
     def set_base_prompt(
         self,
         pri_prompt_terminator: str = "#",
-        alt_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = "",
         delay_factor: float = 1.0,
         pattern: Optional[str] = None,
     ) -> str:
@@ -92,7 +93,9 @@ class ZpeNodegridSSH(NoEnable, LinuxSSH):
     def disable_paging(
         self,
         command: str = "set /settings/system_preferences/ paging=no",
-        **kwargs: Any,
+        delay_factor: Optional[float] = None,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
     ) -> str:
         """Disable output paging globally.
 
@@ -100,66 +103,13 @@ class ZpeNodegridSSH(NoEnable, LinuxSSH):
         commit; on others it takes effect immediately. Both cases are handled.
         """
         output = self._send_command_str(command, expect_string=self.prompt_pattern)
-        if self.check_config_mode():
-            output += self._send_command_str("commit", expect_string=self.prompt_pattern)
+        if self.allow_auto_change:
+            output += self.commit()
         return output
-
-    def check_config_mode(
-        self,
-        check_string: str = "[+",
-        pattern: str = "",
-        force_regex: bool = False,
-    ) -> bool:
-        """Check for staged (uncommitted) changes indicated by '+' in the prompt."""
-        self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=self.prompt_pattern)
-        return check_string in output
-
-    def config_mode(
-        self,
-        config_command: str = "",
-        pattern: str = "",
-        re_flags: int = 0,
-    ) -> str:
-        """No separate config mode — the Nodegrid CLI is always in the config tree."""
-        return ""
-
-    def exit_config_mode(
-        self,
-        exit_config: str = "commit",
-        pattern: str = "",
-    ) -> str:
-        """Commit any staged configuration changes."""
-        if self.check_config_mode():
-            return self._send_command_str(exit_config, expect_string=self.prompt_pattern)
-        return ""
-
-    def send_config_set(
-        self,
-        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
-        exit_config_mode: bool = True,
-        **kwargs: Any,
-    ) -> str:
-        """Send configuration commands and optionally commit staged changes.
-
-        Bypasses LinuxSSH.send_config_set to avoid its root-user check,
-        which would suppress the commit when exit_config_mode=True.
-        """
-        # super(LinuxSSH, self) skips LinuxSSH in the MRO, reaching
-        # CiscoSSHConnection -> BaseConnection.send_config_set
-        return super(LinuxSSH, self).send_config_set(
-            config_commands=config_commands,
-            exit_config_mode=exit_config_mode,
-            **kwargs,
-        )
 
     def commit(self) -> str:
         """Commit staged configuration changes."""
-        return self.exit_config_mode()
-
-    def save_config(self, *args: Any, **kwargs: Any) -> str:
-        """Commit staged configuration changes."""
-        return self.exit_config_mode()
+        return self._send_command_str("commit", expect_string=self.prompt_pattern, read_timeout=30)
 
     def _enter_shell(self) -> str:
         """Enter the Bash shell on ZPE Nodegrid."""
