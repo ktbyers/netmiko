@@ -35,6 +35,15 @@ class DellSonicSSH(NoEnable, CiscoSSHConnection):
             config_command=config_command, pattern=pattern, re_flags=re_flags
         )
 
+    def save_config(
+        self,
+        cmd: str = "write memory",
+        confirm: bool = False,
+        confirm_response: str = "",
+    ) -> str:
+        """Save config."""
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
+
     def _enter_cli(self) -> str:
         """Enter the sonic-cli."""
         return self._send_command_str("sonic-cli", expect_string=r"\#")
