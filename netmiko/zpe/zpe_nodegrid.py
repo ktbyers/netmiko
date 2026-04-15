@@ -141,9 +141,8 @@ class ZpeNodegridFileTransfer(BaseFileTransfer):
             **kwargs,
         )
 
-    def remote_space_available(self, search_pattern: str = "") -> int:
+    def remote_space_available(self, search_pattern: str = r"[\$#]") -> int:
         """Return space available on remote device."""
-        search_pattern = r"[\$#]"
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
