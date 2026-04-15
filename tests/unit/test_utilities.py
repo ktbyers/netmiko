@@ -5,6 +5,7 @@ import os
 import sys
 from os.path import dirname, join, relpath
 from pathlib import Path
+from unittest.mock import MagicMock
 import pytest
 
 from netmiko import utilities
@@ -547,3 +548,51 @@ def test_nokia_context_filter():
     test_case = 'foo[show router "Base" bgp]'
     out = utilities.nokia_context_filter(test_case)
     assert out != ""
+
+
+def test_check_serial_port_exact_match(monkeypatch):
+    """check_serial_port should return the port when an exact match is found."""
+    port1 = MagicMock()
+    port1.device = "/dev/ttyUSB0"
+    port2 = MagicMock()
+    port2.device = "/dev/ttyS0"
+    monkeypatch.setattr(
+        "netmiko.utilities.serial.tools.list_ports.comports", lambda: [port1, port2]
+    )
+    assert utilities.check_serial_port("/dev/ttyUSB0") == "/dev/ttyUSB0"
+    assert utilities.check_serial_port("/dev/ttyS0") == "/dev/ttyS0"
+
+
+def test_check_serial_port_no_partial_match(monkeypatch):
+    """check_serial_port should not match a port that is a substring of another."""
+    port1 = MagicMock()
+    port1.device = "COM9"
+    port2 = MagicMock()
+    port2.device = "COM99"
+    monkeypatch.setattr(
+        "netmiko.utilities.serial.tools.list_ports.comports", lambda: [port1, port2]
+    )
+    assert utilities.check_serial_port("COM9") == "COM9"
+    assert utilities.check_serial_port("COM99") == "COM99"
+
+
+def test_check_serial_port_not_found(monkeypatch):
+    """check_serial_port should raise ValueError when port is not found."""
+    port1 = MagicMock()
+    port1.device = "/dev/cu.Panther"
+    monkeypatch.setattr("netmiko.utilities.serial.tools.list_ports.comports", lambda: [port1])
+    with pytest.raises(ValueError, match="device /dev/cu.usbserial-1410 not found"):
+        utilities.check_serial_port("/dev/cu.usbserial-1410")
+
+
+def test_check_serial_port_multiple_matches(monkeypatch):
+    """check_serial_port should raise ValueError when multiple ports match."""
+    port1 = MagicMock()
+    port1.device = "COM9"
+    port2 = MagicMock()
+    port2.device = "COM9"
+    monkeypatch.setattr(
+        "netmiko.utilities.serial.tools.list_ports.comports", lambda: [port1, port2]
+    )
+    with pytest.raises(ValueError, match="Multiple ports found matching COM9"):
+        utilities.check_serial_port("COM9")

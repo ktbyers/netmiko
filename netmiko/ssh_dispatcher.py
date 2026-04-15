@@ -69,7 +69,7 @@ from netmiko.dell import DellDNOS6SSH
 from netmiko.dell import DellDNOS6Telnet
 from netmiko.dell import DellForce10SSH
 from netmiko.dell import DellOS10SSH, DellOS10FileTransfer
-from netmiko.dell import DellSonicSSH
+from netmiko.dell import DellSonicSSH, DellSonicFileTransfer
 from netmiko.dell import DellPowerConnectSSH
 from netmiko.dell import DellPowerConnectTelnet
 from netmiko.dell import DellIsilonSSH
@@ -387,6 +387,7 @@ FILE_TRANSFER_MAP = {
     "cisco_xe": CiscoIosFileTransfer,
     "cisco_xr": CiscoXrFileTransfer,
     "dell_os10": DellOS10FileTransfer,
+    "dell_sonic": DellSonicFileTransfer,
     "extreme_exos": ExtremeExosFileTransfer,
     "juniper_junos": JuniperFileTransfer,
     "linux": LinuxFileTransfer,
@@ -507,7 +508,7 @@ def ConnectHandler(*args: Any, **kwargs: Any) -> "BaseConnection":
         if device_type is None:
             msg_str = platforms_str
         else:
-            msg_str = telnet_platforms_str if "telnet" in device_type else platforms_str
+            msg_str = telnet_platforms_str if "_telnet" in device_type else platforms_str
         raise ValueError(
             "Unsupported 'device_type' currently supported platforms are: {}".format(msg_str)
         )

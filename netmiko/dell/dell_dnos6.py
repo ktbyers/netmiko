@@ -15,9 +15,9 @@ class DellDNOS6Base(DellPowerConnectBase):
 
     def save_config(
         self,
-        cmd: str = "copy running-configuration startup-configuration",
-        confirm: bool = False,
-        confirm_response: str = "",
+        cmd: str = "copy running-config startup-config",
+        confirm: bool = True,
+        confirm_response: str = "y",
     ) -> str:
         """Saves Config"""
         return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
