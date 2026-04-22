@@ -37,6 +37,16 @@ class A10SSH(CiscoSSHConnection):
         else:
             return check_string in output
 
+    def config_mode(
+        self,
+        config_command: str = "configure terminal",
+        pattern: str = "(config)",
+        re_flags: int = 0,
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
+
     def save_config(
         self,
         cmd: str = "write memory",
