@@ -40,8 +40,6 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
     prompt_pattern = r"\[\+?.*\]#"
     # Matches: root@nodegrid:/var/home# or admin@nodegrid:~$
     shell_prompt_pattern = r".+@.+:.+[\$#]"
-    # WARNING: Not officially documented by ZPE. Could negatively impact performance.
-    disable_paging_command = ".sessionpageout undefined=no"
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -96,14 +94,15 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
 
     def disable_paging(
         self,
-        command: str = "",
+        command: str = ".sessionpageout undefined=no",
         delay_factor: Optional[float] = None,
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
-        """Disable paging for the current CLI session."""
-        if not command:
-            command = self.disable_paging_command
+        """Disable paging for the current CLI session.
+
+        WARNING: Not officially documented by ZPE. Could negatively impact performance.
+        """
         return self._send_command_str(command, expect_string=self.prompt_pattern)
 
     def commit(self) -> str:
@@ -121,6 +120,8 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
 
 class ZpeNodegridFileTransfer(BaseFileTransfer):
     """ZPE Nodegrid SCP File Transfer driver."""
+
+    ssh_ctl_chan: "ZpeNodegridSSH"
 
     def __init__(
         self,
@@ -142,13 +143,14 @@ class ZpeNodegridFileTransfer(BaseFileTransfer):
 
     def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
-        search_pattern = ZpeNodegridSSH.shell_prompt_pattern
+        if not search_pattern:
+            search_pattern = self.ssh_ctl_chan.shell_prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system."""
         return self._check_file_exists_unix(
-            remote_cmd=remote_cmd, search_pattern=ZpeNodegridSSH.shell_prompt_pattern
+            remote_cmd=remote_cmd, search_pattern=self.ssh_ctl_chan.shell_prompt_pattern
         )
 
     def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
@@ -156,7 +158,7 @@ class ZpeNodegridFileTransfer(BaseFileTransfer):
         return self._remote_file_size_unix(
             remote_cmd=remote_cmd,
             remote_file=remote_file,
-            search_pattern=ZpeNodegridSSH.shell_prompt_pattern,
+            search_pattern=self.ssh_ctl_chan.shell_prompt_pattern,
         )
 
     def remote_md5(self, base_cmd: str = "md5sum", remote_file: Optional[str] = None) -> str:
@@ -171,7 +173,7 @@ class ZpeNodegridFileTransfer(BaseFileTransfer):
         try:
             output = self.ssh_ctl_chan._send_command_str(
                 remote_cmd,
-                expect_string=ZpeNodegridSSH.shell_prompt_pattern,
+                expect_string=self.ssh_ctl_chan.shell_prompt_pattern,
                 read_timeout=300,
             )
         finally:
