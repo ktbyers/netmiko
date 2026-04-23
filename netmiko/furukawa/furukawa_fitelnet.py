@@ -1,9 +1,8 @@
 import re
 import time
-from typing import Any, Optional, Union, Sequence, Iterator, TextIO
+from typing import Optional
 
 from netmiko.cisco_base_connection import CiscoBaseConnection
-from netmiko.exceptions import NetmikoAuthenticationException
 
 
 class FurukawaFitelnetBase(CiscoBaseConnection):
@@ -13,15 +12,6 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
     - Bare prompts: ">" (user mode), "#" (enable mode)
     - Hostname prompts: "F220>", "F220#", "F220(config)#",
       "F220(config-GigaEthernet1/1)#", etc.
-
-    FITELnet password model:
-        - Login password: set via ``username <name> password <pass>`` or
-          ``line telnet/console password <pass>``.
-        - Enable password: separate from login, set via
-          ``enable password <pass>``.
-        - The device may show ``<WARNING> weak login password: set the
-          password`` messages that contain the word 'password' but are NOT
-          actual password prompts.
     """
 
     def session_preparation(self) -> None:
@@ -38,98 +28,36 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         pri_prompt_terminator: str = r"\#\s*$",
         alt_prompt_terminator: str = r">\s*$",
         username_pattern: str = r"(?:user:|username|login|user name)",
-        pwd_pattern: str = r"assword",
+        pwd_pattern: str = r"assword:\s*$",
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
         """Telnet/Serial login for FITELnet.
 
-        Overridden because FITELnet shows ``<WARNING>`` messages after login
-        that contain the word 'password' (e.g. ``<WARNING> weak login
-        password: set the password``).  The base class matches this as a
-        password prompt and incorrectly sends the password as a CLI command.
-
-        This override checks for the command prompt **before** checking for
-        the password pattern so that warning messages are not confused with
-        real password prompts.
+        FITELnet emits ``<WARNING> weak login password: set the password``
+        right after login.  The base class default ``pwd_pattern = r"assword"``
+        matches the word 'password' inside that warning and incorrectly sends
+        the password as a CLI command.  Anchoring to ``assword:\\s*$`` limits
+        matches to a real ``password:`` prompt at end-of-line.
         """
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(1 * delay_factor)
-
-        output = ""
-        return_msg = ""
-        i = 1
-        while i <= max_loops:
-            try:
-                output = self.read_channel()
-                return_msg += output
-
-                # Search for username pattern / send username
-                if re.search(username_pattern, output, flags=re.I):
-                    self.write_channel(self.username + "\r")
-                    time.sleep(1 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-
-                # FITELnet fix: check for prompt BEFORE password pattern.
-                # This prevents matching 'password' in <WARNING> messages.
-                if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                    alt_prompt_terminator, output, flags=re.M
-                ):
-                    return return_msg
-
-                # Only check for password if no prompt was detected
-                if re.search(pwd_pattern, output, flags=re.I):
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + "\r")
-                    time.sleep(0.5 * delay_factor)
-                    output = self.read_channel()
-                    return_msg += output
-                    if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-                        alt_prompt_terminator, output, flags=re.M
-                    ):
-                        return return_msg
-
-                # Check for device with no password configured
-                if re.search(r"assword required, but none set", output):
-                    assert self.remote_conn is not None
-                    self.remote_conn.close()
-                    msg = f"Login failed - Password required, but none set: {self.host}"
-                    raise NetmikoAuthenticationException(msg)
-
-                self.write_channel(self.TELNET_RETURN)
-                time.sleep(0.5 * delay_factor)
-                i += 1
-
-            except EOFError:
-                assert self.remote_conn is not None
-                self.remote_conn.close()
-                msg = f"Login failed: {self.host}"
-                raise NetmikoAuthenticationException(msg)
-
-        # Last try to see if we already logged in
-        self.write_channel(self.TELNET_RETURN)
-        time.sleep(0.5 * delay_factor)
-        output = self.read_channel()
-        return_msg += output
-        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
-            alt_prompt_terminator, output, flags=re.M
-        ):
-            return return_msg
-
-        assert self.remote_conn is not None
-        self.remote_conn.close()
-        msg = f"Login failed: {self.host}"
-        raise NetmikoAuthenticationException(msg)
+        return super().telnet_login(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            username_pattern=username_pattern,
+            pwd_pattern=pwd_pattern,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+        )
 
     def check_enable_mode(self, check_string: str = "#") -> bool:
         """Check if in enable mode.
 
-        FITELnet uses bare prompts (just ">" or "#"), so we read until
-        either prompt character appears rather than relying on base_prompt.
+        FITELnet uses bare prompts (just ">" or "#"), so we match the
+        prompt character at end-of-line to avoid false matches on
+        ``<WARNING>`` / ``<ERROR>`` messages that contain ``>``.
         """
         self.write_channel(self.RETURN)
-        output = self.read_until_pattern(pattern=r"[>#]")
+        output = self.read_until_pattern(pattern=r"[>#]\s*$")
         return check_string in output
 
     def enable(
@@ -149,6 +77,10 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
            ``<ERROR> Authentication failed`` followed by another ``password:``
            prompt.  The base implementation would hang waiting for "#".
            This override detects the failure immediately.
+
+        ``enable_pattern`` is accepted for API compatibility with the parent
+        signature but is not used; this override hardcodes the success /
+        failure detection patterns.
         """
         output = ""
         if check_state and self.check_enable_mode():
@@ -183,7 +115,7 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         output = ""
         if self.check_enable_mode():
             self.write_channel(self.normalize_cmd(exit_command))
-            output += self.read_until_pattern(pattern=r">")
+            output += self.read_until_pattern(pattern=r">\s*$")
             # Drain any remaining data (serial ports may have buffered echoes)
             time.sleep(0.5)
             self.clear_buffer()
@@ -191,23 +123,9 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def send_config_set(
-        self,
-        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
-        exit_config_mode: bool = False,
-        **kwargs: Any,
-    ) -> str:
-        """FITELnet uses a candidate-config model; stay in config mode for commit."""
-        return super().send_config_set(
-            config_commands=config_commands,
-            exit_config_mode=exit_config_mode,
-            **kwargs,
-        )
-
     def commit(
         self,
         read_timeout: float = 120.0,
-        comment: str = "",
     ) -> str:
         """
         Commit the candidate configuration on the FITELnet device.
@@ -216,16 +134,11 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
 
         commit may prompt with '[y/n]' for confirmation.
         """
-        if comment:
-            command_string = f"commit comment {comment}"
-        else:
-            command_string = "commit"
-
         output = ""
         confirmation = r"onfirm|\[y/[nN]\]"
         pattern = rf"(?:#|{confirmation})"
         new_data = self._send_command_str(
-            command_string,
+            "commit",
             expect_string=pattern,
             strip_prompt=False,
             strip_command=False,
@@ -245,7 +158,18 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
 
         output += new_data
 
-        if "Error" in output or "error" in output or "Failed" in output:
+        # FITELnet refuses commit while another session/process is active with
+        # "Another processing is executing. This command can not be executed."
+        # The message contains neither "error" nor "failed", so it must be
+        # detected separately before the generic error check below.
+        if "Another processing is executing" in output:
+            raise ValueError(
+                "Commit failed: another process is executing on the device. "
+                "Retry once the other operation completes."
+            )
+
+        # FITELnet emits <ERROR> in all caps; match case-insensitively.
+        if re.search(r"error|failed", output, re.IGNORECASE):
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
 
         return output
@@ -259,28 +183,19 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
         """Save working.cfg to boot.cfg (startup configuration).
 
         FITELnet prompts 'save ok?[y/N]:' by default.
+
+        If another process is holding the config (e.g. a concurrent session
+        in the middle of commit/save/refresh), FITELnet replies with
+        "Another processing is executing. This command can not be executed."
+        and never prints the ``[y/N]`` prompt — so the confirm_response would
+        then be sent as a bare CLI command.  Detect this explicitly and raise.
         """
-        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
-
-    def strip_command(self, command_string: str, output: str) -> str:
-        """Strip command echo from output.
-
-        FITELnet bare prompts cause the echoed command to appear as
-        ``#show ...`` instead of ``show ...``, so the base implementation's
-        ``output.startswith(cmd)`` check fails.  This override searches for
-        the command echo line (optionally prefixed by the prompt character)
-        and removes it along with any preceding prompt-only lines.
-        """
-        cmd = command_string.strip()
-        if output.startswith(cmd):
-            return super().strip_command(command_string=command_string, output=output)
-
-        output_lines = output.split(self.RESPONSE_RETURN)
-        for i, line in enumerate(output_lines):
-            line_s = line.strip()
-            if line_s == cmd or line_s == f"#{cmd}" or line_s == f">{cmd}":
-                start = i + 1
-                return self.RESPONSE_RETURN.join(output_lines[start:])
+        output = super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
+        if "Another processing is executing" in output:
+            raise ValueError(
+                "save_config failed: another process is executing on the device. "
+                "Retry once the other operation completes."
+            )
         return output
 
     def strip_prompt(self, a_string: str) -> str:

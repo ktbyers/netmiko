@@ -259,18 +259,17 @@ def check_serial_port(name: str) -> str:
         )
         raise ValueError(msg)
 
-    try:
-        cdc = next(serial.tools.list_ports.grep(name))
-        serial_port = cdc[0]
-        assert isinstance(serial_port, str)
-        return serial_port
-    except StopIteration:
-        msg = f"device {name} not found. "
-        msg += "available devices are: "
-        ports = list(serial.tools.list_ports.comports())
-        for p in ports:
-            msg += f"{str(p)},"
-        raise ValueError(msg)
+    ports = serial.tools.list_ports.comports()
+    matches: List[str] = [p.device for p in ports if p.device == name]
+    if len(matches) > 1:
+        raise ValueError(f"Multiple ports found matching {name}")
+    if matches:
+        return matches[0]
+    msg = f"device {name} not found. "
+    msg += "available devices are: "
+    for p in ports:
+        msg += f"{str(p.device)},"
+    raise ValueError(msg)
 
 
 def get_template_dir(_skip_ntc_package: bool = False) -> str:

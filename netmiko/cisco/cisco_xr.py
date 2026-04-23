@@ -3,9 +3,10 @@ import re
 import warnings
 from netmiko.base_connection import DELAY_FACTOR_DEPR_SIMPLE_MSG
 from netmiko.cisco_base_connection import CiscoBaseConnection, CiscoFileTransfer
+from netmiko.no_enable import NoEnable
 
 
-class CiscoXrBase(CiscoBaseConnection):
+class CiscoXrBase(NoEnable, CiscoBaseConnection):
     def establish_connection(self, width: int = 511, height: int = 511) -> None:
         """Establish SSH connection to the network device"""
         super().establish_connection(width=width, height=height)

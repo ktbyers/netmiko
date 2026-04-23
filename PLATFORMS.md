@@ -141,6 +141,7 @@
 - Versa Networks FlexVNF
 - Vertiv MPH Power Distribution Units
 - Watchguard Firebox
+- ZPE Systems Nodegrid
 - Zyxel NOS
 - 6WIND TurboRouter
 
@@ -309,6 +310,7 @@
 - vyos
 - watchguard_fireware
 - yamaha
+- zpe_nodegrid
 - zte_zxros
 - zyxel_os
 
@@ -391,4 +393,5 @@
 - nokia_sros
 - mikrotik_routeros
 - ubiquiti_edgerouter
+- zpe_nodegrid
 
