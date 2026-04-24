@@ -40,7 +40,7 @@ class A10SSH(CiscoSSHConnection):
     def config_mode(
         self,
         config_command: str = "configure terminal",
-        pattern: str = "(config)",
+        pattern: str = r"\(config\)",
         re_flags: int = 0,
     ) -> str:
         return super().config_mode(
