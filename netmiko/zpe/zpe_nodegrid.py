@@ -38,6 +38,8 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
 
     # Matches: [admin@nodegrid /]# and [+admin@nodegrid ETH0]#
     prompt_pattern = r"\[\+?.*\]#"
+    # Matches: root@nodegrid:/var/home# or admin@nodegrid:~$
+    shell_prompt_pattern = r".+@.+:.+[\$#]"
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
@@ -92,20 +94,16 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
 
     def disable_paging(
         self,
-        command: str = "set /settings/system_preferences/ paging=no",
+        command: str = ".sessionpageout undefined=no",
         delay_factor: Optional[float] = None,
         cmd_verify: bool = True,
         pattern: Optional[str] = None,
     ) -> str:
-        """Disable output paging globally.
+        """Disable paging for the current CLI session.
 
-        On some Nodegrid versions this is a persistent setting requiring a
-        commit; on others it takes effect immediately. Both cases are handled.
+        WARNING: Not officially documented by ZPE. Could negatively impact performance.
         """
-        output = self._send_command_str(command, expect_string=self.prompt_pattern)
-        if self.allow_auto_change:
-            output += self.commit()
-        return output
+        return self._send_command_str(command, expect_string=self.prompt_pattern)
 
     def commit(self) -> str:
         """Commit staged configuration changes."""
@@ -113,7 +111,7 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
 
     def _enter_shell(self) -> str:
         """Enter the Bash shell on ZPE Nodegrid."""
-        return self._send_command_str("shell", expect_string=r"[\$#]")
+        return self._send_command_str("shell", expect_string=self.shell_prompt_pattern)
 
     def _return_cli(self) -> str:
         """Return to the ZPE Nodegrid CLI."""
@@ -122,6 +120,8 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
 
 class ZpeNodegridFileTransfer(BaseFileTransfer):
     """ZPE Nodegrid SCP File Transfer driver."""
+
+    ssh_ctl_chan: "ZpeNodegridSSH"
 
     def __init__(
         self,
@@ -141,17 +141,25 @@ class ZpeNodegridFileTransfer(BaseFileTransfer):
             **kwargs,
         )
 
-    def remote_space_available(self, search_pattern: str = r"[\$#]") -> int:
+    def remote_space_available(self, search_pattern: str = "") -> int:
         """Return space available on remote device."""
+        if not search_pattern:
+            search_pattern = self.ssh_ctl_chan.shell_prompt_pattern
         return self._remote_space_available_unix(search_pattern=search_pattern)
 
     def check_file_exists(self, remote_cmd: str = "") -> bool:
         """Check if the dest_file already exists on the file system."""
-        return self._check_file_exists_unix(remote_cmd=remote_cmd)
+        return self._check_file_exists_unix(
+            remote_cmd=remote_cmd, search_pattern=self.ssh_ctl_chan.shell_prompt_pattern
+        )
 
     def remote_file_size(self, remote_cmd: str = "", remote_file: Optional[str] = None) -> int:
         """Get the file size of the remote file."""
-        return self._remote_file_size_unix(remote_cmd=remote_cmd, remote_file=remote_file)
+        return self._remote_file_size_unix(
+            remote_cmd=remote_cmd,
+            remote_file=remote_file,
+            search_pattern=self.ssh_ctl_chan.shell_prompt_pattern,
+        )
 
     def remote_md5(self, base_cmd: str = "md5sum", remote_file: Optional[str] = None) -> str:
         """Calculate remote MD5 and returns the hash."""
@@ -164,7 +172,9 @@ class ZpeNodegridFileTransfer(BaseFileTransfer):
         self.ssh_ctl_chan._enter_shell()
         try:
             output = self.ssh_ctl_chan._send_command_str(
-                remote_cmd, expect_string=r"[\$#]", read_timeout=300
+                remote_cmd,
+                expect_string=self.ssh_ctl_chan.shell_prompt_pattern,
+                read_timeout=300,
             )
         finally:
             self.ssh_ctl_chan._return_cli()
