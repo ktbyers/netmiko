@@ -7,6 +7,21 @@ from netmiko import ConnectHandler
 from netmiko.session_log import SessionLog
 
 
+def filter_bare_prompts(content, base_prompt):
+    """Remove lines that are only a prompt with no command/output after them.
+
+    The count of such lines varies across runs (extra reads during session
+    setup), so they must be excluded before MD5 comparison. Hard-codes ">"
+    and "#" as the only valid trailing prompt characters.
+    """
+    bare_prompts = {f"{base_prompt}>".encode(), f"{base_prompt}#".encode()}
+    filtered = []
+    for line in content.splitlines(keepends=True):
+        if line.strip() not in bare_prompts:
+            filtered.append(line)
+    return b"".join(filtered)
+
+
 def add_test_name_to_file_name(initial_fname, test_name):
     dir_name, f_name = initial_fname.split("/")
     new_file_name = f"{dir_name}/{test_name}-{f_name}"
@@ -45,18 +60,22 @@ def session_action(my_connect, command):
     return output
 
 
-def session_log_md5(session_file, compare_file):
+def session_log_md5(session_file, compare_file, base_prompt):
     """Compare the session_log MD5 to the compare_file MD5"""
-    compare_log_md5 = calc_md5(file_name=compare_file)
-    log_content = read_session_log(session_file)
+    with open(compare_file, "rb") as f:
+        compare_contents = filter_bare_prompts(f.read(), base_prompt)
+    compare_log_md5 = calc_md5(contents=compare_contents)
+    log_content = filter_bare_prompts(read_session_log(session_file), base_prompt)
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
 
 
-def session_log_md5_append(session_file, compare_file):
+def session_log_md5_append(session_file, compare_file, base_prompt):
     """Compare the session_log MD5 to the compare_file MD5"""
-    compare_log_md5 = calc_md5(file_name=compare_file)
-    log_content = read_session_log(session_file, append=True)
+    with open(compare_file, "rb") as f:
+        compare_contents = filter_bare_prompts(f.read(), base_prompt)
+    compare_log_md5 = calc_md5(contents=compare_contents)
+    log_content = filter_bare_prompts(read_session_log(session_file, append=True), base_prompt)
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
 
@@ -69,7 +88,7 @@ def test_session_log(net_connect, commands, expected_responses):
     compare_file = expected_responses["compare_log"]
     session_file = expected_responses["session_log"]
 
-    session_log_md5(session_file, compare_file)
+    session_log_md5(session_file, compare_file, net_connect.base_prompt)
 
 
 def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
@@ -127,7 +146,7 @@ def test_session_log_append(device_slog_test_name, commands, expected_responses)
     compare_file_base = expected_responses["compare_log_append"]
     dir_name, f_name = compare_file_base.split("/")
     compare_file = f"{dir_name}/{test_name}-{f_name}"
-    session_log_md5_append(session_file, compare_file)
+    session_log_md5_append(session_file, compare_file, conn.base_prompt)
 
 
 def test_session_log_secrets(device_slog_test_name):
@@ -240,9 +259,12 @@ def test_session_log_bytesio(device_slog_test_name, commands, expected_responses
 
     compare_file = expected_responses["compare_log"]
     compare_file = add_test_name_to_file_name(compare_file, test_name)
-    compare_log_md5 = calc_md5(file_name=compare_file)
 
-    log_content = s_log.getvalue()
+    with open(compare_file, "rb") as f:
+        compare_contents = filter_bare_prompts(f.read(), conn.base_prompt)
+    compare_log_md5 = calc_md5(contents=compare_contents)
+
+    log_content = filter_bare_prompts(s_log.getvalue(), conn.base_prompt)
     session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
 
