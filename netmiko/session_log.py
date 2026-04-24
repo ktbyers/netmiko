@@ -63,7 +63,7 @@ class SessionLog:
                 if hold_back:
                     data = data[:-hold_back] + "********"
                 data = self.no_log_filter(data)
-                self._write_to_session_log(data)
+                self._write(data)
         if self.session_log and self._session_log_close:
             self.session_log.close()
             self.session_log = None
@@ -92,7 +92,7 @@ class SessionLog:
         self.slog_buffer = io.StringIO()
         return data
 
-    def _write_to_session_log(self, data: str) -> None:
+    def _write(self, data: str) -> None:
         assert self.session_log is not None
         if isinstance(self.session_log, io.BufferedIOBase):
             self.session_log.write(write_bytes(data, encoding=self.file_encoding))
@@ -122,7 +122,7 @@ class SessionLog:
             data = self.no_log_filter(data)
 
         if data:
-            self._write_to_session_log(data)
+            self._write(data)
 
     def write(self, data: str) -> None:
         if len(data) > 0:
