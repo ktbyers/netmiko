@@ -64,6 +64,17 @@ class SessionLog:
             data = data.replace(hidden_data, "********")
         return data
 
+    def _longest_partial_match(self, data: str) -> int:
+        """Return the length of the longest suffix of data that is a partial
+        prefix of any no_log value. Used to hold back data that might be the
+        start of a secret split across multiple channel reads."""
+        hold_back = 0
+        for hidden_data in self.no_log.values():
+            for partial_len in range(1, len(hidden_data)):
+                if data.endswith(hidden_data[:partial_len]):
+                    hold_back = max(hold_back, partial_len)
+        return hold_back
+
     def _read_buffer(self) -> str:
         self.slog_buffer.seek(0)
         data = self.slog_buffer.read()
@@ -71,26 +82,56 @@ class SessionLog:
         self.slog_buffer = io.StringIO()
         return data
 
-    def flush(self) -> None:
-        """Force the slog_buffer to be written out to the actual file"""
+    def _write_to_session_log(self, data: str) -> None:
+        if isinstance(self.session_log, io.BufferedIOBase):
+            self.session_log.write(write_bytes(data, encoding=self.file_encoding))
+        else:
+            self.session_log.write(data)
 
+        assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
+            self.session_log, io.TextIOBase
+        )
+
+        self.session_log.flush()
+
+    def flush(self) -> None:
+        """Force the slog_buffer to be written out to the actual file.
+
+        Any data still in the buffer that partially matches a no_log value
+        (e.g. connection closed mid-stream) is written as '********' rather
+        than exposing a fragment of the secret.
+        """
         if self.session_log is not None:
             data = self._read_buffer()
             data = self.no_log_filter(data)
 
-            if isinstance(self.session_log, io.BufferedIOBase):
-                self.session_log.write(write_bytes(data, encoding=self.file_encoding))
-            else:
-                self.session_log.write(data)
+            if self.no_log and data:
+                hold_back = self._longest_partial_match(data)
+                if hold_back:
+                    data = data[:-hold_back] + "********"
 
-            assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
-                self.session_log, io.TextIOBase
-            )
+            self._write_to_session_log(data)
 
-            # Flush the underlying file
-            self.session_log.flush()
+    def _flush_safe(self) -> None:
+        """Flush slog_buffer to disk, holding back any trailing data that is a
+        partial prefix of a no_log value so the next write can complete the
+        match before we apply no_log_filter and write to disk."""
+        if self.session_log is None:
+            return
+
+        data = self._read_buffer()
+
+        if self.no_log and data:
+            hold_back = self._longest_partial_match(data)
+            if hold_back:
+                self.slog_buffer.write(data[-hold_back:])
+                data = data[:-hold_back]
+            data = self.no_log_filter(data)
+
+        if data:
+            self._write_to_session_log(data)
 
     def write(self, data: str) -> None:
         if len(data) > 0:
             self.slog_buffer.write(data)
-            self.flush()
+            self._flush_safe()
