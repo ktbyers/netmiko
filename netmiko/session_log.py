@@ -83,6 +83,7 @@ class SessionLog:
         return data
 
     def _write_to_session_log(self, data: str) -> None:
+        assert self.session_log is not None
         if isinstance(self.session_log, io.BufferedIOBase):
             self.session_log.write(write_bytes(data, encoding=self.file_encoding))
         else:
