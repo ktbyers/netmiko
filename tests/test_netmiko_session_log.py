@@ -346,6 +346,29 @@ def test_session_log_no_log_cfg(device_slog_test_name, commands):
     conn.disconnect()
 
 
+def test_session_log_partial_no_log_at_close():
+    """Verify a partial no_log match held in the buffer at close is written as
+    '********' rather than leaking a fragment of the secret."""
+    secret = "supersecret"
+    no_log = {"password": secret}
+    sink = io.BytesIO()
+
+    slog = SessionLog(buffered_io=sink, no_log=no_log)
+
+    # Write normal data followed by a partial secret (split at a write boundary).
+    # _flush_buffer holds "superse" back since it is a prefix of "supersecret".
+    slog.write("some output ")
+    slog.write("superse")  # partial prefix — held back, not yet written to sink
+
+    # close() must redact the held-back fragment rather than leaking it
+    slog.close()
+
+    result = sink.getvalue().decode("utf-8")
+    assert "some output " in result
+    assert secret not in result
+    assert "********" in result
+
+
 def test_session_log_custom_session_log(device_slog_test_name):
     """Verify session_log does not contain custom words (use SessionLog obj)."""
     device_slog = device_slog_test_name[0]

@@ -53,17 +53,7 @@ class SessionLog:
 
     def close(self) -> None:
         """Close the session_log file (if it is a file that we opened)."""
-        self.flush()
-        # Finalize: any data still held back (partial secret match) is now
-        # definitively a fragment — redact it before closing.
-        if self.session_log is not None:
-            data = self._read_buffer()
-            if data:
-                hold_back = self._longest_partial_match(data)
-                if hold_back:
-                    data = data[:-hold_back] + "********"
-                data = self.no_log_filter(data)
-                self._write(data)
+        self._flush_buffer(final=True)
         if self.session_log and self._session_log_close:
             self.session_log.close()
             self.session_log = None
@@ -93,6 +83,7 @@ class SessionLog:
         return data
 
     def _write(self, data: str) -> None:
+        """Write data to the underlying IO sink and flush it."""
         assert self.session_log is not None
         if isinstance(self.session_log, io.BufferedIOBase):
             self.session_log.write(write_bytes(data, encoding=self.file_encoding))
@@ -105,10 +96,16 @@ class SessionLog:
 
         self.session_log.flush()
 
-    def flush(self) -> None:
-        """Flush slog_buffer to disk, holding back any trailing data that is a
-        partial prefix of a no_log value so the next write can complete the
-        match before applying no_log_filter."""
+    def _flush_buffer(self, final: bool = False) -> None:
+        """Drain slog_buffer to the sink.
+
+        If final=False (normal write path), any trailing data that is a partial
+        prefix of a no_log value is held back in the buffer so the next write
+        can complete the match before filtering.
+
+        If final=True (close path), any held-back partial match is replaced
+        with '********' rather than exposing a fragment of the secret.
+        """
         if self.session_log is None:
             return
 
@@ -117,8 +114,11 @@ class SessionLog:
         if self.no_log and data:
             hold_back = self._longest_partial_match(data)
             if hold_back:
-                self.slog_buffer.write(data[-hold_back:])
-                data = data[:-hold_back]
+                if final:
+                    data = data[:-hold_back] + "********"
+                else:
+                    self.slog_buffer.write(data[-hold_back:])
+                    data = data[:-hold_back]
             data = self.no_log_filter(data)
 
         if data:
@@ -127,4 +127,4 @@ class SessionLog:
     def write(self, data: str) -> None:
         if len(data) > 0:
             self.slog_buffer.write(data)
-            self.flush()
+            self._flush_buffer()
