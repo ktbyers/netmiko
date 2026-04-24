@@ -54,6 +54,16 @@ class SessionLog:
     def close(self) -> None:
         """Close the session_log file (if it is a file that we opened)."""
         self.flush()
+        # Finalize: any data still held back (partial secret match) is now
+        # definitively a fragment — redact it before closing.
+        if self.session_log is not None:
+            data = self._read_buffer()
+            if data:
+                hold_back = self._longest_partial_match(data)
+                if hold_back:
+                    data = data[:-hold_back] + "********"
+                data = self.no_log_filter(data)
+                self._write_to_session_log(data)
         if self.session_log and self._session_log_close:
             self.session_log.close()
             self.session_log = None
@@ -96,27 +106,9 @@ class SessionLog:
         self.session_log.flush()
 
     def flush(self) -> None:
-        """Force the slog_buffer to be written out to the actual file.
-
-        Any data still in the buffer that partially matches a no_log value
-        (e.g. connection closed mid-stream) is written as '********' rather
-        than exposing a fragment of the secret.
-        """
-        if self.session_log is not None:
-            data = self._read_buffer()
-            data = self.no_log_filter(data)
-
-            if self.no_log and data:
-                hold_back = self._longest_partial_match(data)
-                if hold_back:
-                    data = data[:-hold_back] + "********"
-
-            self._write_to_session_log(data)
-
-    def _flush_safe(self) -> None:
         """Flush slog_buffer to disk, holding back any trailing data that is a
         partial prefix of a no_log value so the next write can complete the
-        match before we apply no_log_filter and write to disk."""
+        match before applying no_log_filter."""
         if self.session_log is None:
             return
 
@@ -135,4 +127,4 @@ class SessionLog:
     def write(self, data: str) -> None:
         if len(data) > 0:
             self.slog_buffer.write(data)
-            self._flush_safe()
+            self.flush()
