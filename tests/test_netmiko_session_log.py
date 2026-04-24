@@ -8,16 +8,17 @@ from netmiko.session_log import SessionLog
 
 
 def filter_bare_prompts(content, base_prompt):
-    """Remove lines that are only a prompt with no command/output after them.
+    """Remove lines that are only a prompt or blank.
 
-    The count of such lines varies across runs (extra reads during session
-    setup), so they must be excluded before MD5 comparison. Hard-codes ">"
-    and "#" as the only valid trailing prompt characters.
+    The count of such lines varies across runs (extra reads/writes during
+    session setup), so they must be excluded before MD5 comparison. Hard-codes
+    ">" and "#" as the only valid trailing prompt characters.
     """
     bare_prompts = {f"{base_prompt}>".encode(), f"{base_prompt}#".encode()}
     filtered = []
     for line in content.splitlines(keepends=True):
-        if line.strip() not in bare_prompts:
+        stripped = line.strip()
+        if stripped and stripped not in bare_prompts:
             filtered.append(line)
     return b"".join(filtered)
 
