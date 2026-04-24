@@ -113,13 +113,14 @@ def test_session_log_write(net_connect_slog_wr, commands, expected_responses):
     # So just discard it.
     marker = b"% Invalid input detected at '^' marker."
     _, compare_contents = compare_contents.split(marker)
-    compare_log_md5 = calc_md5(contents=compare_contents.strip())
+    compare_contents = filter_bare_prompts(compare_contents.strip(), nc.base_prompt)
+    compare_log_md5 = calc_md5(contents=compare_contents)
 
     log_content = read_session_log(session_file)
-    marker = b"% Invalid input detected at '^' marker."
     _, log_content = log_content.split(marker)
+    log_content = filter_bare_prompts(log_content.strip(), nc.base_prompt)
 
-    session_log_md5 = calc_md5(contents=log_content.strip())
+    session_log_md5 = calc_md5(contents=log_content)
     assert session_log_md5 == compare_log_md5
 
 
