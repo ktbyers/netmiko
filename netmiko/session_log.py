@@ -93,3 +93,4 @@ class SessionLog:
     def write(self, data: str) -> None:
         if len(data) > 0:
             self.slog_buffer.write(data)
+            self.flush()

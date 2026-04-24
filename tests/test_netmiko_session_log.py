@@ -278,7 +278,7 @@ def test_session_log_no_log(device_slog_test_name):
     # Plus one for read, one for write (send_command_timing)
     assert session_log.count("********") == 5
 
-    # Do disconnect after test (to make sure send_command() actually flushes session_log buffer)
+    # Assert before disconnect to verify write() flushes immediately (no explicit flush needed)
     conn.disconnect()
 
 
@@ -318,7 +318,7 @@ def test_session_log_no_log_cfg(device_slog_test_name, commands):
     assert session_log.count("********") == 2
     assert config_command2 in session_log
 
-    # Make sure send_config_set flushes the session_log (so disconnect after the asserts)
+    # Assert before disconnect to verify write() flushes immediately (no explicit flush needed)
     conn.disconnect()
 
 
