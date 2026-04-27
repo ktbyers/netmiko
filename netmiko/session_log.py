@@ -124,6 +124,10 @@ class SessionLog:
         if data:
             self._write(data)
 
+    def flush(self) -> None:
+        """Force any buffered data to be written to the sink immediately."""
+        self._flush_buffer()
+
     def write(self, data: str) -> None:
         if len(data) > 0:
             self.slog_buffer.write(data)
