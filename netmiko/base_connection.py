@@ -104,6 +104,23 @@ def lock_channel(func: F) -> F:
     return cast(F, wrapper_decorator)
 
 
+def flush_session_log(func: F) -> F:
+    """Deprecated: no longer used by Netmiko internally. Retained for any external
+    code that decorates custom methods with @flush_session_log."""
+
+    @functools.wraps(func)
+    def wrapper_decorator(self: "BaseConnection", *args: Any, **kwargs: Any) -> Any:
+        try:
+            return_val = func(self, *args, **kwargs)
+        finally:
+            # Always flush the session_log
+            if self.session_log:
+                self.session_log.flush()
+        return return_val
+
+    return cast(F, wrapper_decorator)
+
+
 def log_writes(func: F) -> F:
     """Handle both session_log and log of writes."""
 
