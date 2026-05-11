@@ -89,7 +89,7 @@ class CiscoFtdSSH(NoConfig, CiscoSSHConnection):
         """
         output = ""
         if getattr(self, "_in_diagnostic_cli", False):
-            output += self._send_command_str("\x01d", expect_string=r">")
+            output += self._send_command_str("\x01d", expect_string=r">", cmd_verify=False)
             self._in_diagnostic_cli = False
             self.set_base_prompt()
         return output
