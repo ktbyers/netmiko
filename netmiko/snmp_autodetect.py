@@ -473,7 +473,8 @@ class SNMPDetect(object):
         for entry in snmp_mapper_list:
             for device_type, v in entry.items():
                 oid: str = v["oid"]  # type: ignore
-                regex: re.Pattern = v["expr"]
+                regex = v["expr"]
+                assert isinstance(regex, re.Pattern)
 
                 # Used cache data if we already queryied this OID
                 if self._response_cache.get(oid):
