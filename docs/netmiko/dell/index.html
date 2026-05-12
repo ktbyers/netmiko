@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.dell API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -65,9 +76,16 @@ hljs.highlightAll();
 <dl>
 <dt id="netmiko.dell.DellDNOS6SSH"><code class="flex name class">
 <span>class <span class="ident">DellDNOS6SSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellDNOS6SSH(DellDNOS6Base):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Dell PowerConnect Driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -188,13 +206,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellDNOS6SSH(DellDNOS6Base):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.dell.dell_dnos6.DellDNOS6Base" href="dell_dnos6.html#netmiko.dell.dell_dnos6.DellDNOS6Base">DellDNOS6Base</a></li>
@@ -215,6 +226,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -253,9 +265,16 @@ hljs.highlightAll();
 </dd>
 <dt id="netmiko.dell.DellDNOS6Telnet"><code class="flex name class">
 <span>class <span class="ident">DellDNOS6Telnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellDNOS6Telnet(DellDNOS6Base):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Dell PowerConnect Driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -376,13 +395,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellDNOS6Telnet(DellDNOS6Base):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.dell.dell_dnos6.DellDNOS6Base" href="dell_dnos6.html#netmiko.dell.dell_dnos6.DellDNOS6Base">DellDNOS6Base</a></li>
@@ -403,6 +415,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.dell.dell_dnos6.DellDNOS6Base.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -441,9 +454,59 @@ hljs.highlightAll();
 </dd>
 <dt id="netmiko.dell.DellForce10SSH"><code class="flex name class">
 <span>class <span class="ident">DellForce10SSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellForce10SSH(CiscoSSHConnection):
+    &#34;&#34;&#34;Dell Force10 Driver - supports DNOS9.&#34;&#34;&#34;
+
+    prompt_pattern = r&#34;[&gt;#]&#34;
+
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;Check if we have a prompt and acknowledge if we do.&#34;&#34;&#34;
+
+        data = self.read_until_pattern(pattern=f&#34;y/n|{self.prompt_pattern}&#34;)
+        # If &#34;banner login acknowledge enable&#34; is set, it will require you to
+        # press &#39;y&#39; to accept the banner before you login. This will accept
+        # if it occurs
+        # Line looks like:
+        # Have you read and do you acknowledge the above statement? [y/n]: y
+        # switch&gt;
+        #
+        if re.search(r&#34;y\/n&#34;, data):
+            self.write_channel(f&#34;y{self.RETURN}&#34;)
+
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self.set_base_prompt()
+        self.set_terminal_width()
+        self.disable_paging()
+
+    def check_config_mode(
+        self,
+        check_string: str = &#34;)#&#34;,
+        pattern: str = prompt_pattern,
+        force_regex: bool = False,
+    ) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if the device is in configuration mode or not.
+        &#34;&#34;&#34;
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
+
+    def save_config(
+        self,
+        cmd: str = &#34;write memory&#34;,
+        confirm: bool = False,
+        confirm_response: str = &#34;&#34;,
+    ) -&gt; str:
+        &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
 <div class="desc"><p>Dell Force10 Driver - supports DNOS9.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -564,58 +627,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellForce10SSH(CiscoSSHConnection):
-    &#34;&#34;&#34;Dell Force10 Driver - supports DNOS9.&#34;&#34;&#34;
-
-    prompt_pattern = r&#34;[&gt;#]&#34;
-
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Check if we have a prompt and acknowledge if we do.&#34;&#34;&#34;
-
-        data = self.read_until_pattern(pattern=f&#34;y/n|{self.prompt_pattern}&#34;)
-        # If &#34;banner login acknowledge enable&#34; is set, it will require you to
-        # press &#39;y&#39; to accept the banner before you login. This will accept
-        # if it occurs
-        # Line looks like:
-        # Have you read and do you acknowledge the above statement? [y/n]: y
-        # switch&gt;
-        #
-        if re.search(r&#34;y\/n&#34;, data):
-            self.write_channel(f&#34;y{self.RETURN}&#34;)
-
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self.set_base_prompt()
-        self.set_terminal_width()
-        self.disable_paging()
-
-    def check_config_mode(
-        self,
-        check_string: str = &#34;)#&#34;,
-        pattern: str = prompt_pattern,
-        force_regex: bool = False,
-    ) -&gt; bool:
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-        &#34;&#34;&#34;
-        return super().check_config_mode(
-            check_string=check_string, pattern=pattern, force_regex=force_regex
-        )
-
-    def save_config(
-        self,
-        cmd: str = &#34;write memory&#34;,
-        confirm: bool = False,
-        confirm_response: str = &#34;&#34;,
-    ) -&gt; str:
-        &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
@@ -626,21 +637,57 @@ hljs.highlightAll();
 <dl>
 <dt id="netmiko.dell.DellForce10SSH.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.dell.DellForce10SSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'write memory', confirm: bool = False, confirm_response: str = '') ‑> str</span>
+<span>def <span class="ident">save_config</span></span>(<span>self,<br>cmd: str = 'write memory',<br>confirm: bool = False,<br>confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
+    self,
+    cmd: str = &#34;write memory&#34;,
+    confirm: bool = False,
+    confirm_response: str = &#34;&#34;,
+) -&gt; str:
+    &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
+    return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
 <div class="desc"><p>Saves Config</p></div>
 </dd>
 <dt id="netmiko.dell.DellForce10SSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
+    &#34;&#34;&#34;Check if we have a prompt and acknowledge if we do.&#34;&#34;&#34;
+
+    data = self.read_until_pattern(pattern=f&#34;y/n|{self.prompt_pattern}&#34;)
+    # If &#34;banner login acknowledge enable&#34; is set, it will require you to
+    # press &#39;y&#39; to accept the banner before you login. This will accept
+    # if it occurs
+    # Line looks like:
+    # Have you read and do you acknowledge the above statement? [y/n]: y
+    # switch&gt;
+    #
+    if re.search(r&#34;y\/n&#34;, data):
+        self.write_channel(f&#34;y{self.RETURN}&#34;)
+
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self.set_base_prompt()
+    self.set_terminal_width()
+    self.disable_paging()</code></pre>
+</details>
 <div class="desc"><p>Check if we have a prompt and acknowledge if we do.</p></div>
 </dd>
 </dl>
@@ -657,6 +704,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -693,9 +741,115 @@ hljs.highlightAll();
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH"><code class="flex name class">
 <span>class <span class="ident">DellIsilonSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellIsilonSSH(BaseConnection):
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self.ansi_escape_codes = True
+        self._test_channel_read(pattern=r&#34;[#\$]&#34;)
+        self._zsh_mode()
+        self.find_prompt()
+        self.set_base_prompt()
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;$&#34;,
+        alt_prompt_terminator: str = &#34;#&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
+        return super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+
+    def strip_ansi_escape_codes(self, string_buffer: str) -&gt; str:
+        &#34;&#34;&#34;Remove Null code&#34;&#34;&#34;
+        output = re.sub(r&#34;\x00&#34;, &#34;&#34;, string_buffer)
+        return super().strip_ansi_escape_codes(output)
+
+    def _zsh_mode(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
+        &#34;&#34;&#34;Run zsh command to unify the environment&#34;&#34;&#34;
+        if self.global_delay_factor &lt; 1:
+            delay_factor = 1.0
+        else:
+            delay_factor = self.global_delay_factor
+        command = self.RETURN + &#34;zsh&#34; + self.RETURN
+        self.write_channel(command)
+        time.sleep(0.25 * delay_factor)
+        self._set_prompt(prompt_terminator)
+        time.sleep(0.25 * delay_factor)
+        self.clear_buffer()
+
+    def _set_prompt(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
+        prompt = f&#34;PROMPT=&#39;%m{prompt_terminator}&#39;&#34;
+        command = self.RETURN + prompt + self.RETURN
+        self.write_channel(command)
+
+    def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
+        &#34;&#34;&#34;Isilon doesn&#39;t have paging by default.&#34;&#34;&#34;
+        return &#34;&#34;
+
+    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
+        return super().check_enable_mode(check_string=check_string)
+
+    def enable(
+        self,
+        cmd: str = &#34;sudo su&#34;,
+        pattern: str = &#34;ssword&#34;,
+        enable_pattern: Optional[str] = None,
+        check_state: bool = True,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
+
+        delay_factor = self.select_delay_factor(delay_factor=1)
+        output = &#34;&#34;
+
+        if check_state and self.check_enable_mode():
+            return output
+
+        output += self._send_command_timing_str(cmd, strip_prompt=False, strip_command=False)
+        if re.search(pattern, output, flags=re_flags):
+            self.write_channel(self.normalize_cmd(self.secret))
+        output += self.read_until_pattern(pattern=r&#34;#.*$&#34;)
+        time.sleep(1 * delay_factor)
+        self._set_prompt(prompt_terminator=&#34;#&#34;)
+        if not self.check_enable_mode():
+            raise ValueError(&#34;Failed to enter enable mode&#34;)
+
+        return output
+
+    def exit_enable_mode(self, exit_command: str = &#34;exit&#34;) -&gt; str:
+        return super().exit_enable_mode(exit_command=exit_command)
+
+    def check_config_mode(
+        self, check_string: str = &#34;#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
+    ) -&gt; bool:
+        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
+        return self.check_enable_mode(check_string=check_string)
+
+    def config_mode(
+        self,
+        config_command: str = &#34;sudo su&#34;,
+        pattern: str = &#34;ssword&#34;,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
+        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
+        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
+
+    def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = &#34;&#34;) -&gt; str:
+        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
+        return self.exit_enable_mode(exit_command=exit_config)</code></pre>
+</details>
 <div class="desc"><p>Defines vendor independent methods.</p>
 <p>Otherwise method left as a stub method.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
@@ -817,114 +971,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellIsilonSSH(BaseConnection):
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r&#34;[#\$]&#34;)
-        self._zsh_mode()
-        self.find_prompt()
-        self.set_base_prompt()
-
-    def set_base_prompt(
-        self,
-        pri_prompt_terminator: str = &#34;$&#34;,
-        alt_prompt_terminator: str = &#34;#&#34;,
-        delay_factor: float = 1.0,
-        pattern: Optional[str] = None,
-    ) -&gt; str:
-        &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
-        return super().set_base_prompt(
-            pri_prompt_terminator=pri_prompt_terminator,
-            alt_prompt_terminator=alt_prompt_terminator,
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
-
-    def strip_ansi_escape_codes(self, string_buffer: str) -&gt; str:
-        &#34;&#34;&#34;Remove Null code&#34;&#34;&#34;
-        output = re.sub(r&#34;\x00&#34;, &#34;&#34;, string_buffer)
-        return super().strip_ansi_escape_codes(output)
-
-    def _zsh_mode(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
-        &#34;&#34;&#34;Run zsh command to unify the environment&#34;&#34;&#34;
-        if self.global_delay_factor &lt; 1:
-            delay_factor = 1.0
-        else:
-            delay_factor = self.global_delay_factor
-        command = self.RETURN + &#34;zsh&#34; + self.RETURN
-        self.write_channel(command)
-        time.sleep(0.25 * delay_factor)
-        self._set_prompt(prompt_terminator)
-        time.sleep(0.25 * delay_factor)
-        self.clear_buffer()
-
-    def _set_prompt(self, prompt_terminator: str = &#34;$&#34;) -&gt; None:
-        prompt = f&#34;PROMPT=&#39;%m{prompt_terminator}&#39;&#34;
-        command = self.RETURN + prompt + self.RETURN
-        self.write_channel(command)
-
-    def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
-        &#34;&#34;&#34;Isilon doesn&#39;t have paging by default.&#34;&#34;&#34;
-        return &#34;&#34;
-
-    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
-        return super().check_enable_mode(check_string=check_string)
-
-    def enable(
-        self,
-        cmd: str = &#34;sudo su&#34;,
-        pattern: str = &#34;ssword&#34;,
-        enable_pattern: Optional[str] = None,
-        check_state: bool = True,
-        re_flags: int = re.IGNORECASE,
-    ) -&gt; str:
-
-        delay_factor = self.select_delay_factor(delay_factor=1)
-        output = &#34;&#34;
-
-        if check_state and self.check_enable_mode():
-            return output
-
-        output += self._send_command_timing_str(
-            cmd, strip_prompt=False, strip_command=False
-        )
-        if re.search(pattern, output, flags=re_flags):
-            self.write_channel(self.normalize_cmd(self.secret))
-        output += self.read_until_pattern(pattern=r&#34;#.*$&#34;)
-        time.sleep(1 * delay_factor)
-        self._set_prompt(prompt_terminator=&#34;#&#34;)
-        if not self.check_enable_mode():
-            raise ValueError(&#34;Failed to enter enable mode&#34;)
-
-        return output
-
-    def exit_enable_mode(self, exit_command: str = &#34;exit&#34;) -&gt; str:
-        return super().exit_enable_mode(exit_command=exit_command)
-
-    def check_config_mode(
-        self, check_string: str = &#34;#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
-    ) -&gt; bool:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.check_enable_mode(check_string=check_string)
-
-    def config_mode(
-        self,
-        config_command: str = &#34;sudo su&#34;,
-        pattern: str = &#34;ssword&#34;,
-        re_flags: int = re.IGNORECASE,
-    ) -&gt; str:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)
-
-    def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = &#34;&#34;) -&gt; str:
-        &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
-        return self.exit_enable_mode(exit_command=exit_config)</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
@@ -935,42 +981,121 @@ hljs.highlightAll();
 <span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = '#', pattern: str = '', force_regex: bool = False) ‑> bool</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_config_mode(
+    self, check_string: str = &#34;#&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
+) -&gt; bool:
+    &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
+    return self.check_enable_mode(check_string=check_string)</code></pre>
+</details>
 <div class="desc"><p>Use equivalent enable method.</p></div>
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH.config_mode"><code class="name flex">
-<span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = 'sudo su', pattern: str = 'ssword', re_flags: int = re.IGNORECASE) ‑> str</span>
+<span>def <span class="ident">config_mode</span></span>(<span>self,<br>config_command: str = 'sudo su',<br>pattern: str = 'ssword',<br>re_flags: int = re.IGNORECASE) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def config_mode(
+    self,
+    config_command: str = &#34;sudo su&#34;,
+    pattern: str = &#34;ssword&#34;,
+    re_flags: int = re.IGNORECASE,
+) -&gt; str:
+    &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
+    return self.enable(cmd=config_command, pattern=pattern, re_flags=re_flags)</code></pre>
+</details>
 <div class="desc"><p>Use equivalent enable method.</p></div>
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH.disable_paging"><code class="name flex">
 <span>def <span class="ident">disable_paging</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
+    &#34;&#34;&#34;Isilon doesn&#39;t have paging by default.&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
+</details>
 <div class="desc"><p>Isilon doesn't have paging by default.</p></div>
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH.exit_config_mode"><code class="name flex">
 <span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = 'exit', pattern: str = '') ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = &#34;&#34;) -&gt; str:
+    &#34;&#34;&#34;Use equivalent enable method.&#34;&#34;&#34;
+    return self.exit_enable_mode(exit_command=exit_config)</code></pre>
+</details>
 <div class="desc"><p>Use equivalent enable method.</p></div>
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self.ansi_escape_codes = True
+    self._test_channel_read(pattern=r&#34;[#\$]&#34;)
+    self._zsh_mode()
+    self.find_prompt()
+    self.set_base_prompt()</code></pre>
+</details>
 <div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH.set_base_prompt"><code class="name flex">
-<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = '$', alt_prompt_terminator: str = '#', delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self,<br>pri_prompt_terminator: str = '$',<br>alt_prompt_terminator: str = '#',<br>delay_factor: float = 1.0,<br>pattern: str | None = None) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_base_prompt(
+    self,
+    pri_prompt_terminator: str = &#34;$&#34;,
+    alt_prompt_terminator: str = &#34;#&#34;,
+    delay_factor: float = 1.0,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;Determine base prompt.&#34;&#34;&#34;
+    return super().set_base_prompt(
+        pri_prompt_terminator=pri_prompt_terminator,
+        alt_prompt_terminator=alt_prompt_terminator,
+        delay_factor=delay_factor,
+        pattern=pattern,
+    )</code></pre>
+</details>
 <div class="desc"><p>Determine base prompt.</p></div>
 </dd>
 <dt id="netmiko.dell.DellIsilonSSH.strip_ansi_escape_codes"><code class="name flex">
 <span>def <span class="ident">strip_ansi_escape_codes</span></span>(<span>self, string_buffer: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strip_ansi_escape_codes(self, string_buffer: str) -&gt; str:
+    &#34;&#34;&#34;Remove Null code&#34;&#34;&#34;
+    output = re.sub(r&#34;\x00&#34;, &#34;&#34;, string_buffer)
+    return super().strip_ansi_escape_codes(output)</code></pre>
+</details>
 <div class="desc"><p>Remove Null code</p></div>
 </dd>
 </dl>
@@ -984,6 +1109,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.base_connection.BaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
@@ -1018,10 +1144,9 @@ hljs.highlightAll();
 </dd>
 <dt id="netmiko.dell.DellOS10FileTransfer"><code class="flex name class">
 <span>class <span class="ident">DellOS10FileTransfer</span></span>
-<span>(</span><span>ssh_conn: <a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a>, source_file: str, dest_file: str, file_system: Optional[str] = '/home/admin', direction: str = 'put', **kwargs: Any)</span>
+<span>(</span><span>ssh_conn: <a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a>,<br>source_file: str,<br>dest_file: str,<br>file_system: str | None = '/home/admin',<br>direction: str = 'put',<br>**kwargs: Any)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Dell EMC Networking OS10 SCP File Transfer driver.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1048,9 +1173,7 @@ hljs.highlightAll();
         )
         self.folder_name = &#34;/config&#34;
 
-    def remote_file_size(
-        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
-    ) -&gt; int:
+    def remote_file_size(self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None) -&gt; int:
         &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
         if remote_file is None:
             if self.direction == &#34;put&#34;:
@@ -1086,9 +1209,7 @@ hljs.highlightAll();
             md5_output, pattern=pattern
         )
 
-    def remote_md5(
-        self, base_cmd: str = &#34;verify /md5&#34;, remote_file: Optional[str] = None
-    ) -&gt; str:
+    def remote_md5(self, base_cmd: str = &#34;verify /md5&#34;, remote_file: Optional[str] = None) -&gt; str:
         &#34;&#34;&#34;Calculate remote MD5 and returns the hash.&#34;&#34;&#34;
         if remote_file is None:
             if self.direction == &#34;put&#34;:
@@ -1126,6 +1247,7 @@ hljs.highlightAll();
         self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()</code></pre>
 </details>
+<div class="desc"><p>Dell EMC Networking OS10 SCP File Transfer driver.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
@@ -1133,9 +1255,27 @@ hljs.highlightAll();
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.dell.DellOS10FileTransfer.remote_md5"><code class="name flex">
-<span>def <span class="ident">remote_md5</span></span>(<span>self, base_cmd: str = 'verify /md5', remote_file: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">remote_md5</span></span>(<span>self, base_cmd: str = 'verify /md5', remote_file: str | None = None) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remote_md5(self, base_cmd: str = &#34;verify /md5&#34;, remote_file: Optional[str] = None) -&gt; str:
+    &#34;&#34;&#34;Calculate remote MD5 and returns the hash.&#34;&#34;&#34;
+    if remote_file is None:
+        if self.direction == &#34;put&#34;:
+            remote_file = self.dest_file
+        elif self.direction == &#34;get&#34;:
+            remote_file = self.source_file
+        else:
+            raise ValueError(&#34;self.direction is set to an invalid value&#34;)
+    remote_md5_cmd = f&#39;system &#34;md5sum {self.file_system}/{remote_file}&#34;&#39;
+    dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
+    dest_md5 = self.process_md5(dest_md5)
+    return dest_md5.strip()</code></pre>
+</details>
 <div class="desc"><p>Calculate remote MD5 and returns the hash.</p></div>
 </dd>
 </dl>
@@ -1165,9 +1305,45 @@ hljs.highlightAll();
 </dd>
 <dt id="netmiko.dell.DellOS10SSH"><code class="flex name class">
 <span>class <span class="ident">DellOS10SSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellOS10SSH(CiscoSSHConnection):
+    &#34;&#34;&#34;Dell EMC Networking OS10 Driver - supports dellos10.&#34;&#34;&#34;
+
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+        self.set_base_prompt()
+        self.set_terminal_width()
+        self.disable_paging()
+
+    def check_config_mode(
+        self,
+        check_string: str = &#34;)#&#34;,
+        pattern: str = r&#34;[&gt;#]&#34;,
+        force_regex: bool = False,
+    ) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if the device is in configuration mode or not.
+        &#34;&#34;&#34;
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
+
+    def save_config(
+        self,
+        cmd: str = &#34;copy running-configuration startup-configuration&#34;,
+        confirm: bool = False,
+        confirm_response: str = &#34;&#34;,
+    ) -&gt; str:
+        &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
 <div class="desc"><p>Dell EMC Networking OS10 Driver - supports dellos10.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -1288,44 +1464,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellOS10SSH(CiscoSSHConnection):
-    &#34;&#34;&#34;Dell EMC Networking OS10 Driver - supports dellos10.&#34;&#34;&#34;
-
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
-        self.set_base_prompt()
-        self.set_terminal_width()
-        self.disable_paging()
-
-    def check_config_mode(
-        self,
-        check_string: str = &#34;)#&#34;,
-        pattern: str = r&#34;[&gt;#]&#34;,
-        force_regex: bool = False,
-    ) -&gt; bool:
-        &#34;&#34;&#34;
-        Checks if the device is in configuration mode or not.
-        &#34;&#34;&#34;
-        return super().check_config_mode(
-            check_string=check_string, pattern=pattern, force_regex=force_regex
-        )
-
-    def save_config(
-        self,
-        cmd: str = &#34;copy running-configuration startup-configuration&#34;,
-        confirm: bool = False,
-        confirm_response: str = &#34;&#34;,
-    ) -&gt; str:
-        &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
@@ -1335,15 +1473,39 @@ hljs.highlightAll();
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.dell.DellOS10SSH.save_config"><code class="name flex">
-<span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'copy running-configuration startup-configuration', confirm: bool = False, confirm_response: str = '') ‑> str</span>
+<span>def <span class="ident">save_config</span></span>(<span>self,<br>cmd: str = 'copy running-configuration startup-configuration',<br>confirm: bool = False,<br>confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
+    self,
+    cmd: str = &#34;copy running-configuration startup-configuration&#34;,
+    confirm: bool = False,
+    confirm_response: str = &#34;&#34;,
+) -&gt; str:
+    &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
+    return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
 <div class="desc"><p>Saves Config</p></div>
 </dd>
 <dt id="netmiko.dell.DellOS10SSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self._test_channel_read(pattern=r&#34;[&gt;#]&#34;)
+    self.set_base_prompt()
+    self.set_terminal_width()
+    self.disable_paging()</code></pre>
+</details>
 <div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 </dd>
 </dl>
@@ -1360,6 +1522,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -1396,9 +1559,54 @@ hljs.highlightAll();
 </dd>
 <dt id="netmiko.dell.DellPowerConnectSSH"><code class="flex name class">
 <span>class <span class="ident">DellPowerConnectSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellPowerConnectSSH(DellPowerConnectBase):
+    &#34;&#34;&#34;Dell PowerConnect Driver.
+
+    To make it work, we have to override the SSHClient _auth method.
+    If we use login/password, the ssh server use the (none) auth mechanism.
+    &#34;&#34;&#34;
+
+    def _get_ssh_client_instance(self) -&gt; SSHClient:
+        &#34;&#34;&#34;If not using SSH keys or agent, use noauth.&#34;&#34;&#34;
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_noauth()
+        return SSHClient()
+
+    def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
+        &#34;&#34;&#34;
+        Powerconnect presents with the following on login
+
+        User Name:
+
+        Password: ****
+        &#34;&#34;&#34;
+        delay_factor = self.select_delay_factor(delay_factor)
+        i = 0
+        time.sleep(delay_factor * 0.5)
+        output = &#34;&#34;
+        while i &lt;= 12:
+            output = self.read_channel()
+            if output:
+                if &#34;User Name:&#34; in output:
+                    assert isinstance(self.username, str)
+                    self.write_channel(self.username + self.RETURN)
+                elif &#34;Password:&#34; in output:
+                    assert isinstance(self.password, str)
+                    self.write_channel(self.password + self.RETURN)
+                    break
+                time.sleep(delay_factor * 1)
+            else:
+                self.write_channel(self.RETURN)
+                time.sleep(delay_factor * 1.5)
+            i += 1</code></pre>
+</details>
 <div class="desc"><p>Dell PowerConnect Driver.</p>
 <p>To make it work, we have to override the SSHClient _auth method.
 If we use login/password, the ssh server use the (none) auth mechanism.</p>
@@ -1521,68 +1729,6 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellPowerConnectSSH(DellPowerConnectBase):
-    &#34;&#34;&#34;Dell PowerConnect Driver.
-
-    To make it work, we have to override the SSHClient _auth method.
-    If we use login/password, the ssh server use the (none) auth mechanism.
-    &#34;&#34;&#34;
-
-    def _build_ssh_client(self) -&gt; SSHClient:
-        &#34;&#34;&#34;Prepare for Paramiko SSH connection.
-
-        See base_connection.py file for any updates.
-        &#34;&#34;&#34;
-        # Create instance of SSHClient object
-        # If user does not provide SSH key, we use noauth
-        remote_conn_pre: SSHClient
-        if not self.use_keys:
-            remote_conn_pre = SSHClient_noauth()
-        else:
-            remote_conn_pre = SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre
-
-    def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
-        &#34;&#34;&#34;
-        Powerconnect presents with the following on login
-
-        User Name:
-
-        Password: ****
-        &#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(delay_factor)
-        i = 0
-        time.sleep(delay_factor * 0.5)
-        output = &#34;&#34;
-        while i &lt;= 12:
-            output = self.read_channel()
-            if output:
-                if &#34;User Name:&#34; in output:
-                    assert isinstance(self.username, str)
-                    self.write_channel(self.username + self.RETURN)
-                elif &#34;Password:&#34; in output:
-                    assert isinstance(self.password, str)
-                    self.write_channel(self.password + self.RETURN)
-                    break
-                time.sleep(delay_factor * 1)
-            else:
-                self.write_channel(self.RETURN)
-                time.sleep(delay_factor * 1.5)
-            i += 1</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
@@ -1595,6 +1741,38 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 <span>def <span class="ident">special_login_handler</span></span>(<span>self, delay_factor: float = 1.0) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
+    &#34;&#34;&#34;
+    Powerconnect presents with the following on login
+
+    User Name:
+
+    Password: ****
+    &#34;&#34;&#34;
+    delay_factor = self.select_delay_factor(delay_factor)
+    i = 0
+    time.sleep(delay_factor * 0.5)
+    output = &#34;&#34;
+    while i &lt;= 12:
+        output = self.read_channel()
+        if output:
+            if &#34;User Name:&#34; in output:
+                assert isinstance(self.username, str)
+                self.write_channel(self.username + self.RETURN)
+            elif &#34;Password:&#34; in output:
+                assert isinstance(self.password, str)
+                self.write_channel(self.password + self.RETURN)
+                break
+            time.sleep(delay_factor * 1)
+        else:
+            self.write_channel(self.RETURN)
+            time.sleep(delay_factor * 1.5)
+        i += 1</code></pre>
+</details>
 <div class="desc"><p>Powerconnect presents with the following on login</p>
 <p>User Name:</p>
 <p>Password: ****</p></div>
@@ -1613,6 +1791,7 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -1650,9 +1829,18 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 </dd>
 <dt id="netmiko.dell.DellPowerConnectTelnet"><code class="flex name class">
 <span>class <span class="ident">DellPowerConnectTelnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellPowerConnectTelnet(DellPowerConnectBase):
+    &#34;&#34;&#34;Dell PowerConnect Telnet Driver.&#34;&#34;&#34;
+
+    pass</code></pre>
+</details>
 <div class="desc"><p>Dell PowerConnect Telnet Driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -1773,15 +1961,6 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellPowerConnectTelnet(DellPowerConnectBase):
-    &#34;&#34;&#34;Dell PowerConnect Telnet Driver.&#34;&#34;&#34;
-
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase" href="dell_powerconnect.html#netmiko.dell.dell_powerconnect.DellPowerConnectBase">DellPowerConnectBase</a></li>
@@ -1801,6 +1980,7 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.dell.dell_powerconnect.DellPowerConnectBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -1839,10 +2019,9 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 </dd>
 <dt id="netmiko.dell.DellSonicFileTransfer"><code class="flex name class">
 <span>class <span class="ident">DellSonicFileTransfer</span></span>
-<span>(</span><span>ssh_conn: <a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="dell_sonic_ssh.html#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a>, source_file: str, dest_file: str, file_system: Optional[str] = '/home/admin', direction: str = 'put', **kwargs: Any)</span>
+<span>(</span><span>ssh_conn: <a title="netmiko.dell.dell_sonic_ssh.DellSonicSSH" href="dell_sonic_ssh.html#netmiko.dell.dell_sonic_ssh.DellSonicSSH">DellSonicSSH</a>,<br>source_file: str,<br>dest_file: str,<br>file_system: str | None = '/home/admin',<br>direction: str = 'put',<br>**kwargs: Any)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Dell EMC Networking SONiC SCP File Transfer driver.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1869,9 +2048,7 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
         )
         self.ssh_ctl_chan: DellSonicSSH = ssh_conn
 
-    def remote_file_size(
-        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
-    ) -&gt; int:
+    def remote_file_size(self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None) -&gt; int:
         &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
         if remote_file is None:
             if self.direction == &#34;put&#34;:
@@ -1914,9 +2091,7 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
         &#34;&#34;&#34;Process the md5 output and return the hash.&#34;&#34;&#34;
         return BaseFileTransfer.process_md5(md5_output, pattern=pattern)
 
-    def remote_md5(
-        self, base_cmd: str = &#34;verify /md5&#34;, remote_file: Optional[str] = None
-    ) -&gt; str:
+    def remote_md5(self, base_cmd: str = &#34;verify /md5&#34;, remote_file: Optional[str] = None) -&gt; str:
         &#34;&#34;&#34;Calculate remote MD5 and returns the hash.&#34;&#34;&#34;
         if remote_file is None:
             if self.direction == &#34;put&#34;:
@@ -1956,6 +2131,7 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
         self.scp_conn.scp_get_file(source_file, self.dest_file)
         self.scp_conn.close()</code></pre>
 </details>
+<div class="desc"><p>Dell EMC Networking SONiC SCP File Transfer driver.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
@@ -1966,15 +2142,44 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 <span>def <span class="ident">process_md5</span></span>(<span>md5_output: str, pattern: str = '(.*) (.*)') ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def process_md5(md5_output: str, pattern: str = r&#34;(.*) (.*)&#34;) -&gt; str:
+    &#34;&#34;&#34;Process the md5 output and return the hash.&#34;&#34;&#34;
+    return BaseFileTransfer.process_md5(md5_output, pattern=pattern)</code></pre>
+</details>
 <div class="desc"><p>Process the md5 output and return the hash.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.dell.DellSonicFileTransfer.remote_md5"><code class="name flex">
-<span>def <span class="ident">remote_md5</span></span>(<span>self, base_cmd: str = 'verify /md5', remote_file: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">remote_md5</span></span>(<span>self, base_cmd: str = 'verify /md5', remote_file: str | None = None) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remote_md5(self, base_cmd: str = &#34;verify /md5&#34;, remote_file: Optional[str] = None) -&gt; str:
+    &#34;&#34;&#34;Calculate remote MD5 and returns the hash.&#34;&#34;&#34;
+    if remote_file is None:
+        if self.direction == &#34;put&#34;:
+            remote_file = self.dest_file
+        elif self.direction == &#34;get&#34;:
+            remote_file = self.source_file
+        else:
+            raise ValueError(&#34;self.direction is set to an invalid value&#34;)
+    self.ssh_ctl_chan._return_shell()
+    remote_md5_cmd = f&#34;md5sum {self.file_system}/{remote_file}&#34;
+    dest_md5 = self.ssh_ctl_chan._send_command_str(remote_md5_cmd, read_timeout=300)
+    dest_md5 = self.process_md5(dest_md5)
+    self.ssh_ctl_chan._enter_cli()
+    return dest_md5.strip()</code></pre>
+</details>
 <div class="desc"><p>Calculate remote MD5 and returns the hash.</p></div>
 </dd>
 </dl>
@@ -2003,9 +2208,54 @@ If we use login/password, the ssh server use the (none) auth mechanism.</p>
 </dd>
 <dt id="netmiko.dell.DellSonicSSH"><code class="flex name class">
 <span>class <span class="ident">DellSonicSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DellSonicSSH(NoEnable, CiscoSSHConnection):
+    &#34;&#34;&#34;
+    Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution
+    by Dell Technologies Driver - supports dellenterprisesonic.
+    &#34;&#34;&#34;
+
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=r&#34;[&gt;$#]&#34;)
+        # Enter the sonic-cli
+        self._enter_cli()
+        self.disable_paging()
+        self.set_base_prompt(alt_prompt_terminator=&#34;$&#34;)
+
+    def config_mode(
+        self,
+        config_command: str = &#34;configure terminal&#34;,
+        pattern: str = r&#34;\#&#34;,
+        re_flags: int = 0,
+    ) -&gt; str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
+
+    def save_config(
+        self,
+        cmd: str = &#34;write memory&#34;,
+        confirm: bool = False,
+        confirm_response: str = &#34;&#34;,
+    ) -&gt; str:
+        &#34;&#34;&#34;Save config.&#34;&#34;&#34;
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
+
+    def _enter_cli(self) -&gt; str:
+        &#34;&#34;&#34;Enter the sonic-cli.&#34;&#34;&#34;
+        return self._send_command_str(&#34;sonic-cli&#34;, expect_string=r&#34;\#&#34;)
+
+    def _return_shell(self) -&gt; str:
+        &#34;&#34;&#34;Return to the Linux shell.&#34;&#34;&#34;
+        return self._send_command_str(&#34;exit&#34;, expect_string=r&#34;\$&#34;)</code></pre>
+</details>
 <div class="desc"><p>Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution
 by Dell Technologies Driver - supports dellenterprisesonic.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
@@ -2127,42 +2377,6 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DellSonicSSH(NoEnable, CiscoSSHConnection):
-    &#34;&#34;&#34;
-    Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution
-    by Dell Technologies Driver - supports dellenterprisesonic.
-    &#34;&#34;&#34;
-
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=r&#34;[&gt;$#]&#34;)
-        # Enter the sonic-cli
-        self._enter_cli()
-        self.disable_paging()
-        self.set_base_prompt(alt_prompt_terminator=&#34;$&#34;)
-
-    def config_mode(
-        self,
-        config_command: str = &#34;configure terminal&#34;,
-        pattern: str = r&#34;\#&#34;,
-        re_flags: int = 0,
-    ) -&gt; str:
-        return super().config_mode(
-            config_command=config_command, pattern=pattern, re_flags=re_flags
-        )
-
-    def _enter_cli(self) -&gt; str:
-        &#34;&#34;&#34;Enter the sonic-cli.&#34;&#34;&#34;
-        return self._send_command_str(&#34;sonic-cli&#34;, expect_string=r&#34;\#&#34;)
-
-    def _return_shell(self) -&gt; str:
-        &#34;&#34;&#34;Return to the Linux shell.&#34;&#34;&#34;
-        return self._send_command_str(&#34;exit&#34;, expect_string=r&#34;\$&#34;)</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
@@ -2172,10 +2386,41 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="netmiko.dell.DellSonicSSH.save_config"><code class="name flex">
+<span>def <span class="ident">save_config</span></span>(<span>self,<br>cmd: str = 'write memory',<br>confirm: bool = False,<br>confirm_response: str = '') ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
+    self,
+    cmd: str = &#34;write memory&#34;,
+    confirm: bool = False,
+    confirm_response: str = &#34;&#34;,
+) -&gt; str:
+    &#34;&#34;&#34;Save config.&#34;&#34;&#34;
+    return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
+<div class="desc"><p>Save config.</p></div>
+</dd>
 <dt id="netmiko.dell.DellSonicSSH.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self._test_channel_read(pattern=r&#34;[&gt;$#]&#34;)
+    # Enter the sonic-cli
+    self._enter_cli()
+    self.disable_paging()
+    self.set_base_prompt(alt_prompt_terminator=&#34;$&#34;)</code></pre>
+</details>
 <div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 </dd>
 </dl>
@@ -2192,6 +2437,7 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -2206,7 +2452,6 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt">read_until_prompt</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.read_until_prompt_or_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_prompt_or_pattern">read_until_prompt_or_pattern</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.run_ttp" href="../base_connection.html#netmiko.base_connection.BaseConnection.run_ttp">run_ttp</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.save_config" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.select_delay_factor" href="../base_connection.html#netmiko.base_connection.BaseConnection.select_delay_factor">select_delay_factor</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command">send_command</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
@@ -2310,6 +2555,7 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
 <li>
 <h4><code><a title="netmiko.dell.DellSonicSSH" href="#netmiko.dell.DellSonicSSH">DellSonicSSH</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.dell.DellSonicSSH.save_config" href="#netmiko.dell.DellSonicSSH.save_config">save_config</a></code></li>
 <li><code><a title="netmiko.dell.DellSonicSSH.session_preparation" href="#netmiko.dell.DellSonicSSH.session_preparation">session_preparation</a></code></li>
 </ul>
 </li>
@@ -2319,7 +2565,7 @@ by Dell Technologies Driver - supports dellenterprisesonic.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

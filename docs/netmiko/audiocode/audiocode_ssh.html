@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.audiocode.audiocode_ssh API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -40,6 +51,13 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Audiocode66SSH(AudiocodeBase66):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Audiocode this applies to 6.6 Audiocode Firmware versions.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -160,13 +178,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Audiocode66SSH(AudiocodeBase66):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase66">AudiocodeBase66</a></li>
@@ -186,6 +197,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -194,6 +206,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -227,6 +240,13 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Audiocode66Telnet(AudiocodeBase66):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Audiocode this applies to 6.6 Audiocode Firmware versions.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -347,13 +367,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Audiocode66Telnet(AudiocodeBase66):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase66">AudiocodeBase66</a></li>
@@ -373,6 +386,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -381,6 +395,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase66.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -414,126 +429,6 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Common Methods for AudioCodes running 7.2 CLI.</p>
-<pre><code>    Initialize attributes for establishing connection to target device.
-
-    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
-        provided.
-
-    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
-            provided.
-
-    :param username: Username to authenticate against target device if
-            required.
-
-    :param password: Password to authenticate against target device if
-            required.
-
-    :param secret: The enable password if target device requires one.
-
-    :param port: The destination port used to connect to the target
-            device.
-
-    :param device_type: Class selection based on device type.
-
-    :param verbose: Enable additional messages to standard output.
-
-    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-
-    :param use_keys: Connect to target device using SSH keys.
-
-    :param key_file: Filename path of the SSH key file to use.
-
-    :param pkey: SSH key object to use.
-
-    :param passphrase: Passphrase to use for encrypted key; password will be used for key
-            decryption if not specified.
-
-    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
-            documentation for a description of the expected format.
-
-    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
-        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
-
-    :param allow_agent: Enable use of SSH key-agent.
-
-    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
-            means unknown SSH host keys will be accepted).
-
-    :param system_host_keys: Load host keys from the users known_hosts file.
-
-    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
-            alt_key_file.
-
-    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-
-    :param ssh_config_file: File name of OpenSSH configuration file.
-
-    :param conn_timeout: TCP connection timeout.
-
-    :param session_timeout: Set a timeout for parallel requests.
-
-    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-
-    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-
-    :param read_timeout_override: Set a timeout that will override the default read_timeout
-            of both send_command and send_command_timing. This is useful for 3rd party
-            libraries where directly accessing method arguments might be impractical.
-
-    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
-            Currently defaults to 0, for backwards compatibility (it will not attempt
-            to keep the connection alive).
-
-    :param default_enter: Character(s) to send to correspond to enter key (default:
-</code></pre>
-<p>).</p>
-<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default:
-</code></pre>
-<p>)</p>
-<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
-
-    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
-            to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: True)
-
-    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
-            to write the session log to.
-
-    :param session_log_record_writes: The session log generally only records channel reads due
-            to eliminate command duplication due to command echo. You can enable this if you
-            want to record both channel reads and channel writes in the log (default: False).
-
-    :param session_log_file_mode: "write" or "append" for session_log file mode
-            (default: "write")
-
-    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
-            (default: False)
-
-    :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: "utf-8")
-
-    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
-            communication to the target host (default: None).
-
-    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
-            telnet_proxy.py code for details.
-
-    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
-            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
-
-    :param auto_connect: Control whether Netmiko automatically establishes the connection as
-            part of the object creation (default: True).
-
-    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
-            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
-            eliminated in Netmiko 5.x (default: False).
-
-    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
-            (default: False)
-</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -593,6 +488,126 @@ hljs.highlightAll();
             config_mode_command=&#34;config system&#34;,
         )</code></pre>
 </details>
+<div class="desc"><p>Common Methods for AudioCodes running 7.2 CLI.</p>
+<pre><code>    Initialize attributes for establishing connection to target device.
+
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
+        provided.
+
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
+            provided.
+
+    :param username: Username to authenticate against target device if
+            required.
+
+    :param password: Password to authenticate against target device if
+            required.
+
+    :param secret: The enable password if target device requires one.
+
+    :param port: The destination port used to connect to the target
+            device.
+
+    :param device_type: Class selection based on device type.
+
+    :param verbose: Enable additional messages to standard output.
+
+    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
+
+    :param use_keys: Connect to target device using SSH keys.
+
+    :param key_file: Filename path of the SSH key file to use.
+
+    :param pkey: SSH key object to use.
+
+    :param passphrase: Passphrase to use for encrypted key; password will be used for key
+            decryption if not specified.
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
+
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
+    :param allow_agent: Enable use of SSH key-agent.
+
+    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
+            means unknown SSH host keys will be accepted).
+
+    :param system_host_keys: Load host keys from the users known_hosts file.
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
+            alt_key_file.
+
+    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
+
+    :param ssh_config_file: File name of OpenSSH configuration file.
+
+    :param conn_timeout: TCP connection timeout.
+
+    :param session_timeout: Set a timeout for parallel requests.
+
+    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
+
+    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
+            Currently defaults to 0, for backwards compatibility (it will not attempt
+            to keep the connection alive).
+
+    :param default_enter: Character(s) to send to correspond to enter key (default:
+</code></pre>
+<p>).</p>
+<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
+            enter key (default:
+</code></pre>
+<p>)</p>
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+            to select smallest of global and specific. Sets default global_delay_factor to .1
+            (default: True)
+
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
+
+    :param session_log_record_writes: The session log generally only records channel reads due
+            to eliminate command duplication due to command echo. You can enable this if you
+            want to record both channel reads and channel writes in the log (default: False).
+
+    :param session_log_file_mode: "write" or "append" for session_log file mode
+            (default: "write")
+
+    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
+            (default: False)
+
+    :param encoding: Encoding to be used when writing bytes to the output channel.
+            (default: "utf-8")
+
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
+            communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
+</code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase">AudiocodeBase</a></li>
@@ -616,6 +631,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -624,6 +640,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -657,6 +674,13 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Audiocode72SSH(Audiocode72Base):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Common Methods for AudioCodes running 7.2 CLI.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -777,13 +801,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Audiocode72SSH(Audiocode72Base):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base" href="#netmiko.audiocode.audiocode_ssh.Audiocode72Base">Audiocode72Base</a></li>
@@ -803,6 +820,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -811,6 +829,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -844,6 +863,13 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Audiocode72Telnet(Audiocode72Base):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Common Methods for AudioCodes running 7.2 CLI.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -964,13 +990,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Audiocode72Telnet(Audiocode72Base):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base" href="#netmiko.audiocode.audiocode_ssh.Audiocode72Base">Audiocode72Base</a></li>
@@ -990,6 +1009,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -998,6 +1018,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.Audiocode72Base.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -1031,6 +1052,220 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AudiocodeBase(BaseConnection):
+    &#34;&#34;&#34;Common Methods for AudioCode Drivers.&#34;&#34;&#34;
+
+    prompt_pattern = r&#34;[&gt;#]&#34;
+
+    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
+        default_enter = kwargs.get(&#34;default_enter&#34;)
+        kwargs[&#34;default_enter&#34;] = &#34;\r&#34; if default_enter is None else default_enter
+        super().__init__(*args, **kwargs)
+
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+        self._test_channel_read(pattern=self.prompt_pattern)
+        self.set_base_prompt()
+        self.disable_paging()
+        # Clear the read buffer
+        self.clear_buffer()
+
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+
+        if pattern is None:
+            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
+
+        if pattern:
+            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
+        else:
+            prompt = self.find_prompt(delay_factor=delay_factor)
+
+        if prompt[-1] not in (pri_prompt_terminator, alt_prompt_terminator):
+            raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
+
+        # If all we have is the &#39;terminator&#39; just use that :-(
+        if len(prompt) == 1:
+            self.base_prompt = prompt
+        else:
+            # Audiocode will return a prompt with * in it in certain
+            # situations: &#39;MYDEVICE*#&#39;, strip this off.
+            if &#34;*#&#34; in prompt or &#34;*&gt;&#34; in prompt:
+                self.base_prompt = prompt[:-2]
+            else:
+                # Strip off trailing terminator
+                self.base_prompt = prompt[:-1]
+        return self.base_prompt
+
+    def find_prompt(
+        self,
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+
+        if pattern is None:
+            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
+        return super().find_prompt(
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+
+    def _enable_paging(
+        self,
+        delay_factor: Optional[float] = 0.5,
+    ) -&gt; str:
+        return &#34;&#34;
+
+    def check_config_mode(
+        self,
+        check_string: str = r&#34;(?:\)#|\)\*#)&#34;,
+        pattern: str = r&#34;..#&#34;,
+        force_regex: bool = True,
+    ) -&gt; bool:
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
+
+    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
+        return super().check_enable_mode(check_string=check_string)
+
+    def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
+        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+        try:
+            self._enable_paging()
+            if self.check_config_mode():
+                self.exit_config_mode()
+        except Exception:
+            pass
+        # Always try to send final &#39;exit&#39; (command)
+        self._session_log_fin = True
+        self.write_channel(command + self.RETURN)
+
+    def enable(
+        self,
+        cmd: str = &#34;enable&#34;,
+        pattern: str = &#34;ssword&#34;,
+        enable_pattern: Optional[str] = &#34;#&#34;,
+        check_state: bool = True,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
+        return super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
+
+    def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = r&#34;#&#34;) -&gt; str:
+        output = &#34;&#34;
+        max_exit_depth = 10
+        if self.check_config_mode():
+            # Keep &#34;exitting&#34; until out of config mode
+            for _ in range(max_exit_depth):
+                self.write_channel(self.normalize_cmd(exit_config))
+
+                # Make sure you read until you detect the command echo (avoid getting out of sync)
+                if self.global_cmd_verify is not False:
+                    output += self.read_until_pattern(pattern=re.escape(exit_config.strip()))
+                if pattern:
+                    output += self.read_until_pattern(pattern=pattern)
+                else:
+                    output += self.read_until_prompt(read_entire_line=True)
+
+                if not self.check_config_mode():
+                    # No longer in config mode
+                    break
+            else:  # no-break
+                raise ValueError(&#34;Failed to exit configuration mode&#34;)
+        return output
+
+    def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
+        &#34;&#34;&#34;Exit enable mode.&#34;&#34;&#34;
+        return super().exit_enable_mode(exit_command=exit_command)
+
+    def send_config_set(
+        self,
+        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
+        *,
+        exit_config_mode: bool = True,
+        read_timeout: Optional[float] = None,
+        delay_factor: Optional[float] = 1.0,
+        max_loops: Optional[int] = 150,
+        strip_prompt: bool = False,
+        strip_command: bool = False,
+        config_mode_command: Optional[str] = None,
+        cmd_verify: bool = True,
+        enter_config_mode: bool = True,
+        error_pattern: str = &#34;&#34;,
+        terminator: str = r&#34;\*?#&#34;,
+        bypass_commands: Optional[str] = None,
+    ) -&gt; str:
+        if enter_config_mode and config_mode_command is None:
+            msg = &#34;&#34;&#34;
+send_config_set() for the Audiocode drivers require that you specify the
+config_mode_command. For example, config_mode_command=&#34;configure system&#34;
+(or &#34;configure voip&#34; or &#34;configure network&#34; etc.)
+            &#34;&#34;&#34;
+            raise ValueError(msg)
+        return super().send_config_set(
+            config_commands=config_commands,
+            exit_config_mode=exit_config_mode,
+            read_timeout=read_timeout,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+            strip_prompt=strip_prompt,
+            strip_command=strip_command,
+            config_mode_command=config_mode_command,
+            cmd_verify=cmd_verify,
+            enter_config_mode=enter_config_mode,
+            error_pattern=error_pattern,
+            terminator=terminator,
+            bypass_commands=bypass_commands,
+        )
+
+    def save_config(
+        self, cmd: str = &#34;write&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
+        &#34;&#34;&#34;Saves the running configuration.&#34;&#34;&#34;
+
+        self.enable()
+        if confirm:
+            output = self._send_command_timing_str(command_string=cmd)
+            if confirm_response:
+                output += self._send_command_timing_str(confirm_response)
+            else:
+                # Send enter by default
+                output += self._send_command_timing_str(self.RETURN)
+        else:
+            # Some devices are slow so match on trailing-prompt if you can
+            output = self._send_command_str(command_string=cmd)
+        return output
+
+    def _reload_device(
+        self,
+        cmd_save: str = &#34;reload now&#34;,
+        cmd_no_save: str = &#34;reload without-saving&#34;,
+        reload_save: bool = True,
+    ) -&gt; str:
+        &#34;&#34;&#34;Reloads the device.&#34;&#34;&#34;
+        if reload_save:
+            cmd = cmd_save
+        else:
+            cmd = cmd_no_save
+        self._enable_paging()
+        self.enable()
+        return self._send_command_timing_str(command_string=cmd)</code></pre>
+</details>
 <div class="desc"><p>Common Methods for AudioCode Drivers.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -1151,222 +1386,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AudiocodeBase(BaseConnection):
-    &#34;&#34;&#34;Common Methods for AudioCode Drivers.&#34;&#34;&#34;
-
-    prompt_pattern = r&#34;[&gt;#]&#34;
-
-    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
-        default_enter = kwargs.get(&#34;default_enter&#34;)
-        kwargs[&#34;default_enter&#34;] = &#34;\r&#34; if default_enter is None else default_enter
-        super().__init__(*args, **kwargs)
-
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-        self._test_channel_read(pattern=self.prompt_pattern)
-        self.set_base_prompt()
-        self.disable_paging()
-        # Clear the read buffer
-        self.clear_buffer()
-
-    def set_base_prompt(
-        self,
-        pri_prompt_terminator: str = &#34;#&#34;,
-        alt_prompt_terminator: str = &#34;&gt;&#34;,
-        delay_factor: float = 1.0,
-        pattern: Optional[str] = None,
-    ) -&gt; str:
-
-        if pattern is None:
-            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
-
-        if pattern:
-            prompt = self.find_prompt(delay_factor=delay_factor, pattern=pattern)
-        else:
-            prompt = self.find_prompt(delay_factor=delay_factor)
-
-        if not prompt[-1] in (pri_prompt_terminator, alt_prompt_terminator):
-            raise ValueError(f&#34;Router prompt not found: {repr(prompt)}&#34;)
-
-        # If all we have is the &#39;terminator&#39; just use that :-(
-        if len(prompt) == 1:
-            self.base_prompt = prompt
-        else:
-            # Audiocode will return a prompt with * in it in certain
-            # situations: &#39;MYDEVICE*#&#39;, strip this off.
-            if &#34;*#&#34; in prompt or &#34;*&gt;&#34; in prompt:
-                self.base_prompt = prompt[:-2]
-            else:
-                # Strip off trailing terminator
-                self.base_prompt = prompt[:-1]
-        return self.base_prompt
-
-    def find_prompt(
-        self,
-        delay_factor: float = 1.0,
-        pattern: Optional[str] = None,
-    ) -&gt; str:
-
-        if pattern is None:
-            pattern = rf&#34;\*?{self.prompt_pattern}&#34;
-        return super().find_prompt(
-            delay_factor=delay_factor,
-            pattern=pattern,
-        )
-
-    def _enable_paging(
-        self,
-        delay_factor: Optional[float] = 0.5,
-    ) -&gt; str:
-        return &#34;&#34;
-
-    def check_config_mode(
-        self,
-        check_string: str = r&#34;(?:\)#|\)\*#)&#34;,
-        pattern: str = r&#34;..#&#34;,
-        force_regex: bool = True,
-    ) -&gt; bool:
-        return super().check_config_mode(
-            check_string=check_string, pattern=pattern, force_regex=force_regex
-        )
-
-    def check_enable_mode(self, check_string: str = &#34;#&#34;) -&gt; bool:
-        return super().check_enable_mode(check_string=check_string)
-
-    def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
-        &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
-        try:
-            self._enable_paging()
-            if self.check_config_mode():
-                self.exit_config_mode()
-        except Exception:
-            pass
-        # Always try to send final &#39;exit&#39; (command)
-        self._session_log_fin = True
-        self.write_channel(command + self.RETURN)
-
-    def enable(
-        self,
-        cmd: str = &#34;enable&#34;,
-        pattern: str = &#34;ssword&#34;,
-        enable_pattern: Optional[str] = &#34;#&#34;,
-        check_state: bool = True,
-        re_flags: int = re.IGNORECASE,
-    ) -&gt; str:
-        return super().enable(
-            cmd=cmd,
-            pattern=pattern,
-            enable_pattern=enable_pattern,
-            check_state=check_state,
-            re_flags=re_flags,
-        )
-
-    def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = r&#34;#&#34;) -&gt; str:
-        output = &#34;&#34;
-        max_exit_depth = 10
-        if self.check_config_mode():
-            # Keep &#34;exitting&#34; until out of config mode
-            for _ in range(max_exit_depth):
-                self.write_channel(self.normalize_cmd(exit_config))
-
-                # Make sure you read until you detect the command echo (avoid getting out of sync)
-                if self.global_cmd_verify is not False:
-                    output += self.read_until_pattern(
-                        pattern=re.escape(exit_config.strip())
-                    )
-                if pattern:
-                    output += self.read_until_pattern(pattern=pattern)
-                else:
-                    output += self.read_until_prompt(read_entire_line=True)
-
-                if not self.check_config_mode():
-                    # No longer in config mode
-                    break
-            else:  # no-break
-                raise ValueError(&#34;Failed to exit configuration mode&#34;)
-        return output
-
-    def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
-        &#34;&#34;&#34;Exit enable mode.&#34;&#34;&#34;
-        return super().exit_enable_mode(exit_command=exit_command)
-
-    def send_config_set(
-        self,
-        config_commands: Union[str, Sequence[str], Iterator[str], TextIO, None] = None,
-        *,
-        exit_config_mode: bool = True,
-        read_timeout: Optional[float] = None,
-        delay_factor: Optional[float] = 1.0,
-        max_loops: Optional[int] = 150,
-        strip_prompt: bool = False,
-        strip_command: bool = False,
-        config_mode_command: Optional[str] = None,
-        cmd_verify: bool = True,
-        enter_config_mode: bool = True,
-        error_pattern: str = &#34;&#34;,
-        terminator: str = r&#34;\*?#&#34;,
-        bypass_commands: Optional[str] = None,
-    ) -&gt; str:
-        if enter_config_mode and config_mode_command is None:
-            msg = &#34;&#34;&#34;
-send_config_set() for the Audiocode drivers require that you specify the
-config_mode_command. For example, config_mode_command=&#34;configure system&#34;
-(or &#34;configure voip&#34; or &#34;configure network&#34; etc.)
-            &#34;&#34;&#34;
-            raise ValueError(msg)
-        return super().send_config_set(
-            config_commands=config_commands,
-            exit_config_mode=exit_config_mode,
-            read_timeout=read_timeout,
-            delay_factor=delay_factor,
-            max_loops=max_loops,
-            strip_prompt=strip_prompt,
-            strip_command=strip_command,
-            config_mode_command=config_mode_command,
-            cmd_verify=cmd_verify,
-            enter_config_mode=enter_config_mode,
-            error_pattern=error_pattern,
-            terminator=terminator,
-            bypass_commands=bypass_commands,
-        )
-
-    def save_config(
-        self, cmd: str = &#34;write&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
-    ) -&gt; str:
-        &#34;&#34;&#34;Saves the running configuration.&#34;&#34;&#34;
-
-        self.enable()
-        if confirm:
-            output = self._send_command_timing_str(command_string=cmd)
-            if confirm_response:
-                output += self._send_command_timing_str(confirm_response)
-            else:
-                # Send enter by default
-                output += self._send_command_timing_str(self.RETURN)
-        else:
-            # Some devices are slow so match on trailing-prompt if you can
-            output = self._send_command_str(command_string=cmd)
-        return output
-
-    def _reload_device(
-        self,
-        cmd_save: str = &#34;reload now&#34;,
-        cmd_no_save: str = &#34;reload without-saving&#34;,
-        reload_save: bool = True,
-    ) -&gt; str:
-        &#34;&#34;&#34;Reloads the device.&#34;&#34;&#34;
-        if reload_save:
-            cmd = cmd_save
-        else:
-            cmd = cmd_no_save
-        self._enable_paging()
-        self.enable()
-        return self._send_command_timing_str(command_string=cmd)</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a></li>
@@ -1381,7 +1400,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <dl>
 <dt id="netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1390,24 +1409,82 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <span>def <span class="ident">cleanup</span></span>(<span>self, command: str = 'exit') ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
+    &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+    try:
+        self._enable_paging()
+        if self.check_config_mode():
+            self.exit_config_mode()
+    except Exception:
+        pass
+    # Always try to send final &#39;exit&#39; (command)
+    self._session_log_fin = True
+    self.write_channel(command + self.RETURN)</code></pre>
+</details>
 <div class="desc"><p>Gracefully exit the SSH session.</p></div>
 </dd>
 <dt id="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode"><code class="name flex">
 <span>def <span class="ident">exit_enable_mode</span></span>(<span>self, exit_command: str = 'disable') ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def exit_enable_mode(self, exit_command: str = &#34;disable&#34;) -&gt; str:
+    &#34;&#34;&#34;Exit enable mode.&#34;&#34;&#34;
+    return super().exit_enable_mode(exit_command=exit_command)</code></pre>
+</details>
 <div class="desc"><p>Exit enable mode.</p></div>
 </dd>
 <dt id="netmiko.audiocode.audiocode_ssh.AudiocodeBase.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'write', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
+    self, cmd: str = &#34;write&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+) -&gt; str:
+    &#34;&#34;&#34;Saves the running configuration.&#34;&#34;&#34;
+
+    self.enable()
+    if confirm:
+        output = self._send_command_timing_str(command_string=cmd)
+        if confirm_response:
+            output += self._send_command_timing_str(confirm_response)
+        else:
+            # Send enter by default
+            output += self._send_command_timing_str(self.RETURN)
+    else:
+        # Some devices are slow so match on trailing-prompt if you can
+        output = self._send_command_str(command_string=cmd)
+    return output</code></pre>
+</details>
 <div class="desc"><p>Saves the running configuration.</p></div>
 </dd>
 <dt id="netmiko.audiocode.audiocode_ssh.AudiocodeBase.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self._test_channel_read(pattern=self.prompt_pattern)
+    self.set_base_prompt()
+    self.disable_paging()
+    # Clear the read buffer
+    self.clear_buffer()</code></pre>
+</details>
 <div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 </dd>
 </dl>
@@ -1423,6 +1500,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.find_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.find_prompt">find_prompt</a></code></li>
@@ -1461,6 +1539,64 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AudiocodeBase66(AudiocodeBase):
+    &#34;&#34;&#34;Audiocode this applies to 6.6 Audiocode Firmware versions.&#34;&#34;&#34;
+
+    def disable_paging(
+        self,
+        command: str = &#34;&#34;,
+        delay_factor: Optional[float] = 0.5,
+        cmd_verify: bool = True,
+        pattern: Optional[str] = None,
+    ) -&gt; str:
+
+        if command:
+            return super().disable_paging(
+                command=command,
+                delay_factor=delay_factor,
+                cmd_verify=cmd_verify,
+                pattern=pattern,
+            )
+        else:
+            command_list: List[str] = [
+                &#34;cli-terminal&#34;,
+                &#34;set window-height 0&#34;,
+            ]
+
+            self.enable()
+            assert isinstance(delay_factor, float)
+            delay_factor = self.select_delay_factor(delay_factor)
+            time.sleep(delay_factor * 0.1)
+            self.clear_buffer()
+            return self.send_config_set(
+                config_commands=command_list,
+                config_mode_command=&#34;config system&#34;,
+            )
+
+    def _enable_paging(
+        self,
+        delay_factor: Optional[float] = 0.5,
+    ) -&gt; str:
+
+        command_list: List[str] = [
+            &#34;cli-terminal&#34;,
+            &#34;set window-height 100&#34;,
+        ]
+        self.enable()
+        assert isinstance(delay_factor, float)
+        delay_factor = self.select_delay_factor(delay_factor)
+        time.sleep(delay_factor * 0.1)
+        self.clear_buffer()
+
+        return self.send_config_set(
+            config_commands=command_list,
+            config_mode_command=&#34;config system&#34;,
+        )</code></pre>
+</details>
 <div class="desc"><p>Audiocode this applies to 6.6 Audiocode Firmware versions.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -1581,64 +1717,6 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AudiocodeBase66(AudiocodeBase):
-    &#34;&#34;&#34;Audiocode this applies to 6.6 Audiocode Firmware versions.&#34;&#34;&#34;
-
-    def disable_paging(
-        self,
-        command: str = &#34;&#34;,
-        delay_factor: Optional[float] = 0.5,
-        cmd_verify: bool = True,
-        pattern: Optional[str] = None,
-    ) -&gt; str:
-
-        if command:
-            return super().disable_paging(
-                command=command,
-                delay_factor=delay_factor,
-                cmd_verify=cmd_verify,
-                pattern=pattern,
-            )
-        else:
-            command_list: List[str] = [
-                &#34;cli-terminal&#34;,
-                &#34;set window-height 0&#34;,
-            ]
-
-            self.enable()
-            assert isinstance(delay_factor, float)
-            delay_factor = self.select_delay_factor(delay_factor)
-            time.sleep(delay_factor * 0.1)
-            self.clear_buffer()
-            return self.send_config_set(
-                config_commands=command_list,
-                config_mode_command=&#34;config system&#34;,
-            )
-
-    def _enable_paging(
-        self,
-        delay_factor: Optional[float] = 0.5,
-    ) -&gt; str:
-
-        command_list: List[str] = [
-            &#34;cli-terminal&#34;,
-            &#34;set window-height 100&#34;,
-        ]
-        self.enable()
-        assert isinstance(delay_factor, float)
-        delay_factor = self.select_delay_factor(delay_factor)
-        time.sleep(delay_factor * 0.1)
-        self.clear_buffer()
-
-        return self.send_config_set(
-            config_commands=command_list,
-            config_mode_command=&#34;config system&#34;,
-        )</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase">AudiocodeBase</a></li>
@@ -1662,6 +1740,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -1670,6 +1749,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -1703,126 +1783,6 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Audiocode this applies to 6.6 Audiocode Firmware versions that only use the Shell.</p>
-<pre><code>    Initialize attributes for establishing connection to target device.
-
-    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
-        provided.
-
-    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
-            provided.
-
-    :param username: Username to authenticate against target device if
-            required.
-
-    :param password: Password to authenticate against target device if
-            required.
-
-    :param secret: The enable password if target device requires one.
-
-    :param port: The destination port used to connect to the target
-            device.
-
-    :param device_type: Class selection based on device type.
-
-    :param verbose: Enable additional messages to standard output.
-
-    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-
-    :param use_keys: Connect to target device using SSH keys.
-
-    :param key_file: Filename path of the SSH key file to use.
-
-    :param pkey: SSH key object to use.
-
-    :param passphrase: Passphrase to use for encrypted key; password will be used for key
-            decryption if not specified.
-
-    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
-            documentation for a description of the expected format.
-
-    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
-        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
-
-    :param allow_agent: Enable use of SSH key-agent.
-
-    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
-            means unknown SSH host keys will be accepted).
-
-    :param system_host_keys: Load host keys from the users known_hosts file.
-
-    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
-            alt_key_file.
-
-    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-
-    :param ssh_config_file: File name of OpenSSH configuration file.
-
-    :param conn_timeout: TCP connection timeout.
-
-    :param session_timeout: Set a timeout for parallel requests.
-
-    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-
-    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-
-    :param read_timeout_override: Set a timeout that will override the default read_timeout
-            of both send_command and send_command_timing. This is useful for 3rd party
-            libraries where directly accessing method arguments might be impractical.
-
-    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
-            Currently defaults to 0, for backwards compatibility (it will not attempt
-            to keep the connection alive).
-
-    :param default_enter: Character(s) to send to correspond to enter key (default:
-</code></pre>
-<p>).</p>
-<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default:
-</code></pre>
-<p>)</p>
-<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
-
-    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
-            to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: True)
-
-    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
-            to write the session log to.
-
-    :param session_log_record_writes: The session log generally only records channel reads due
-            to eliminate command duplication due to command echo. You can enable this if you
-            want to record both channel reads and channel writes in the log (default: False).
-
-    :param session_log_file_mode: "write" or "append" for session_log file mode
-            (default: "write")
-
-    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
-            (default: False)
-
-    :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: "utf-8")
-
-    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
-            communication to the target host (default: None).
-
-    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
-            telnet_proxy.py code for details.
-
-    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
-            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
-
-    :param auto_connect: Control whether Netmiko automatically establishes the connection as
-            part of the object creation (default: True).
-
-    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
-            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
-            eliminated in Netmiko 5.x (default: False).
-
-    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
-            (default: False)
-</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1936,9 +1896,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
         confirm: bool = False,
         confirm_response: str = &#34;&#34;,
     ) -&gt; str:
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
 
     def _reload_device(
         self,
@@ -1975,6 +1933,126 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
             a_string=a_string,
         )</code></pre>
 </details>
+<div class="desc"><p>Audiocode this applies to 6.6 Audiocode Firmware versions that only use the Shell.</p>
+<pre><code>    Initialize attributes for establishing connection to target device.
+
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
+        provided.
+
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
+            provided.
+
+    :param username: Username to authenticate against target device if
+            required.
+
+    :param password: Password to authenticate against target device if
+            required.
+
+    :param secret: The enable password if target device requires one.
+
+    :param port: The destination port used to connect to the target
+            device.
+
+    :param device_type: Class selection based on device type.
+
+    :param verbose: Enable additional messages to standard output.
+
+    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
+
+    :param use_keys: Connect to target device using SSH keys.
+
+    :param key_file: Filename path of the SSH key file to use.
+
+    :param pkey: SSH key object to use.
+
+    :param passphrase: Passphrase to use for encrypted key; password will be used for key
+            decryption if not specified.
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
+
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
+    :param allow_agent: Enable use of SSH key-agent.
+
+    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
+            means unknown SSH host keys will be accepted).
+
+    :param system_host_keys: Load host keys from the users known_hosts file.
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
+            alt_key_file.
+
+    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
+
+    :param ssh_config_file: File name of OpenSSH configuration file.
+
+    :param conn_timeout: TCP connection timeout.
+
+    :param session_timeout: Set a timeout for parallel requests.
+
+    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
+
+    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
+            Currently defaults to 0, for backwards compatibility (it will not attempt
+            to keep the connection alive).
+
+    :param default_enter: Character(s) to send to correspond to enter key (default:
+</code></pre>
+<p>).</p>
+<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
+            enter key (default:
+</code></pre>
+<p>)</p>
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+            to select smallest of global and specific. Sets default global_delay_factor to .1
+            (default: True)
+
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
+
+    :param session_log_record_writes: The session log generally only records channel reads due
+            to eliminate command duplication due to command echo. You can enable this if you
+            want to record both channel reads and channel writes in the log (default: False).
+
+    :param session_log_file_mode: "write" or "append" for session_log file mode
+            (default: "write")
+
+    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
+            (default: False)
+
+    :param encoding: Encoding to be used when writing bytes to the output channel.
+            (default: "utf-8")
+
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
+            communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
+</code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
@@ -1989,9 +2067,23 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.disable_paging"><code class="name flex">
-<span>def <span class="ident">disable_paging</span></span>(<span>self, command: str = '', delay_factor: Optional[float] = 0.5, cmd_verify: bool = True, pattern: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">disable_paging</span></span>(<span>self,<br>command: str = '',<br>delay_factor: float | None = 0.5,<br>cmd_verify: bool = True,<br>pattern: str | None = None) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disable_paging(
+    self,
+    command: str = &#34;&#34;,
+    delay_factor: Optional[float] = 0.5,
+    cmd_verify: bool = True,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;Not supported&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
+</details>
 <div class="desc"><p>Not supported</p></div>
 </dd>
 </dl>
@@ -2007,6 +2099,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -2015,6 +2108,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -2048,6 +2142,13 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AudiocodeShellSSH(AudiocodeShellBase):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Audiocode this applies to 6.6 Audiocode Firmware versions that only use the Shell.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -2168,13 +2269,6 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AudiocodeShellSSH(AudiocodeShellBase):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase" href="#netmiko.audiocode.audiocode_ssh.AudiocodeShellBase">AudiocodeShellBase</a></li>
@@ -2195,6 +2289,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.disable_paging" href="#netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -2203,6 +2298,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -2236,6 +2332,13 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AudiocodeShellTelnet(AudiocodeShellBase):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Audiocode this applies to 6.6 Audiocode Firmware versions that only use the Shell.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -2356,13 +2459,6 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AudiocodeShellTelnet(AudiocodeShellBase):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase" href="#netmiko.audiocode.audiocode_ssh.AudiocodeShellBase">AudiocodeShellBase</a></li>
@@ -2383,6 +2479,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.disable_paging" href="#netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.exit_config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.exit_enable_mode" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -2391,6 +2488,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.prompt_pattern" href="#netmiko.audiocode.audiocode_ssh.AudiocodeBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.audiocode.audiocode_ssh.AudiocodeShellBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -2480,7 +2578,7 @@ config_mode_command. For example, config_mode_command=&#34;configure system&#34;
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

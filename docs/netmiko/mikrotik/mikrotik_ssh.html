@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.mikrotik.mikrotik_ssh API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -40,7 +51,6 @@ hljs.highlightAll();
 <span>(</span><span>**kwargs: Any)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Common Methods for Mikrotik RouterOS and SwitchOS</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -62,22 +72,32 @@ hljs.highlightAll();
         Special cases:
         Mikrotik might prompt to read software licenses before displaying the initial prompt.
         Mikrotik might also prompt for acknowledging no software key message if unlicensed.
+        Mikrotik might present a &#34;default config&#34; screen.
+        Mikrotik might ask for a new password.
         &#34;&#34;&#34;
         no_license_message = &#39;Please press &#34;Enter&#34; to continue!&#39;
         license_prompt = &#34;Do you want to see the software license&#34;
-        combined_pattern = (
-            rf&#34;(?:{self.prompt_pattern}|{no_license_message}|{license_prompt})&#34;
-        )
+        new_password_promt = &#34;new password&gt;&#34;
+        default_config_prompt = &#39;remove this default configuration type &#34;r&#34;&#39;
+        combined_pattern = rf&#34;(?:{self.prompt_pattern}|{no_license_message}|{license_prompt}|{new_password_promt}|{default_config_prompt})&#34;
 
-        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
-        if no_license_message in data:
-            # Handle &#34;no license&#34; message
-            self.write_channel(self.RETURN)
-            self.read_until_pattern(pattern=self.prompt_pattern)
-        elif license_prompt in data:
-            # Handle software license prompt
-            self.write_channel(&#34;n&#34;)
-            self.read_until_pattern(pattern=self.prompt_pattern)
+        for _ in range(15):
+            data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+            if no_license_message in data:
+                # Handle &#34;no license&#34; message
+                self.write_channel(self.RETURN)
+            elif license_prompt in data:
+                # Handle software license prompt
+                self.write_channel(&#34;n&#34;)
+            elif default_config_prompt in data:
+                # Handle default config notice
+                self.write_channel(self.RETURN)
+            elif new_password_promt in data:
+                # Handle new password request
+                self.write_channel(&#34;\x03&#34;)
+            elif re.search(self.prompt_pattern, data, re.I):
+                return
+        raise ValueError(&#34;Unexpected output in special_login_handler&#34;)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -&gt; None:
         &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
@@ -190,6 +210,7 @@ hljs.highlightAll();
         &#34;&#34;&#34;MikroTik uses &#39;quit&#39; command instead of &#39;exit&#39;.&#34;&#34;&#34;
         return super().cleanup(command=command)</code></pre>
 </details>
+<div class="desc"><p>Common Methods for Mikrotik RouterOS and SwitchOS</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
@@ -207,7 +228,7 @@ hljs.highlightAll();
 <dl>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -216,45 +237,172 @@ hljs.highlightAll();
 <span>def <span class="ident">cleanup</span></span>(<span>self, command: str = 'quit') ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cleanup(self, command: str = &#34;quit&#34;) -&gt; None:
+    &#34;&#34;&#34;MikroTik uses &#39;quit&#39; command instead of &#39;exit&#39;.&#34;&#34;&#34;
+    return super().cleanup(command=command)</code></pre>
+</details>
 <div class="desc"><p>MikroTik uses 'quit' command instead of 'exit'.</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging"><code class="name flex">
 <span>def <span class="ident">disable_paging</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disable_paging(self, *args: Any, **kwargs: Any) -&gt; str:
+    &#34;&#34;&#34;Mikrotik does not have paging by default.&#34;&#34;&#34;
+    return &#34;&#34;</code></pre>
+</details>
 <div class="desc"><p>Mikrotik does not have paging by default.</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string: str, cmd_verify: bool = True, **kwargs: Any) ‑> Union[str, List[Any], Dict[str, Any]]</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, command_string: str, cmd_verify: bool = True, **kwargs: Any) ‑> str | List[Any] | Dict[str, Any]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_command_timing(  # type: ignore
+    self,
+    command_string: str,
+    cmd_verify: bool = True,
+    **kwargs: Any,
+) -&gt; Union[str, List[Any], Dict[str, Any]]:
+    &#34;&#34;&#34;Force cmd_verify to be True due to all of the line repainting&#34;&#34;&#34;
+    return super().send_command_timing(
+        command_string=command_string, cmd_verify=cmd_verify, **kwargs
+    )</code></pre>
+</details>
 <div class="desc"><p>Force cmd_verify to be True due to all of the line repainting</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self, *args: Any, **kwargs: Any) -&gt; None:
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+    self.ansi_escape_codes = True
+    self.set_base_prompt()</code></pre>
+</details>
 <div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.set_base_prompt"><code class="name flex">
-<span>def <span class="ident">set_base_prompt</span></span>(<span>self, pri_prompt_terminator: str = &#x27;&gt;&#x27;, alt_prompt_terminator: str = &#x27;&gt;&#x27;, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">set_base_prompt</span></span>(<span>self,<br>pri_prompt_terminator: str = &#x27;&gt;&#x27;,<br>alt_prompt_terminator: str = &#x27;&gt;&#x27;,<br>delay_factor: float = 1.0,<br>pattern: str | None = None) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_base_prompt(
+    self,
+    pri_prompt_terminator: str = &#34;&gt;&#34;,
+    alt_prompt_terminator: str = &#34;&gt;&#34;,
+    delay_factor: float = 1.0,
+    pattern: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;Strip the trailing space off.&#34;&#34;&#34;
+    prompt = super().set_base_prompt(
+        pri_prompt_terminator=pri_prompt_terminator,
+        alt_prompt_terminator=alt_prompt_terminator,
+        delay_factor=delay_factor,
+        pattern=pattern,
+    )
+    prompt = prompt.strip()
+    self.base_prompt = prompt
+    return self.base_prompt</code></pre>
+</details>
 <div class="desc"><p>Strip the trailing space off.</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.special_login_handler"><code class="name flex">
 <span>def <span class="ident">special_login_handler</span></span>(<span>self, delay_factor: float = 1.0) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def special_login_handler(self, delay_factor: float = 1.0) -&gt; None:
+    &#34;&#34;&#34;Handles special case scenarios for logins that might be encountered.
+
+    Special cases:
+    Mikrotik might prompt to read software licenses before displaying the initial prompt.
+    Mikrotik might also prompt for acknowledging no software key message if unlicensed.
+    Mikrotik might present a &#34;default config&#34; screen.
+    Mikrotik might ask for a new password.
+    &#34;&#34;&#34;
+    no_license_message = &#39;Please press &#34;Enter&#34; to continue!&#39;
+    license_prompt = &#34;Do you want to see the software license&#34;
+    new_password_promt = &#34;new password&gt;&#34;
+    default_config_prompt = &#39;remove this default configuration type &#34;r&#34;&#39;
+    combined_pattern = rf&#34;(?:{self.prompt_pattern}|{no_license_message}|{license_prompt}|{new_password_promt}|{default_config_prompt})&#34;
+
+    for _ in range(15):
+        data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
+        if no_license_message in data:
+            # Handle &#34;no license&#34; message
+            self.write_channel(self.RETURN)
+        elif license_prompt in data:
+            # Handle software license prompt
+            self.write_channel(&#34;n&#34;)
+        elif default_config_prompt in data:
+            # Handle default config notice
+            self.write_channel(self.RETURN)
+        elif new_password_promt in data:
+            # Handle new password request
+            self.write_channel(&#34;\x03&#34;)
+        elif re.search(self.prompt_pattern, data, re.I):
+            return
+    raise ValueError(&#34;Unexpected output in special_login_handler&#34;)</code></pre>
+</details>
 <div class="desc"><p>Handles special case scenarios for logins that might be encountered.</p>
 <p>Special cases:
 Mikrotik might prompt to read software licenses before displaying the initial prompt.
-Mikrotik might also prompt for acknowledging no software key message if unlicensed.</p></div>
+Mikrotik might also prompt for acknowledging no software key message if unlicensed.
+Mikrotik might present a "default config" screen.
+Mikrotik might ask for a new password.</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.strip_command"><code class="name flex">
 <span>def <span class="ident">strip_command</span></span>(<span>self, command_string: str, output: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strip_command(self, command_string: str, output: str) -&gt; str:
+    &#34;&#34;&#34;
+    Mikrotik can echo the command multiple times :-(
+
+    Example:
+    system routerboard print
+    [admin@MikroTik] &gt; system routerboard print
+    &#34;&#34;&#34;
+    output = super().strip_command(command_string, output)
+    cmd = command_string.strip()
+
+    output = output.lstrip()
+    # &#39;[admin@MikroTik] &gt; cmd&#39; then the first newline should be matched
+    pattern = rf&#34;^\[.*\] &gt; {re.escape(cmd)}.*${self.RESPONSE_RETURN}&#34;
+    if re.search(pattern, output, flags=re.M):
+        output_lines = re.split(pattern, output, flags=re.M)
+        new_output = output_lines[1:]
+        return self.RESPONSE_RETURN.join(new_output)
+    else:
+        # command_string isn&#39;t there; do nothing
+        return output</code></pre>
+</details>
 <div class="desc"><p>Mikrotik can echo the command multiple times :-(</p>
 <p>Example:
 system routerboard print
@@ -264,6 +412,33 @@ system routerboard print
 <span>def <span class="ident">strip_prompt</span></span>(<span>self, a_string: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strip_prompt(self, a_string: str) -&gt; str:
+    &#34;&#34;&#34;Strip the trailing router prompt from the output.
+
+    Mikrotik just does a lot of formatting/has ansi escape codes in output so
+    we need a special handler here.
+
+    There can be two trailing instances of the prompt probably due to
+    repainting.
+    &#34;&#34;&#34;
+    response_list = a_string.split(self.RESPONSE_RETURN)
+    last_line = response_list[-1]
+
+    # Drop the first trailing prompt
+    if self.base_prompt in last_line:
+        a_string = self.RESPONSE_RETURN.join(response_list[:-1])
+        a_string = a_string.rstrip()
+        # Now it should be just normal: call the parent method
+        a_string = super().strip_prompt(a_string)
+        return a_string.strip()
+    else:
+        # Unexpected just return the original string
+        return a_string</code></pre>
+</details>
 <div class="desc"><p>Strip the trailing router prompt from the output.</p>
 <p>Mikrotik just does a lot of formatting/has ansi escape codes in output so
 we need a special handler here.</p>
@@ -282,6 +457,7 @@ repainting.</p></div>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -314,10 +490,9 @@ repainting.</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer"><code class="flex name class">
 <span>class <span class="ident">MikrotikRouterOsFileTransfer</span></span>
-<span>(</span><span>ssh_conn: <a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a>, source_file: str, dest_file: str, file_system: Optional[str] = 'flash', direction: str = 'put', socket_timeout: float = 10.0, progress: Optional[Callable[..., Any]] = None, progress4: Optional[Callable[..., Any]] = None, hash_supported: bool = False)</span>
+<span>(</span><span>ssh_conn: <a title="netmiko.base_connection.BaseConnection" href="../base_connection.html#netmiko.base_connection.BaseConnection">BaseConnection</a>,<br>source_file: str,<br>dest_file: str,<br>file_system: str | None = 'flash',<br>direction: str = 'put',<br>socket_timeout: float = 10.0,<br>progress: Callable[..., Any] | None = None,<br>progress4: Callable[..., Any] | None = None,<br>hash_supported: bool = False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Mikrotik Router Os File Transfer driver.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -355,15 +530,18 @@ repainting.</p></div>
             if not remote_cmd:
                 remote_cmd = f&#39;/file print detail where name=&#34;{self.file_system}/{self.dest_file}&#34;&#39;
             remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
-            # Output will look like
-            # 0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=jun...
-            # fail case will be blank line (all whitespace)
-            if (
-                &#34;size&#34; in remote_out
-                and f&#34;{self.file_system}/{self.dest_file}&#34; in remote_out
-            ):
+            # Possible outputs:
+            # - Normal entry containing &#39;size&#39; and the filename
+            #   0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=...
+            # - Some firmware versions print flags then the entry
+            #   Flags: S - shared
+            #   0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=...
+            # - Or only the flags (no matching file), or entirely blank on failure
+            #   Flags: S - shared
+            #   &lt;no matching file line&gt;
+            if &#34;size&#34; in remote_out and f&#34;{self.file_system}/{self.dest_file}&#34; in remote_out:
                 return True
-            elif not remote_out.strip():
+            elif not remote_out.strip() or (&#34;Flags:&#34; in remote_out and &#34;size&#34; not in remote_out):
                 return False
             raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
         elif self.direction == &#34;get&#34;:
@@ -377,13 +555,11 @@ repainting.</p></div>
         sys_res = self.ssh_ctl_chan._send_command_timing_str(remote_cmd).splitlines()
         for res in sys_res:
             if &#34;free-memory&#34; in res:
-                spaceMib = res.strip().replace(&#34;free-memory: &#34;, &#34;&#34;).replace(&#34;MiB&#34;, &#34;&#34;)
-                return int(float(spaceMib) * 1048576)
+                space_str = res.strip().replace(&#34;free-memory: &#34;, &#34;&#34;)
+                return self._format_to_bytes(space_str)
         raise ValueError(&#34;Unexpected output from remote_space_available&#34;)
 
-    def remote_file_size(
-        self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None
-    ) -&gt; int:
+    def remote_file_size(self, remote_cmd: str = &#34;&#34;, remote_file: Optional[str] = None) -&gt; int:
         &#34;&#34;&#34;Get the file size of the remote file.&#34;&#34;&#34;
         if remote_file is None:
             if self.direction == &#34;put&#34;:
@@ -394,9 +570,7 @@ repainting.</p></div>
                 raise ValueError(&#34;Invalid value for file transfer direction.&#34;)
 
         if not remote_cmd:
-            remote_cmd = (
-                f&#39;/file print detail where name=&#34;{self.file_system}/{remote_file}&#34;&#39;
-            )
+            remote_cmd = f&#39;/file print detail where name=&#34;{self.file_system}/{remote_file}&#34;&#39;
         remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
         try:
             size = remote_out.split(&#34;size=&#34;)[1].split(&#34; &#34;)[0]
@@ -405,25 +579,17 @@ repainting.</p></div>
             raise ValueError(&#34;Unable to find file on remote system&#34;)
 
     def file_md5(self, file_name: str, add_newline: bool = False) -&gt; str:
-        raise AttributeError(
-            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
-        )
+        raise AttributeError(&#34;RouterOS does not natively support an MD5-hash operation.&#34;)
 
     @staticmethod
     def process_md5(md5_output: str, pattern: str = &#34;&#34;) -&gt; str:
-        raise AttributeError(
-            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
-        )
+        raise AttributeError(&#34;RouterOS does not natively support an MD5-hash operation.&#34;)
 
     def compare_md5(self) -&gt; bool:
-        raise AttributeError(
-            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
-        )
+        raise AttributeError(&#34;RouterOS does not natively support an MD5-hash operation.&#34;)
 
     def remote_md5(self, base_cmd: str = &#34;&#34;, remote_file: Optional[str] = None) -&gt; str:
-        raise AttributeError(
-            &#34;RouterOS does not natively support an MD5-hash operation.&#34;
-        )
+        raise AttributeError(&#34;RouterOS does not natively support an MD5-hash operation.&#34;)
 
     def verify_file(self) -&gt; bool:
         &#34;&#34;&#34;
@@ -433,15 +599,11 @@ repainting.</p></div>
         &#34;&#34;&#34;
         if self.direction == &#34;put&#34;:
             local_size = self._format_bytes(os.stat(self.source_file).st_size)
-            remote_size = self._format_bytes(
-                self.remote_file_size(remote_file=self.dest_file)
-            )
+            remote_size = self._format_bytes(self.remote_file_size(remote_file=self.dest_file))
             return local_size == remote_size
         elif self.direction == &#34;get&#34;:
             local_size = self._format_bytes(os.stat(self.dest_file).st_size)
-            remote_size = self._format_bytes(
-                self.remote_file_size(remote_file=self.source_file)
-            )
+            remote_size = self._format_bytes(self.remote_file_size(remote_file=self.source_file))
             return local_size == remote_size
         else:
             raise ValueError(&#34;Unexpected value of self.direction&#34;)
@@ -472,6 +634,7 @@ repainting.</p></div>
             n += 1
         return f&#34;{size}{levels[n]}B&#34;</code></pre>
 </details>
+<div class="desc"><p>Mikrotik Router Os File Transfer driver.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.scp_handler.BaseFileTransfer" href="../scp_handler.html#netmiko.scp_handler.BaseFileTransfer">BaseFileTransfer</a></li>
@@ -482,12 +645,62 @@ repainting.</p></div>
 <span>def <span class="ident">check_file_exists</span></span>(<span>self, remote_cmd: str = '') ‑> bool</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_file_exists(self, remote_cmd: str = &#34;&#34;) -&gt; bool:
+    &#34;&#34;&#34;Check if the dest_file already exists on the file system.&#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        if not remote_cmd:
+            remote_cmd = f&#39;/file print detail where name=&#34;{self.file_system}/{self.dest_file}&#34;&#39;
+        remote_out = self.ssh_ctl_chan._send_command_timing_str(remote_cmd)
+        # Possible outputs:
+        # - Normal entry containing &#39;size&#39; and the filename
+        #   0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=...
+        # - Some firmware versions print flags then the entry
+        #   Flags: S - shared
+        #   0 name=&#34;flash/test9.txt&#34; type=&#34;.txt file&#34; size=19 creation-time=...
+        # - Or only the flags (no matching file), or entirely blank on failure
+        #   Flags: S - shared
+        #   &lt;no matching file line&gt;
+        if &#34;size&#34; in remote_out and f&#34;{self.file_system}/{self.dest_file}&#34; in remote_out:
+            return True
+        elif not remote_out.strip() or (&#34;Flags:&#34; in remote_out and &#34;size&#34; not in remote_out):
+            return False
+        raise ValueError(&#34;Unexpected output from check_file_exists&#34;)
+    elif self.direction == &#34;get&#34;:
+        return os.path.exists(self.dest_file)
+    else:
+        raise ValueError(&#34;Unexpected value for self.direction&#34;)</code></pre>
+</details>
 <div class="desc"><p>Check if the dest_file already exists on the file system.</p></div>
 </dd>
 <dt id="netmiko.mikrotik.mikrotik_ssh.MikrotikRouterOsFileTransfer.verify_file"><code class="name flex">
 <span>def <span class="ident">verify_file</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def verify_file(self) -&gt; bool:
+    &#34;&#34;&#34;
+    Verify the file has been transferred correctly based on filesize.
+    This method is very approximate as Mikrotik rounds file sizes to KiB, MiB, GiB...
+    Therefore multiple conversions from/to bytes are needed
+    &#34;&#34;&#34;
+    if self.direction == &#34;put&#34;:
+        local_size = self._format_bytes(os.stat(self.source_file).st_size)
+        remote_size = self._format_bytes(self.remote_file_size(remote_file=self.dest_file))
+        return local_size == remote_size
+    elif self.direction == &#34;get&#34;:
+        local_size = self._format_bytes(os.stat(self.dest_file).st_size)
+        remote_size = self._format_bytes(self.remote_file_size(remote_file=self.source_file))
+        return local_size == remote_size
+    else:
+        raise ValueError(&#34;Unexpected value of self.direction&#34;)</code></pre>
+</details>
 <div class="desc"><p>Verify the file has been transferred correctly based on filesize.
 This method is very approximate as Mikrotik rounds file sizes to KiB, MiB, GiB&hellip;
 Therefore multiple conversions from/to bytes are needed</p></div>
@@ -521,7 +734,6 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <span>(</span><span>**kwargs: Any)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Mikrotik RouterOS SSH driver.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -531,6 +743,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 
     pass</code></pre>
 </details>
+<div class="desc"><p>Mikrotik RouterOS SSH driver.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></li>
@@ -553,6 +766,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -561,6 +775,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -594,7 +809,6 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <span>(</span><span>**kwargs: Any)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Mikrotik SwitchOS SSH driver.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -604,6 +818,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 
     pass</code></pre>
 </details>
+<div class="desc"><p>Mikrotik SwitchOS SSH driver.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase">MikrotikBase</a></li>
@@ -626,6 +841,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -634,6 +850,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern" href="#netmiko.mikrotik.mikrotik_ssh.MikrotikBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.mikrotik.mikrotik_ssh.MikrotikBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -710,7 +927,7 @@ Therefore multiple conversions from/to bytes are needed</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

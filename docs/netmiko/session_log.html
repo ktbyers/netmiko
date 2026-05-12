@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.session_log API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -37,10 +48,9 @@ hljs.highlightAll();
 <dl>
 <dt id="netmiko.session_log.SessionLog"><code class="flex name class">
 <span>class <span class="ident">SessionLog</span></span>
-<span>(</span><span>file_name: Optional[str] = None, buffered_io: Optional[io.BufferedIOBase] = None, file_mode: str = 'write', file_encoding: str = 'utf-8', no_log: Optional[Dict[str, Any]] = None, record_writes: bool = False, slog_buffer: Optional[_io.StringIO] = None)</span>
+<span>(</span><span>file_name: str | None = None,<br>buffered_io: io.BufferedIOBase | None = None,<br>file_mode: str = 'write',<br>file_encoding: str = 'utf-8',<br>no_log: Dict[str, Any] | None = None,<br>record_writes: bool = False,<br>slog_buffer: _io.StringIO | None = None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -88,18 +98,14 @@ hljs.highlightAll();
         if self.file_name is None:
             return None
         if self.file_mode == &#34;append&#34;:
-            self.session_log = open(
-                self.file_name, mode=&#34;a&#34;, encoding=self.file_encoding
-            )
+            self.session_log = open(self.file_name, mode=&#34;a&#34;, encoding=self.file_encoding)
         else:
-            self.session_log = open(
-                self.file_name, mode=&#34;w&#34;, encoding=self.file_encoding
-            )
+            self.session_log = open(self.file_name, mode=&#34;w&#34;, encoding=self.file_encoding)
         self._session_log_close = True
 
     def close(self) -&gt; None:
         &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
-        self.flush()
+        self._flush_buffer(final=True)
         if self.session_log and self._session_log_close:
             self.session_log.close()
             self.session_log = None
@@ -110,6 +116,17 @@ hljs.highlightAll();
             data = data.replace(hidden_data, &#34;********&#34;)
         return data
 
+    def _longest_partial_match(self, data: str) -&gt; int:
+        &#34;&#34;&#34;Return the length of the longest suffix of data that is a partial
+        prefix of any no_log value. Used to hold back data that might be the
+        start of a secret split across multiple channel reads.&#34;&#34;&#34;
+        hold_back = 0
+        for hidden_data in self.no_log.values():
+            for partial_len in range(1, len(hidden_data)):
+                if data.endswith(hidden_data[:partial_len]):
+                    hold_back = max(hold_back, partial_len)
+        return hold_back
+
     def _read_buffer(self) -&gt; str:
         self.slog_buffer.seek(0)
         data = self.slog_buffer.read()
@@ -117,59 +134,140 @@ hljs.highlightAll();
         self.slog_buffer = io.StringIO()
         return data
 
-    def flush(self) -&gt; None:
-        &#34;&#34;&#34;Force the slog_buffer to be written out to the actual file&#34;&#34;&#34;
+    def _write(self, data: str) -&gt; None:
+        &#34;&#34;&#34;Write data to the underlying IO sink and flush it.&#34;&#34;&#34;
+        assert self.session_log is not None
+        if isinstance(self.session_log, io.BufferedIOBase):
+            self.session_log.write(write_bytes(data, encoding=self.file_encoding))
+        else:
+            self.session_log.write(data)
 
-        if self.session_log is not None:
-            data = self._read_buffer()
+        assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
+            self.session_log, io.TextIOBase
+        )
+
+        self.session_log.flush()
+
+    def _flush_buffer(self, final: bool = False) -&gt; None:
+        &#34;&#34;&#34;Drain slog_buffer to the sink.
+
+        If final=False (normal write path), any trailing data that is a partial
+        prefix of a no_log value is held back in the buffer so the next write
+        can complete the match before filtering.
+
+        If final=True (close path), any held-back partial match is replaced
+        with &#39;********&#39; rather than exposing a fragment of the secret.
+        &#34;&#34;&#34;
+        if self.session_log is None:
+            return
+
+        data = self._read_buffer()
+
+        if self.no_log and data:
+            hold_back = self._longest_partial_match(data)
+            if hold_back:
+                if final:
+                    data = data[:-hold_back] + &#34;********&#34;
+                else:
+                    self.slog_buffer.write(data[-hold_back:])
+                    data = data[:-hold_back]
             data = self.no_log_filter(data)
 
-            if isinstance(self.session_log, io.BufferedIOBase):
-                self.session_log.write(write_bytes(data, encoding=self.file_encoding))
-            else:
-                self.session_log.write(data)
+        if data:
+            self._write(data)
 
-            assert isinstance(self.session_log, io.BufferedIOBase) or isinstance(
-                self.session_log, io.TextIOBase
-            )
-
-            # Flush the underlying file
-            self.session_log.flush()
+    def flush(self) -&gt; None:
+        &#34;&#34;&#34;Force any buffered data to be written to the sink immediately.&#34;&#34;&#34;
+        self._flush_buffer()
 
     def write(self, data: str) -&gt; None:
         if len(data) &gt; 0:
-            self.slog_buffer.write(data)</code></pre>
+            self.slog_buffer.write(data)
+            self._flush_buffer()</code></pre>
 </details>
+<div class="desc"></div>
 <h3>Methods</h3>
 <dl>
 <dt id="netmiko.session_log.SessionLog.close"><code class="name flex">
 <span>def <span class="ident">close</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self) -&gt; None:
+    &#34;&#34;&#34;Close the session_log file (if it is a file that we opened).&#34;&#34;&#34;
+    self._flush_buffer(final=True)
+    if self.session_log and self._session_log_close:
+        self.session_log.close()
+        self.session_log = None</code></pre>
+</details>
 <div class="desc"><p>Close the session_log file (if it is a file that we opened).</p></div>
 </dd>
 <dt id="netmiko.session_log.SessionLog.flush"><code class="name flex">
 <span>def <span class="ident">flush</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Force the slog_buffer to be written out to the actual file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flush(self) -&gt; None:
+    &#34;&#34;&#34;Force any buffered data to be written to the sink immediately.&#34;&#34;&#34;
+    self._flush_buffer()</code></pre>
+</details>
+<div class="desc"><p>Force any buffered data to be written to the sink immediately.</p></div>
 </dd>
 <dt id="netmiko.session_log.SessionLog.no_log_filter"><code class="name flex">
 <span>def <span class="ident">no_log_filter</span></span>(<span>self, data: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def no_log_filter(self, data: str) -&gt; str:
+    &#34;&#34;&#34;Filter content from the session_log.&#34;&#34;&#34;
+    for hidden_data in self.no_log.values():
+        data = data.replace(hidden_data, &#34;********&#34;)
+    return data</code></pre>
+</details>
 <div class="desc"><p>Filter content from the session_log.</p></div>
 </dd>
 <dt id="netmiko.session_log.SessionLog.open"><code class="name flex">
 <span>def <span class="ident">open</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open(self) -&gt; None:
+    &#34;&#34;&#34;Open the session_log file.&#34;&#34;&#34;
+    if self.file_name is None:
+        return None
+    if self.file_mode == &#34;append&#34;:
+        self.session_log = open(self.file_name, mode=&#34;a&#34;, encoding=self.file_encoding)
+    else:
+        self.session_log = open(self.file_name, mode=&#34;w&#34;, encoding=self.file_encoding)
+    self._session_log_close = True</code></pre>
+</details>
 <div class="desc"><p>Open the session_log file.</p></div>
 </dd>
 <dt id="netmiko.session_log.SessionLog.write"><code class="name flex">
 <span>def <span class="ident">write</span></span>(<span>self, data: str) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write(self, data: str) -&gt; None:
+    if len(data) &gt; 0:
+        self.slog_buffer.write(data)
+        self._flush_buffer()</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -205,7 +303,7 @@ hljs.highlightAll();
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.cli_tools.outputters API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -37,49 +48,259 @@ hljs.highlightAll();
 <span>def <span class="ident">highlight_regex</span></span>(<span>text, pattern, highlight_color='red')</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def highlight_regex(text, pattern, highlight_color=&#34;red&#34;):
+    &#34;&#34;&#34;
+    Highlight text matching a regex pattern using Rich.
+    &#34;&#34;&#34;
+    text_obj = Text(text)
+    for match in re.finditer(pattern, text):
+        start, end = match.span()
+        text_obj.stylize(highlight_color, start, end)
+
+    return text_obj</code></pre>
+</details>
 <div class="desc"><p>Highlight text matching a regex pattern using Rich.</p></div>
 </dd>
 <dt id="netmiko.cli_tools.outputters.highlight_regex_with_context"><code class="name flex">
 <span>def <span class="ident">highlight_regex_with_context</span></span>(<span>text, pattern, highlight_color='red', context_lines=2)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def highlight_regex_with_context(text, pattern, highlight_color=&#34;red&#34;, context_lines=2):
+    &#34;&#34;&#34;
+    Highlight text matching a regex pattern using Rich, showing only the matching lines
+    with a specified number of context lines before and after.
+    &#34;&#34;&#34;
+    lines = text.split(&#34;\n&#34;)
+    text_obj = Text()
+    pattern = re.compile(pattern)
+
+    for i, line in enumerate(lines):
+        if pattern.search(line):
+            # Add context lines before
+            start = max(0, i - context_lines)
+            for j in range(start, i):
+                text_obj.append(lines[j] + &#34;\n&#34;)
+
+            # Add the matching line with highlighting
+            line_obj = Text(line + &#34;\n&#34;)
+            for match in pattern.finditer(line):
+                line_obj.stylize(highlight_color, match.start(), match.end())
+            text_obj.append(line_obj)
+
+            # Add context lines after
+            end = min(len(lines), i + context_lines + 1)
+            for j in range(i + 1, end):
+                text_obj.append(lines[j] + &#34;\n&#34;)
+
+            # Add a separator if this isn&#39;t the last match
+            if i + context_lines + 1 &lt; len(lines):
+                text_obj.append(&#34;...\n\n&#34;)
+
+    return text_obj</code></pre>
+</details>
 <div class="desc"><p>Highlight text matching a regex pattern using Rich, showing only the matching lines
 with a specified number of context lines before and after.</p></div>
 </dd>
 <dt id="netmiko.cli_tools.outputters.output_dispatcher"><code class="name flex">
-<span>def <span class="ident">output_dispatcher</span></span>(<span>out_format, results, pattern=None)</span>
+<span>def <span class="ident">output_dispatcher</span></span>(<span>out_format, results, pattern=None, hide_empty=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def output_dispatcher(out_format, results, pattern=None, hide_empty=False):
+
+    # Sort the results dictionary by device_name
+    results = dict(sorted(results.items()))
+
+    if hide_empty:
+        results = {device_name: output for device_name, output in results.items() if output}
+
+    output_functions = {
+        &#34;text&#34;: output_text,
+        &#34;text_highlighted&#34;: output_text,
+        &#34;json&#34;: output_json,
+        &#34;yaml&#34;: output_yaml,
+        &#34;raw&#34;: output_raw,
+        &#34;json_raw&#34;: output_json,
+    }
+    kwargs = {}
+    func = output_functions.get(out_format, output_text)
+    if out_format == &#34;text_highlighted&#34;:
+        if pattern is None:
+            raise ValueError(&#34;Regex search pattern must be set for!&#34;)
+        kwargs[&#34;pattern&#34;] = pattern
+    elif out_format == &#34;json_raw&#34;:
+        kwargs[&#34;raw&#34;] = True
+
+    return func(results, **kwargs)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="netmiko.cli_tools.outputters.output_failed_devices"><code class="name flex">
 <span>def <span class="ident">output_failed_devices</span></span>(<span>failed_devices)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def output_failed_devices(failed_devices):
+    if failed_devices:
+        console = Console(theme=CUSTOM_THEME)
+
+        # Sort the failed devices list
+        failed_devices.sort()
+
+        # Create the content for the panel
+        content = &#34;\n&#34;
+        for device_name in failed_devices:
+            content += f&#34;  {device_name}\n&#34;
+
+        # Create and print the panel
+        panel = Panel(
+            content,
+            title=&#34;Failed devices&#34;,
+            expand=False,
+            border_style=&#34;failed_border&#34;,
+            title_align=&#34;left&#34;,
+            padding=(1, 1),
+        )
+
+        console.print()
+        console.print(panel)
+        console.print()</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="netmiko.cli_tools.outputters.output_json"><code class="name flex">
 <span>def <span class="ident">output_json</span></span>(<span>results, raw=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def output_json(results, raw=False):
+    console = Console(theme=CUSTOM_THEME)
+
+    for device_name, output in results.items():
+        try:
+            json_data = json.loads(output)
+            formatted_json = json.dumps(json_data, indent=2)
+            banner = &#34;-&#34; * len(device_name)
+            if raw:
+                print()
+                print(device_name)
+                print(banner)
+                print(formatted_json)
+                print()
+            else:
+                theme = DEFAULT_THEME
+                syntax = Syntax(formatted_json, &#34;json&#34;, theme=theme)
+                panel = Panel(
+                    syntax,
+                    border_style=Style(color=DEFAULT_BOX),
+                    expand=False,
+                    padding=(1, 1),
+                )
+
+                console.print()
+                print(device_name)
+                console.print(panel)
+                console.print()
+
+        except json.decoder.JSONDecodeError as e:
+            msg = f&#34;&#34;&#34;
+
+Error processing output for device: {device_name}
+
+In order to use display the output in JSON (--json arg), you must provide the output in JSON
+format (i.e. device supports &#39;| json&#39; or parse with TextFSM)
+
+&#34;&#34;&#34;
+            new_exception = json.decoder.JSONDecodeError(msg, e.doc, e.pos)
+            # Raise the new exception, chaining it to the original one
+            raise new_exception from e</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="netmiko.cli_tools.outputters.output_raw"><code class="name flex">
 <span>def <span class="ident">output_raw</span></span>(<span>results)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def output_raw(results):
+    border_color = CUSTOM_THEME.styles.get(&#34;border&#34;).color.name
+
+    if len(results) == 1:
+        for device_name, output in results.items():
+            print(output)
+    else:
+        for device_name, output in results.items():
+            banner = &#34;-&#34; * len(device_name)
+            rich.print(f&#34;[bold {border_color}]{device_name}[/]&#34;)
+            rich.print(f&#34;[{border_color}]{banner}[/]&#34;)
+            print(output)
+            print()</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="netmiko.cli_tools.outputters.output_text"><code class="name flex">
 <span>def <span class="ident">output_text</span></span>(<span>results, pattern=None)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def output_text(results, pattern=None):
+    console = Console(theme=CUSTOM_THEME)
+
+    for device_name, output in results.items():
+        if pattern:
+            # output = highlight_regex(output, pattern)
+            output = highlight_regex_with_context(output, pattern)
+        else:
+            output = Text(output)
+
+        panel = Panel(
+            output,
+            title=device_name,
+            expand=False,
+            border_style=&#34;border&#34;,
+            title_align=&#34;left&#34;,
+            padding=(1, 1),
+        )
+        console.print()
+        console.print(panel)
+        console.print()</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="netmiko.cli_tools.outputters.output_yaml"><code class="name flex">
 <span>def <span class="ident">output_yaml</span></span>(<span>results)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def output_yaml(results):
+    pass</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -113,7 +334,7 @@ with a specified number of context lines before and after.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.paloalto.paloalto_panos API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -37,132 +48,9 @@ hljs.highlightAll();
 <dl>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase"><code class="flex name class">
 <span>class <span class="ident">PaloAltoPanosBase</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Implement methods for interacting with PaloAlto devices.</p>
-<p>Disables <code>enable()</code> and <code>check_enable_mode()</code>
-methods.
-Overrides several methods for PaloAlto-specific compatibility.</p>
-<pre><code>    Initialize attributes for establishing connection to target device.
-
-    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
-        provided.
-
-    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
-            provided.
-
-    :param username: Username to authenticate against target device if
-            required.
-
-    :param password: Password to authenticate against target device if
-            required.
-
-    :param secret: The enable password if target device requires one.
-
-    :param port: The destination port used to connect to the target
-            device.
-
-    :param device_type: Class selection based on device type.
-
-    :param verbose: Enable additional messages to standard output.
-
-    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
-
-    :param use_keys: Connect to target device using SSH keys.
-
-    :param key_file: Filename path of the SSH key file to use.
-
-    :param pkey: SSH key object to use.
-
-    :param passphrase: Passphrase to use for encrypted key; password will be used for key
-            decryption if not specified.
-
-    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
-            documentation for a description of the expected format.
-
-    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
-        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
-
-    :param allow_agent: Enable use of SSH key-agent.
-
-    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
-            means unknown SSH host keys will be accepted).
-
-    :param system_host_keys: Load host keys from the users known_hosts file.
-
-    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
-            alt_key_file.
-
-    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
-
-    :param ssh_config_file: File name of OpenSSH configuration file.
-
-    :param conn_timeout: TCP connection timeout.
-
-    :param session_timeout: Set a timeout for parallel requests.
-
-    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
-
-    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
-
-    :param read_timeout_override: Set a timeout that will override the default read_timeout
-            of both send_command and send_command_timing. This is useful for 3rd party
-            libraries where directly accessing method arguments might be impractical.
-
-    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
-            Currently defaults to 0, for backwards compatibility (it will not attempt
-            to keep the connection alive).
-
-    :param default_enter: Character(s) to send to correspond to enter key (default:
-</code></pre>
-<p>).</p>
-<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
-            enter key (default:
-</code></pre>
-<p>)</p>
-<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
-
-    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
-            to select smallest of global and specific. Sets default global_delay_factor to .1
-            (default: True)
-
-    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
-            to write the session log to.
-
-    :param session_log_record_writes: The session log generally only records channel reads due
-            to eliminate command duplication due to command echo. You can enable this if you
-            want to record both channel reads and channel writes in the log (default: False).
-
-    :param session_log_file_mode: "write" or "append" for session_log file mode
-            (default: "write")
-
-    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
-            (default: False)
-
-    :param encoding: Encoding to be used when writing bytes to the output channel.
-            (default: "utf-8")
-
-    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
-            communication to the target host (default: None).
-
-    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
-            telnet_proxy.py code for details.
-
-    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
-            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
-            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
-
-    :param auto_connect: Control whether Netmiko automatically establishes the connection as
-            part of the object creation (default: True).
-
-    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
-            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
-            eliminated in Netmiko 5.x (default: False).
-
-    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
-            (default: False)
-</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -202,9 +90,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         self._test_channel_read(pattern=r&#34;operational-mode&#34;)
         self._test_channel_read(pattern=self.prompt_pattern)
 
-    def find_prompt(
-        self, delay_factor: float = 1.0, pattern: Optional[str] = None
-    ) -&gt; str:
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -&gt; str:
         &#34;&#34;&#34;PA devices can be very slow to respond (in certain situations)&#34;&#34;&#34;
         if pattern is None:
             pattern = self.prompt_pattern
@@ -261,9 +147,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         if delay_factor is not None:
             warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
 
-        if (
-            device_and_network or policy_and_objects or vsys or no_vsys
-        ) and not partial:
+        if (device_and_network or policy_and_objects or vsys or no_vsys) and not partial:
             raise ValueError(
                 &#34;&#39;partial&#39; must be True when using &#34;
                 &#34;device_and_network or policy_and_objects &#34;
@@ -351,6 +235,129 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)</code></pre>
 </details>
+<div class="desc"><p>Implement methods for interacting with PaloAlto devices.</p>
+<p>Disables <code>enable()</code> and <code>check_enable_mode()</code>
+methods.
+Overrides several methods for PaloAlto-specific compatibility.</p>
+<pre><code>    Initialize attributes for establishing connection to target device.
+
+    :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is
+        provided.
+
+    :param host: Hostname of target device. Not required if &lt;code&gt;ip&lt;/code&gt; is
+            provided.
+
+    :param username: Username to authenticate against target device if
+            required.
+
+    :param password: Password to authenticate against target device if
+            required.
+
+    :param secret: The enable password if target device requires one.
+
+    :param port: The destination port used to connect to the target
+            device.
+
+    :param device_type: Class selection based on device type.
+
+    :param verbose: Enable additional messages to standard output.
+
+    :param global_delay_factor: Multiplication factor affecting Netmiko delays (default: 1).
+
+    :param use_keys: Connect to target device using SSH keys.
+
+    :param key_file: Filename path of the SSH key file to use.
+
+    :param pkey: SSH key object to use.
+
+    :param passphrase: Passphrase to use for encrypted key; password will be used for key
+            decryption if not specified.
+
+    :param disabled_algorithms: Dictionary of SSH algorithms to disable. Refer to the Paramiko
+            documentation for a description of the expected format.
+
+    :param disable_sha2_fix: Boolean that fixes Paramiko issue with missing server-sig-algs
+        &lt;https://github.com/paramiko/paramiko/issues/1961&gt; (default: False)
+
+    :param allow_agent: Enable use of SSH key-agent.
+
+    :param ssh_strict: Automatically reject unknown SSH host keys (default: False, which
+            means unknown SSH host keys will be accepted).
+
+    :param system_host_keys: Load host keys from the users known_hosts file.
+
+    :param alt_host_keys: If &lt;code&gt;True&lt;/code&gt; host keys will be loaded from the file specified in
+            alt_key_file.
+
+    :param alt_key_file: SSH host key file to use (if alt_host_keys=True).
+
+    :param ssh_config_file: File name of OpenSSH configuration file.
+
+    :param conn_timeout: TCP connection timeout.
+
+    :param session_timeout: Set a timeout for parallel requests.
+
+    :param auth_timeout: Set a timeout (in seconds) to wait for an authentication response.
+
+    :param banner_timeout: Set a timeout to wait for the SSH banner (pass to Paramiko).
+
+    :param read_timeout_override: Set a timeout that will override the default read_timeout
+            of both send_command and send_command_timing. This is useful for 3rd party
+            libraries where directly accessing method arguments might be impractical.
+
+    :param keepalive: Send SSH keepalive packets at a specific interval, in seconds.
+            Currently defaults to 0, for backwards compatibility (it will not attempt
+            to keep the connection alive).
+
+    :param default_enter: Character(s) to send to correspond to enter key (default:
+</code></pre>
+<p>).</p>
+<pre><code>    :param response_return: Character(s) to use in normalized return data to represent
+            enter key (default:
+</code></pre>
+<p>)</p>
+<pre><code>    :param serial_settings: Dictionary of settings for use with serial port (pySerial).
+
+    :param fast_cli: Provide a way to optimize for performance. Converts select_delay_factor
+            to select smallest of global and specific. Sets default global_delay_factor to .1
+            (default: True)
+
+    :param session_log: File path, SessionLog object, or BufferedIOBase subclass object
+            to write the session log to.
+
+    :param session_log_record_writes: The session log generally only records channel reads due
+            to eliminate command duplication due to command echo. You can enable this if you
+            want to record both channel reads and channel writes in the log (default: False).
+
+    :param session_log_file_mode: "write" or "append" for session_log file mode
+            (default: "write")
+
+    :param allow_auto_change: Allow automatic configuration changes for terminal settings.
+            (default: False)
+
+    :param encoding: Encoding to be used when writing bytes to the output channel.
+            (default: "utf-8")
+
+    :param sock: An open socket or socket-like object (such as a &lt;code&gt;.Channel&lt;/code&gt;) to use for
+            communication to the target host (default: None).
+
+    :param sock_telnet: A dictionary of telnet socket parameters (SOCKS proxy). See
+            telnet_proxy.py code for details.
+
+    :param global_cmd_verify: Control whether command echo verification is enabled or disabled
+            (default: None). Global attribute takes precedence over function &lt;code&gt;cmd\_verify&lt;/code&gt;
+            argument. Value of &lt;code&gt;None&lt;/code&gt; indicates to use function &lt;code&gt;cmd\_verify&lt;/code&gt; argument.
+
+    :param auto_connect: Control whether Netmiko automatically establishes the connection as
+            part of the object creation (default: True).
+
+    :param delay_factor_compat: Set send_command and send_command_timing back to using Netmiko
+            3.x behavior for delay_factor/global_delay_factor/max_loops. This argument will be
+            eliminated in Netmiko 5.x (default: False).
+
+    :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
+            (default: False)
+</code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.no_enable.NoEnable" href="../no_enable.html#netmiko.no_enable.NoEnable">NoEnable</a></li>
@@ -365,7 +372,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <dl>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -374,18 +381,122 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <span>def <span class="ident">check_config_mode</span></span>(<span>self, check_string: str = ']', pattern: str = '', force_regex: bool = False) ‑> bool</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_config_mode(
+    self, check_string: str = &#34;]&#34;, pattern: str = &#34;&#34;, force_regex: bool = False
+) -&gt; bool:
+    &#34;&#34;&#34;Checks if the device is in configuration mode or not.&#34;&#34;&#34;
+    return super().check_config_mode(check_string=check_string, pattern=pattern)</code></pre>
+</details>
 <div class="desc"><p>Checks if the device is in configuration mode or not.</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.cleanup"><code class="name flex">
 <span>def <span class="ident">cleanup</span></span>(<span>self, command: str = 'exit') ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cleanup(self, command: str = &#34;exit&#34;) -&gt; None:
+    &#34;&#34;&#34;Gracefully exit the SSH session.&#34;&#34;&#34;
+    try:
+        # The pattern=&#34;&#34; forces use of send_command_timing
+        if self.check_config_mode(pattern=&#34;&#34;):
+            self.exit_config_mode()
+    except Exception:
+        pass
+    # Always try to send final &#39;exit&#39; (command)
+    self._session_log_fin = True
+    self.write_channel(command + self.RETURN)</code></pre>
+</details>
 <div class="desc"><p>Gracefully exit the SSH session.</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.commit"><code class="name flex">
-<span>def <span class="ident">commit</span></span>(<span>self, comment: str = '', force: bool = False, partial: bool = False, device_and_network: bool = False, policy_and_objects: bool = False, vsys: str = '', no_vsys: bool = False, read_timeout: float = 120.0, delay_factor: Optional[float] = None) ‑> str</span>
+<span>def <span class="ident">commit</span></span>(<span>self,<br>comment: str = '',<br>force: bool = False,<br>partial: bool = False,<br>device_and_network: bool = False,<br>policy_and_objects: bool = False,<br>vsys: str = '',<br>no_vsys: bool = False,<br>read_timeout: float = 120.0,<br>delay_factor: float | None = None) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def commit(
+    self,
+    comment: str = &#34;&#34;,
+    force: bool = False,
+    partial: bool = False,
+    device_and_network: bool = False,
+    policy_and_objects: bool = False,
+    vsys: str = &#34;&#34;,
+    no_vsys: bool = False,
+    read_timeout: float = 120.0,
+    delay_factor: Optional[float] = None,
+) -&gt; str:
+    &#34;&#34;&#34;
+    Commit the candidate configuration.
+
+    Commit the entered configuration. Raise an error and return the failure
+    if the commit fails.
+
+    Automatically enters configuration mode
+
+    default:
+        command_string = commit
+    (device_and_network or policy_and_objects or vsys or
+            no_vsys) and not partial:
+        Exception
+
+    delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
+
+    &#34;&#34;&#34;
+
+    if delay_factor is not None:
+        warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+
+    if (device_and_network or policy_and_objects or vsys or no_vsys) and not partial:
+        raise ValueError(
+            &#34;&#39;partial&#39; must be True when using &#34;
+            &#34;device_and_network or policy_and_objects &#34;
+            &#34;or vsys or no_vsys.&#34;
+        )
+
+    # Select proper command string based on arguments provided
+    command_string = &#34;commit&#34;
+    commit_marker = &#34;configuration committed successfully&#34;
+    if comment:
+        command_string += f&#39; description &#34;{comment}&#34;&#39;
+    if force:
+        command_string += &#34; force&#34;
+    if partial:
+        command_string += &#34; partial&#34;
+        if vsys:
+            command_string += f&#34; {vsys}&#34;
+        if device_and_network:
+            command_string += &#34; device-and-network&#34;
+        if policy_and_objects:
+            command_string += &#34; policy-and-objects&#34;
+        if no_vsys:
+            command_string += &#34; no-vsys&#34;
+        command_string += &#34; excluded&#34;
+
+    # Enter config mode (if necessary)
+    output = self.config_mode()
+    output += self._send_command_str(
+        command_string,
+        strip_prompt=False,
+        strip_command=False,
+        expect_string=&#34;100%&#34;,
+        read_timeout=read_timeout,
+    )
+    output += self.exit_config_mode()
+
+    if commit_marker not in output.lower():
+        raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
+    return output</code></pre>
+</details>
 <div class="desc"><p>Commit the candidate configuration.</p>
 <p>Commit the entered configuration. Raise an error and return the failure
 if the commit fails.</p>
@@ -401,24 +512,83 @@ Exception</p>
 <span>def <span class="ident">config_mode</span></span>(<span>self, config_command: str = 'configure', pattern: str = '#', re_flags: int = 0) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def config_mode(
+    self, config_command: str = &#34;configure&#34;, pattern: str = r&#34;#&#34;, re_flags: int = 0
+) -&gt; str:
+    &#34;&#34;&#34;Enter configuration mode.&#34;&#34;&#34;
+    return super().config_mode(
+        config_command=config_command, pattern=pattern, re_flags=re_flags
+    )</code></pre>
+</details>
 <div class="desc"><p>Enter configuration mode.</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_config_mode"><code class="name flex">
 <span>def <span class="ident">exit_config_mode</span></span>(<span>self, exit_config: str = 'exit', pattern: str = &#x27;&gt;&#x27;) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def exit_config_mode(self, exit_config: str = &#34;exit&#34;, pattern: str = r&#34;&gt;&#34;) -&gt; str:
+    &#34;&#34;&#34;Exit configuration mode.&#34;&#34;&#34;
+    return super().exit_config_mode(exit_config=exit_config, pattern=pattern)</code></pre>
+</details>
 <div class="desc"><p>Exit configuration mode.</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.find_prompt"><code class="name flex">
-<span>def <span class="ident">find_prompt</span></span>(<span>self, delay_factor: float = 1.0, pattern: Optional[str] = None) ‑> str</span>
+<span>def <span class="ident">find_prompt</span></span>(<span>self, delay_factor: float = 1.0, pattern: str | None = None) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = None) -&gt; str:
+    &#34;&#34;&#34;PA devices can be very slow to respond (in certain situations)&#34;&#34;&#34;
+    if pattern is None:
+        pattern = self.prompt_pattern
+    return super().find_prompt(delay_factor=delay_factor, pattern=pattern)</code></pre>
+</details>
 <div class="desc"><p>PA devices can be very slow to respond (in certain situations)</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.session_preparation"><code class="name flex">
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
+    &#34;&#34;&#34;
+    Prepare the session after the connection has been established.
+
+    Disable paging (the &#39;--more--&#39; prompts).
+    Set the base prompt for interaction (&#39;&gt;&#39;).
+    &#34;&#34;&#34;
+    self.ansi_escape_codes = True
+    self._test_channel_read(pattern=self.prompt_pattern)
+    self.disable_paging(
+        command=&#34;set cli scripting-mode on&#34;,
+        cmd_verify=False,
+        pattern=rf&#34;{self.prompt_pattern}.*mode on&#34;,
+    )
+    self.set_terminal_width(
+        command=&#34;set cli terminal width 500&#34;, pattern=r&#34;set cli terminal width 500&#34;
+    )
+    self.disable_paging(command=&#34;set cli pager off&#34;)
+    self.set_base_prompt()
+
+    # PA devices can be really slow--try to make sure we are caught up
+    self.write_channel(&#34;show system info\n&#34;)
+    self._test_channel_read(pattern=r&#34;operational-mode&#34;)
+    self._test_channel_read(pattern=self.prompt_pattern)</code></pre>
+</details>
 <div class="desc"><p>Prepare the session after the connection has been established.</p>
 <p>Disable paging (the '&ndash;more&ndash;' prompts).
 Set the base prompt for interaction ('&gt;').</p></div>
@@ -427,12 +597,44 @@ Set the base prompt for interaction ('&gt;').</p></div>
 <span>def <span class="ident">strip_command</span></span>(<span>self, command_string: str, output: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strip_command(self, command_string: str, output: str) -&gt; str:
+    &#34;&#34;&#34;Strip command_string from output string.&#34;&#34;&#34;
+    output_list = output.split(command_string)
+    return self.RESPONSE_RETURN.join(output_list)</code></pre>
+</details>
 <div class="desc"><p>Strip command_string from output string.</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.strip_context_items"><code class="name flex">
 <span>def <span class="ident">strip_context_items</span></span>(<span>self, a_string: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strip_context_items(self, a_string: str) -&gt; str:
+    &#34;&#34;&#34;Strip PaloAlto-specific output.
+
+    PaloAlto will also put a configuration context:
+    [edit]
+
+    This method removes those lines.
+    &#34;&#34;&#34;
+    strings_to_strip = [r&#34;\[edit.*\]&#34;]
+
+    response_list = a_string.split(self.RESPONSE_RETURN)
+    last_line = response_list[-1]
+
+    for pattern in strings_to_strip:
+        if re.search(pattern, last_line):
+            return self.RESPONSE_RETURN.join(response_list[:-1])
+
+    return a_string</code></pre>
+</details>
 <div class="desc"><p>Strip PaloAlto-specific output.</p>
 <p>PaloAlto will also put a configuration context:
 [edit]</p>
@@ -442,6 +644,21 @@ Set the base prompt for interaction ('&gt;').</p></div>
 <span>def <span class="ident">strip_prompt</span></span>(<span>self, a_string: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strip_prompt(self, a_string: str) -&gt; str:
+    &#34;&#34;&#34;Strip the trailing router prompt from the output.&#34;&#34;&#34;
+    response_list = a_string.split(self.RESPONSE_RETURN)
+    new_response_list = []
+    for line in response_list:
+        if self.base_prompt not in line:
+            new_response_list.append(line)
+
+    output = self.RESPONSE_RETURN.join(new_response_list)
+    return self.strip_context_items(output)</code></pre>
+</details>
 <div class="desc"><p>Strip the trailing router prompt from the output.</p></div>
 </dd>
 </dl>
@@ -454,6 +671,7 @@ Set the base prompt for interaction ('&gt;').</p></div>
 <li><code><a title="netmiko.base_connection.BaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.base_connection.BaseConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
 <li><code><a title="netmiko.base_connection.BaseConnection.is_alive" href="../base_connection.html#netmiko.base_connection.BaseConnection.is_alive">is_alive</a></code></li>
@@ -487,9 +705,20 @@ Set the base prompt for interaction ('&gt;').</p></div>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosSSH"><code class="flex name class">
 <span>class <span class="ident">PaloAltoPanosSSH</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PaloAltoPanosSSH(PaloAltoPanosBase):
+    def _get_ssh_client_instance(self) -&gt; SSHClient:
+        &#34;&#34;&#34;If not using SSH keys or agent, use interactive auth for PAN-OS banner handling.&#34;&#34;&#34;
+        if not self.use_keys and not self.allow_agent:
+            return SSHClient_interactive()
+        return SSHClient()</code></pre>
+</details>
 <div class="desc"><p>Implement methods for interacting with PaloAlto devices.</p>
 <p>Disables <code>enable()</code> and <code>check_enable_mode()</code>
 methods.
@@ -613,31 +842,6 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class PaloAltoPanosSSH(PaloAltoPanosBase):
-    def _build_ssh_client(self) -&gt; SSHClient:
-        &#34;&#34;&#34;Prepare for Paramiko SSH connection.&#34;&#34;&#34;
-        # Create instance of SSHClient object
-        # If not using SSH keys, we use noauth
-
-        if not self.use_keys:
-            remote_conn_pre: SSHClient = SSHClient_interactive()
-        else:
-            remote_conn_pre = SSHClient()
-
-        # Load host_keys for better SSH security
-        if self.system_host_keys:
-            remote_conn_pre.load_system_host_keys()
-        if self.alt_host_keys and path.isfile(self.alt_key_file):
-            remote_conn_pre.load_host_keys(self.alt_key_file)
-
-        # Default is to automatically add untrusted hosts (make sure appropriate for your env)
-        remote_conn_pre.set_missing_host_key_policy(self.key_policy)
-        return remote_conn_pre</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase">PaloAltoPanosBase</a></li>
@@ -657,6 +861,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_config_mode" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -665,6 +870,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -696,9 +902,16 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 </dd>
 <dt id="netmiko.paloalto.paloalto_panos.PaloAltoPanosTelnet"><code class="flex name class">
 <span>class <span class="ident">PaloAltoPanosTelnet</span></span>
-<span>(</span><span>ip: str = '', host: str = '', username: str = '', password: Optional[str] = None, secret: str = '', port: Optional[int] = None, device_type: str = '', verbose: bool = False, global_delay_factor: float = 1.0, global_cmd_verify: Optional[bool] = None, use_keys: bool = False, key_file: Optional[str] = None, pkey: Optional[paramiko.pkey.PKey] = None, passphrase: Optional[str] = None, disabled_algorithms: Optional[Dict[str, Any]] = None, disable_sha2_fix: bool = False, allow_agent: bool = False, ssh_strict: bool = False, system_host_keys: bool = False, alt_host_keys: bool = False, alt_key_file: str = '', ssh_config_file: Optional[str] = None, conn_timeout: int = 10, auth_timeout: Optional[int] = None, banner_timeout: int = 15, blocking_timeout: int = 20, timeout: int = 100, session_timeout: int = 60, read_timeout_override: Optional[float] = None, keepalive: int = 0, default_enter: Optional[str] = None, response_return: Optional[str] = None, serial_settings: Optional[Dict[str, Any]] = None, fast_cli: bool = True, session_log: Optional[<a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a>] = None, session_log_record_writes: bool = False, session_log_file_mode: str = 'write', allow_auto_change: bool = False, encoding: str = 'utf-8', sock: Optional[socket.socket] = None, sock_telnet: Optional[Dict[str, Any]] = None, auto_connect: bool = True, delay_factor_compat: bool = False, disable_lf_normalization: bool = False)</span>
+<span>(</span><span>ip: str = '',<br>host: str = '',<br>username: str = '',<br>password: str | None = None,<br>secret: str = '',<br>port: int | None = None,<br>device_type: str = '',<br>verbose: bool = False,<br>global_delay_factor: float = 1.0,<br>global_cmd_verify: bool | None = None,<br>use_keys: bool = False,<br>key_file: str | None = None,<br>pkey: paramiko.pkey.PKey | None = None,<br>passphrase: str | None = None,<br>disabled_algorithms: Dict[str, Any] | None = None,<br>disable_sha2_fix: bool = False,<br>allow_agent: bool = False,<br>ssh_strict: bool = False,<br>system_host_keys: bool = False,<br>alt_host_keys: bool = False,<br>alt_key_file: str = '',<br>ssh_config_file: str | None = None,<br>conn_timeout: float = 10,<br>auth_timeout: float | None = None,<br>banner_timeout: float = 15,<br>blocking_timeout: float = 20,<br>timeout: int = 100,<br>session_timeout: float = 60,<br>read_timeout_override: float | None = None,<br>keepalive: float = 0,<br>default_enter: str | None = None,<br>response_return: str | None = None,<br>serial_settings: Dict[str, Any] | None = None,<br>fast_cli: bool = True,<br>session_log: str | io.BufferedIOBase | <a title="netmiko.session_log.SessionLog" href="../session_log.html#netmiko.session_log.SessionLog">SessionLog</a> | None = None,<br>session_log_record_writes: bool = False,<br>session_log_file_mode: str = 'write',<br>allow_auto_change: bool = False,<br>encoding: str = 'utf-8',<br>sock: socket.socket | None = None,<br>sock_telnet: Dict[str, Any] | None = None,<br>auto_connect: bool = True,<br>delay_factor_compat: bool = False,<br>disable_lf_normalization: bool = False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PaloAltoPanosTelnet(PaloAltoPanosBase):
+    pass</code></pre>
+</details>
 <div class="desc"><p>Implement methods for interacting with PaloAlto devices.</p>
 <p>Disables <code>enable()</code> and <code>check_enable_mode()</code>
 methods.
@@ -822,13 +1035,6 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class PaloAltoPanosTelnet(PaloAltoPanosBase):
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase">PaloAltoPanosBase</a></li>
@@ -848,6 +1054,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.enable" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_config_mode" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.exit_enable_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -856,6 +1063,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
+<li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern" href="#netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.paloalto.paloalto_panos.PaloAltoPanosBase.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -889,8 +1097,6 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <span>class <span class="ident">SSHClient_interactive</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Set noauth when manually handling SSH authentication.</p>
-<p>Create a new SSHClient.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -935,6 +1141,8 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
         transport.auth_interactive(username, handler=self.pa_banner_handler)
         return</code></pre>
 </details>
+<div class="desc"><p>Set noauth when manually handling SSH authentication.</p>
+<p>Create a new SSHClient.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>paramiko.client.SSHClient</li>
@@ -946,6 +1154,23 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 <span>def <span class="ident">pa_banner_handler</span></span>(<span>self, title: str, instructions: str, prompt_list: List[Tuple[str, bool]]) ‑> List[str]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pa_banner_handler(
+    self, title: str, instructions: str, prompt_list: List[Tuple[str, bool]]
+) -&gt; List[str]:
+
+    resp = []
+    for prompt, echo in prompt_list:
+        if &#34;Do you accept&#34; in prompt:
+            resp.append(&#34;yes&#34;)
+        elif &#34;ssword&#34; in prompt:
+            assert isinstance(self.password, str)
+            resp.append(self.password)
+    return resp</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -999,7 +1224,7 @@ Overrides several methods for PaloAlto-specific compatibility.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

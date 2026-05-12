@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.cisco.cisco_asa_ssh API documentation</title>
 <meta name="description" content="Subclass specific to Cisco ASA.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -38,10 +49,9 @@ hljs.highlightAll();
 <dl>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaFileTransfer"><code class="flex name class">
 <span>class <span class="ident">CiscoAsaFileTransfer</span></span>
-<span>(</span><span>ssh_conn: BaseConnection, source_file: str, dest_file: str, file_system: Optional[str] = None, direction: str = 'put', socket_timeout: float = 10.0, progress: Optional[Callable[..., Any]] = None, progress4: Optional[Callable[..., Any]] = None, hash_supported: bool = True)</span>
+<span>(</span><span>ssh_conn: BaseConnection,<br>source_file: str,<br>dest_file: str,<br>file_system: str | None = None,<br>direction: str = 'put',<br>socket_timeout: float = 10.0,<br>progress: Callable[..., Any] | None = None,<br>progress4: Callable[..., Any] | None = None,<br>hash_supported: bool = True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Cisco ASA SCP File Transfer driver.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -51,6 +61,7 @@ hljs.highlightAll();
 
     pass</code></pre>
 </details>
+<div class="desc"><p>Cisco ASA SCP File Transfer driver.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoFileTransfer" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoFileTransfer">CiscoFileTransfer</a></li>
@@ -86,6 +97,174 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CiscoAsaSSH(CiscoSSHConnection):
+    &#34;&#34;&#34;Subclass specific to Cisco ASA.&#34;&#34;&#34;
+
+    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
+        kwargs.setdefault(&#34;allow_auto_change&#34;, True)
+        return super().__init__(*args, **kwargs)
+
+    def session_preparation(self) -&gt; None:
+        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+
+        # Make sure the ASA is ready
+        command = &#34;show curpriv\n&#34;
+        self.write_channel(command)
+        self.read_until_pattern(pattern=re.escape(command.strip()))
+
+        # The &#39;enable&#39; call requires the base_prompt to be set.
+        self.set_base_prompt()
+        if self.secret:
+            self.enable()
+        else:
+            self.asa_login()
+        self.disable_paging(command=&#34;terminal pager 0&#34;)
+
+        if self.allow_auto_change:
+            try:
+                self.send_config_set(&#34;terminal width 511&#34;)
+            except ValueError:
+                # Don&#39;t fail for the terminal width
+                pass
+        else:
+            # Disable cmd_verify if the terminal width can&#39;t be set
+            self.global_cmd_verify = False
+
+        self.set_base_prompt()
+
+    def check_config_mode(
+        self,
+        check_string: str = &#34;)#&#34;,
+        pattern: str = r&#34;[&gt;\#]&#34;,
+        force_regex: bool = False,
+    ) -&gt; bool:
+        return super().check_config_mode(check_string=check_string, pattern=pattern)
+
+    def enable(
+        self,
+        cmd: str = &#34;enable&#34;,
+        pattern: str = &#34;ssword&#34;,
+        enable_pattern: Optional[str] = r&#34;\#&#34;,
+        check_state: bool = True,
+        re_flags: int = re.IGNORECASE,
+    ) -&gt; str:
+        return super().enable(
+            cmd=cmd,
+            pattern=pattern,
+            enable_pattern=enable_pattern,
+            check_state=check_state,
+            re_flags=re_flags,
+        )
+
+    def send_command_timing(
+        self, *args: Any, **kwargs: Any
+    ) -&gt; Union[str, List[Any], Dict[str, Any]]:
+        &#34;&#34;&#34;
+        If the ASA is in multi-context mode, then the base_prompt needs to be
+        updated after each context change.
+        &#34;&#34;&#34;
+        output = super().send_command_timing(*args, **kwargs)
+        if len(args) &gt;= 1:
+            command_string = args[0]
+        else:
+            command_string = kwargs[&#34;command_string&#34;]
+        if &#34;changeto&#34; in command_string:
+            self.set_base_prompt()
+        return output
+
+    def send_command(self, *args: Any, **kwargs: Any) -&gt; Union[str, List[Any], Dict[str, Any]]:
+        &#34;&#34;&#34;
+        If the ASA is in multi-context mode, then the base_prompt needs to be
+        updated after each context change.
+        &#34;&#34;&#34;
+        if len(args) &gt;= 1:
+            command_string = args[0]
+        else:
+            command_string = kwargs[&#34;command_string&#34;]
+
+        # If changeto in command, look for &#39;#&#39; to determine command is done
+        if &#34;changeto&#34; in command_string:
+            if len(args) &lt;= 1:
+                expect_string = kwargs.get(&#34;expect_string&#34;, &#34;#&#34;)
+                kwargs[&#34;expect_string&#34;] = expect_string
+        output = super().send_command(*args, **kwargs)
+
+        if &#34;changeto&#34; in command_string:
+            self.set_base_prompt()
+
+        return output
+
+    def set_base_prompt(self, *args: Any, **kwargs: Any) -&gt; str:
+        &#34;&#34;&#34;
+        Cisco ASA in multi-context mode needs to have the base prompt updated
+        (if you switch contexts i.e. &#39;changeto&#39;)
+
+        This switch of ASA contexts can occur in configuration mode. If this
+        happens the trailing &#39;(config*&#39; needs stripped off.
+        &#34;&#34;&#34;
+        cur_base_prompt = super().set_base_prompt(*args, **kwargs)
+        match = re.search(r&#34;(.*)\(conf.*&#34;, cur_base_prompt)
+        if match:
+            # strip off (conf.* from base_prompt
+            self.base_prompt = match.group(1)
+            return self.base_prompt
+        else:
+            return cur_base_prompt
+
+    def asa_login(self) -&gt; None:
+        &#34;&#34;&#34;
+        Handle ASA reaching privilege level 15 using login
+
+        twb-dc-fw1&gt; login
+        Username: admin
+
+        Raises NetmikoAuthenticationException, if we do not reach privilege
+        level 15 after 10 loops.
+        &#34;&#34;&#34;
+        delay_factor = self.select_delay_factor(0)
+
+        i = 1
+        max_attempts = 10
+        self.write_channel(&#34;login&#34; + self.RETURN)
+        output = self.read_until_pattern(pattern=r&#34;login&#34;)
+        while i &lt;= max_attempts:
+            time.sleep(0.5 * delay_factor)
+            output = self.read_channel()
+            if &#34;sername&#34; in output:
+                assert isinstance(self.username, str)
+                self.write_channel(self.username + self.RETURN)
+            elif &#34;ssword&#34; in output:
+                assert isinstance(self.password, str)
+                self.write_channel(self.password + self.RETURN)
+            elif &#34;#&#34; in output:
+                return
+            else:
+                self.write_channel(&#34;login&#34; + self.RETURN)
+            i += 1
+
+        msg = &#34;Unable to enter enable mode!&#34;
+        raise NetmikoAuthenticationException(msg)
+
+    def save_config(
+        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
+        &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)
+
+    def normalize_linefeeds(self, a_string: str) -&gt; str:
+        &#34;&#34;&#34;Cisco ASA needed that extra \r\n\r&#34;&#34;&#34;
+        newline = re.compile(&#34;(\r\n\r|\r\r\r\n|\r\r\n|\r\n|\n\r)&#34;)
+        a_string = newline.sub(self.RESPONSE_RETURN, a_string)
+        if self.RESPONSE_RETURN == &#34;\n&#34;:
+            # Delete any remaining \r
+            return re.sub(&#34;\r&#34;, &#34;&#34;, a_string)
+        else:
+            return a_string</code></pre>
+</details>
 <div class="desc"><p>Subclass specific to Cisco ASA.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -206,178 +385,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class CiscoAsaSSH(CiscoSSHConnection):
-    &#34;&#34;&#34;Subclass specific to Cisco ASA.&#34;&#34;&#34;
-
-    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
-        kwargs.setdefault(&#34;allow_auto_change&#34;, True)
-        return super().__init__(*args, **kwargs)
-
-    def session_preparation(self) -&gt; None:
-        &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
-
-        # Make sure the ASA is ready
-        command = &#34;show curpriv\n&#34;
-        self.write_channel(command)
-        self.read_until_pattern(pattern=re.escape(command.strip()))
-
-        # The &#39;enable&#39; call requires the base_prompt to be set.
-        self.set_base_prompt()
-        if self.secret:
-            self.enable()
-        else:
-            self.asa_login()
-        self.disable_paging(command=&#34;terminal pager 0&#34;)
-
-        if self.allow_auto_change:
-            try:
-                self.send_config_set(&#34;terminal width 511&#34;)
-            except ValueError:
-                # Don&#39;t fail for the terminal width
-                pass
-        else:
-            # Disable cmd_verify if the terminal width can&#39;t be set
-            self.global_cmd_verify = False
-
-        self.set_base_prompt()
-
-    def check_config_mode(
-        self,
-        check_string: str = &#34;)#&#34;,
-        pattern: str = r&#34;[&gt;\#]&#34;,
-        force_regex: bool = False,
-    ) -&gt; bool:
-        return super().check_config_mode(check_string=check_string, pattern=pattern)
-
-    def enable(
-        self,
-        cmd: str = &#34;enable&#34;,
-        pattern: str = &#34;ssword&#34;,
-        enable_pattern: Optional[str] = r&#34;\#&#34;,
-        check_state: bool = True,
-        re_flags: int = re.IGNORECASE,
-    ) -&gt; str:
-        return super().enable(
-            cmd=cmd,
-            pattern=pattern,
-            enable_pattern=enable_pattern,
-            check_state=check_state,
-            re_flags=re_flags,
-        )
-
-    def send_command_timing(
-        self, *args: Any, **kwargs: Any
-    ) -&gt; Union[str, List[Any], Dict[str, Any]]:
-        &#34;&#34;&#34;
-        If the ASA is in multi-context mode, then the base_prompt needs to be
-        updated after each context change.
-        &#34;&#34;&#34;
-        output = super().send_command_timing(*args, **kwargs)
-        if len(args) &gt;= 1:
-            command_string = args[0]
-        else:
-            command_string = kwargs[&#34;command_string&#34;]
-        if &#34;changeto&#34; in command_string:
-            self.set_base_prompt()
-        return output
-
-    def send_command(
-        self, *args: Any, **kwargs: Any
-    ) -&gt; Union[str, List[Any], Dict[str, Any]]:
-        &#34;&#34;&#34;
-        If the ASA is in multi-context mode, then the base_prompt needs to be
-        updated after each context change.
-        &#34;&#34;&#34;
-        if len(args) &gt;= 1:
-            command_string = args[0]
-        else:
-            command_string = kwargs[&#34;command_string&#34;]
-
-        # If changeto in command, look for &#39;#&#39; to determine command is done
-        if &#34;changeto&#34; in command_string:
-            if len(args) &lt;= 1:
-                expect_string = kwargs.get(&#34;expect_string&#34;, &#34;#&#34;)
-                kwargs[&#34;expect_string&#34;] = expect_string
-        output = super().send_command(*args, **kwargs)
-
-        if &#34;changeto&#34; in command_string:
-            self.set_base_prompt()
-
-        return output
-
-    def set_base_prompt(self, *args: Any, **kwargs: Any) -&gt; str:
-        &#34;&#34;&#34;
-        Cisco ASA in multi-context mode needs to have the base prompt updated
-        (if you switch contexts i.e. &#39;changeto&#39;)
-
-        This switch of ASA contexts can occur in configuration mode. If this
-        happens the trailing &#39;(config*&#39; needs stripped off.
-        &#34;&#34;&#34;
-        cur_base_prompt = super().set_base_prompt(*args, **kwargs)
-        match = re.search(r&#34;(.*)\(conf.*&#34;, cur_base_prompt)
-        if match:
-            # strip off (conf.* from base_prompt
-            self.base_prompt = match.group(1)
-            return self.base_prompt
-        else:
-            return cur_base_prompt
-
-    def asa_login(self) -&gt; None:
-        &#34;&#34;&#34;
-        Handle ASA reaching privilege level 15 using login
-
-        twb-dc-fw1&gt; login
-        Username: admin
-
-        Raises NetmikoAuthenticationException, if we do not reach privilege
-        level 15 after 10 loops.
-        &#34;&#34;&#34;
-        delay_factor = self.select_delay_factor(0)
-
-        i = 1
-        max_attempts = 10
-        self.write_channel(&#34;login&#34; + self.RETURN)
-        output = self.read_until_pattern(pattern=r&#34;login&#34;)
-        while i &lt;= max_attempts:
-            time.sleep(0.5 * delay_factor)
-            output = self.read_channel()
-            if &#34;sername&#34; in output:
-                assert isinstance(self.username, str)
-                self.write_channel(self.username + self.RETURN)
-            elif &#34;ssword&#34; in output:
-                assert isinstance(self.password, str)
-                self.write_channel(self.password + self.RETURN)
-            elif &#34;#&#34; in output:
-                return
-            else:
-                self.write_channel(&#34;login&#34; + self.RETURN)
-            i += 1
-
-        msg = &#34;Unable to enter enable mode!&#34;
-        raise NetmikoAuthenticationException(msg)
-
-    def save_config(
-        self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
-    ) -&gt; str:
-        &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )
-
-    def normalize_linefeeds(self, a_string: str) -&gt; str:
-        &#34;&#34;&#34;Cisco ASA needed that extra \r\n\r&#34;&#34;&#34;
-        newline = re.compile(&#34;(\r\n\r|\r\r\r\n|\r\r\n|\r\n|\n\r)&#34;)
-        a_string = newline.sub(self.RESPONSE_RETURN, a_string)
-        if self.RESPONSE_RETURN == &#34;\n&#34;:
-            # Delete any remaining \r
-            return re.sub(&#34;\r&#34;, &#34;&#34;, a_string)
-        else:
-            return a_string</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoSSHConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoSSHConnection">CiscoSSHConnection</a></li>
@@ -390,6 +397,44 @@ hljs.highlightAll();
 <span>def <span class="ident">asa_login</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def asa_login(self) -&gt; None:
+    &#34;&#34;&#34;
+    Handle ASA reaching privilege level 15 using login
+
+    twb-dc-fw1&gt; login
+    Username: admin
+
+    Raises NetmikoAuthenticationException, if we do not reach privilege
+    level 15 after 10 loops.
+    &#34;&#34;&#34;
+    delay_factor = self.select_delay_factor(0)
+
+    i = 1
+    max_attempts = 10
+    self.write_channel(&#34;login&#34; + self.RETURN)
+    output = self.read_until_pattern(pattern=r&#34;login&#34;)
+    while i &lt;= max_attempts:
+        time.sleep(0.5 * delay_factor)
+        output = self.read_channel()
+        if &#34;sername&#34; in output:
+            assert isinstance(self.username, str)
+            self.write_channel(self.username + self.RETURN)
+        elif &#34;ssword&#34; in output:
+            assert isinstance(self.password, str)
+            self.write_channel(self.password + self.RETURN)
+        elif &#34;#&#34; in output:
+            return
+        else:
+            self.write_channel(&#34;login&#34; + self.RETURN)
+        i += 1
+
+    msg = &#34;Unable to enter enable mode!&#34;
+    raise NetmikoAuthenticationException(msg)</code></pre>
+</details>
 <div class="desc"><p>Handle ASA reaching privilege level 15 using login</p>
 <p>twb-dc-fw1&gt; login
 Username: admin</p>
@@ -400,25 +445,95 @@ level 15 after 10 loops.</p></div>
 <span>def <span class="ident">normalize_linefeeds</span></span>(<span>self, a_string: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def normalize_linefeeds(self, a_string: str) -&gt; str:
+    &#34;&#34;&#34;Cisco ASA needed that extra \r\n\r&#34;&#34;&#34;
+    newline = re.compile(&#34;(\r\n\r|\r\r\r\n|\r\r\n|\r\n|\n\r)&#34;)
+    a_string = newline.sub(self.RESPONSE_RETURN, a_string)
+    if self.RESPONSE_RETURN == &#34;\n&#34;:
+        # Delete any remaining \r
+        return re.sub(&#34;\r&#34;, &#34;&#34;, a_string)
+    else:
+        return a_string</code></pre>
+</details>
 <div class="desc"><p>Cisco ASA needed that extra</p></div>
 </dd>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'write mem', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
+    self, cmd: str = &#34;write mem&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+) -&gt; str:
+    &#34;&#34;&#34;Saves Config&#34;&#34;&#34;
+    return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
 <div class="desc"><p>Saves Config</p></div>
 </dd>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH.send_command"><code class="name flex">
-<span>def <span class="ident">send_command</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> Union[str, List[Any], Dict[str, Any]]</span>
+<span>def <span class="ident">send_command</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str | List[Any] | Dict[str, Any]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_command(self, *args: Any, **kwargs: Any) -&gt; Union[str, List[Any], Dict[str, Any]]:
+    &#34;&#34;&#34;
+    If the ASA is in multi-context mode, then the base_prompt needs to be
+    updated after each context change.
+    &#34;&#34;&#34;
+    if len(args) &gt;= 1:
+        command_string = args[0]
+    else:
+        command_string = kwargs[&#34;command_string&#34;]
+
+    # If changeto in command, look for &#39;#&#39; to determine command is done
+    if &#34;changeto&#34; in command_string:
+        if len(args) &lt;= 1:
+            expect_string = kwargs.get(&#34;expect_string&#34;, &#34;#&#34;)
+            kwargs[&#34;expect_string&#34;] = expect_string
+    output = super().send_command(*args, **kwargs)
+
+    if &#34;changeto&#34; in command_string:
+        self.set_base_prompt()
+
+    return output</code></pre>
+</details>
 <div class="desc"><p>If the ASA is in multi-context mode, then the base_prompt needs to be
 updated after each context change.</p></div>
 </dd>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH.send_command_timing"><code class="name flex">
-<span>def <span class="ident">send_command_timing</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> Union[str, List[Any], Dict[str, Any]]</span>
+<span>def <span class="ident">send_command_timing</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str | List[Any] | Dict[str, Any]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_command_timing(
+    self, *args: Any, **kwargs: Any
+) -&gt; Union[str, List[Any], Dict[str, Any]]:
+    &#34;&#34;&#34;
+    If the ASA is in multi-context mode, then the base_prompt needs to be
+    updated after each context change.
+    &#34;&#34;&#34;
+    output = super().send_command_timing(*args, **kwargs)
+    if len(args) &gt;= 1:
+        command_string = args[0]
+    else:
+        command_string = kwargs[&#34;command_string&#34;]
+    if &#34;changeto&#34; in command_string:
+        self.set_base_prompt()
+    return output</code></pre>
+</details>
 <div class="desc"><p>If the ASA is in multi-context mode, then the base_prompt needs to be
 updated after each context change.</p></div>
 </dd>
@@ -426,12 +541,65 @@ updated after each context change.</p></div>
 <span>def <span class="ident">session_preparation</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def session_preparation(self) -&gt; None:
+    &#34;&#34;&#34;Prepare the session after the connection has been established.&#34;&#34;&#34;
+
+    # Make sure the ASA is ready
+    command = &#34;show curpriv\n&#34;
+    self.write_channel(command)
+    self.read_until_pattern(pattern=re.escape(command.strip()))
+
+    # The &#39;enable&#39; call requires the base_prompt to be set.
+    self.set_base_prompt()
+    if self.secret:
+        self.enable()
+    else:
+        self.asa_login()
+    self.disable_paging(command=&#34;terminal pager 0&#34;)
+
+    if self.allow_auto_change:
+        try:
+            self.send_config_set(&#34;terminal width 511&#34;)
+        except ValueError:
+            # Don&#39;t fail for the terminal width
+            pass
+    else:
+        # Disable cmd_verify if the terminal width can&#39;t be set
+        self.global_cmd_verify = False
+
+    self.set_base_prompt()</code></pre>
+</details>
 <div class="desc"><p>Prepare the session after the connection has been established.</p></div>
 </dd>
 <dt id="netmiko.cisco.cisco_asa_ssh.CiscoAsaSSH.set_base_prompt"><code class="name flex">
 <span>def <span class="ident">set_base_prompt</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_base_prompt(self, *args: Any, **kwargs: Any) -&gt; str:
+    &#34;&#34;&#34;
+    Cisco ASA in multi-context mode needs to have the base prompt updated
+    (if you switch contexts i.e. &#39;changeto&#39;)
+
+    This switch of ASA contexts can occur in configuration mode. If this
+    happens the trailing &#39;(config*&#39; needs stripped off.
+    &#34;&#34;&#34;
+    cur_base_prompt = super().set_base_prompt(*args, **kwargs)
+    match = re.search(r&#34;(.*)\(conf.*&#34;, cur_base_prompt)
+    if match:
+        # strip off (conf.* from base_prompt
+        self.base_prompt = match.group(1)
+        return self.base_prompt
+    else:
+        return cur_base_prompt</code></pre>
+</details>
 <div class="desc"><p>Cisco ASA in multi-context mode needs to have the base prompt updated
 (if you switch contexts i.e. 'changeto')</p>
 <p>This switch of ASA contexts can occur in configuration mode. If this
@@ -451,6 +619,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoSSHConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -517,7 +686,7 @@ happens the trailing '(config*' needs stripped off.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

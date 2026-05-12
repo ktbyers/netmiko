@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.1">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>netmiko.ipinfusion.ipinfusion_ocnos API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -40,6 +51,165 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class IpInfusionOcNOSBase(CiscoBaseConnection):
+    &#34;&#34;&#34;Common Methods for IP Infusion OcNOS support.&#34;&#34;&#34;
+
+    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
+        if kwargs.get(&#34;default_enter&#34;) is None:
+            kwargs[&#34;default_enter&#34;] = &#34;\r&#34;
+        super().__init__(**kwargs)
+
+    def session_preparation(self) -&gt; None:
+        self._test_channel_read()
+        self.set_base_prompt()
+        self.disable_paging(command=&#34;terminal length 0&#34;)
+        # Turn off logging for the session as it can spoil analyzing of outputs
+        self.send_command(&#34;terminal no monitor&#34;)
+        # Clear the read buffer
+        time.sleep(0.3 * self.global_delay_factor)
+        self.clear_buffer()
+
+    def send_config_set(self, *args: Any, **kwargs: Any) -&gt; str:
+        &#34;&#34;&#34;Send config command(s). Requires separate calling of commit to apply.&#34;&#34;&#34;
+
+        # Default &#39;exit_config_mode&#39; to False unless it is explicitly overwritten
+        exit_config_mode = kwargs.get(&#34;exit_config_mode&#34;, False)
+        output = super().send_config_set(*args, **kwargs, exit_config_mode=exit_config_mode)
+        return output
+
+    def commit(
+        self,
+        confirm: bool = False,
+        confirm_delay: Optional[int] = None,
+        comment: str = &#34;&#34;,
+        read_timeout: float = 120.0,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        Commit the candidate configuration.
+
+        default (no options):
+            command_string = commit
+        confirm and confirm_delay:
+            command_string = commit confirmed timeout &lt;confirm_delay&gt;
+        comment (mapped to &#39;description&#39; on device):
+            command_string = commit description &lt;comment&gt;
+
+        failed commit message example:
+        % Failed to commit .. As error(s) encountered during commit operation...
+        Uncommitted configurations are retained in the current transaction session,
+        check &#39;show transaction current&#39;.
+        Correct the reason for the failure and re-issue the commit.
+        Use &#39;abort transaction&#39; to terminate current transaction session and discard
+        all uncommitted changes.
+        &#34;&#34;&#34;
+
+        if confirm_delay and not confirm:
+            raise ValueError(
+                &#34;Invalid arguments supplied to commit: confirm_delay specified without confirm&#34;
+            )
+
+        error_marker = &#34;Failed to commit&#34;
+
+        # Build proper command string based on arguments provided
+        command_string = &#34;commit&#34;
+        if confirm:
+            command_string += &#34; confirmed&#34;
+            if confirm_delay:
+                command_string += f&#34; timeout {str(confirm_delay)}&#34;
+        if comment:
+            command_string += f&#34; description {comment}&#34;
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        new_data = self._send_command_str(
+            command_string,
+            expect_string=r&#34;#&#34;,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        output += new_data
+        if error_marker in output:
+            raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
+
+        return output
+
+    def _confirm_commit(self, read_timeout: float = 120.0) -&gt; str:
+        &#34;&#34;&#34;Confirm the commit that was previously issued with &#39;commit confirmed&#39; command&#34;&#34;&#34;
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        command_string = &#34;confirm-commit&#34;
+        # If output is empty, it worked, an error looks like this:
+        # Error: No confirm-commit in progress OR commit-history feature is Disabled
+        new_data = self._send_command_str(
+            command_string,
+            expect_string=r&#34;(#|Error)&#34;,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        output += new_data
+        if &#34;Error&#34; in new_data:
+            raise ValueError(
+                f&#34;Confirm commit operation failed with the following errors:\n\n{output}&#34;
+            )
+
+        return output
+
+    def _cancel_commit(self, read_timeout: float = 120.0) -&gt; str:
+        &#34;&#34;&#34;Cancel ongoing confirmed commit&#34;&#34;&#34;
+
+        # Enter config mode (if necessary)
+        output = self.config_mode()
+
+        command_string = &#34;cancel-commit&#34;
+        # If output is empty, cancel-commit worked, an error looks like this:
+        # Error: No confirm-commit in progress OR commit-history feature is Disabled
+        new_data = self._send_command_str(
+            command_string,
+            expect_string=r&#34;(#|Error)&#34;,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        output += new_data
+        if &#34;Error&#34; in new_data:
+            raise ValueError(
+                f&#34;Cancel commit operation failed with the following errors:\n\n{output}&#34;
+            )
+
+        return output
+
+    def _abort_transaction(self, read_timeout: float = 120.0) -&gt; str:
+        &#34;&#34;&#34;Abort transaction, thus cancelling the pending changes rather than committing them&#34;&#34;&#34;
+
+        if not self.check_config_mode():
+            raise ValueError(&#34;Device is not in config mode&#34;)
+        command_string = &#34;abort transaction&#34;
+        # If output is empty, it worked; this is usually so (note: if
+        # transaction is empty, it still works)
+        output = self._send_command_str(
+            command_string,
+            expect_string=r&#34;#&#34;,
+            strip_prompt=False,
+            strip_command=False,
+            read_timeout=read_timeout,
+        )
+        return output
+
+    def save_config(
+        self, cmd: str = &#34;write&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+    ) -&gt; str:
+        &#34;&#34;&#34;Saves config using &#39;write&#39; command&#34;&#34;&#34;
+        return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
 <div class="desc"><p>Common Methods for IP Infusion OcNOS support.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -160,35 +330,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class IpInfusionOcNOSBase(CiscoBaseConnection):
-    &#34;&#34;&#34;Common Methods for IP Infusion OcNOS support.&#34;&#34;&#34;
-
-    def __init__(self, *args: Any, **kwargs: Any) -&gt; None:
-        if kwargs.get(&#34;default_enter&#34;) is None:
-            kwargs[&#34;default_enter&#34;] = &#34;\r&#34;
-        super().__init__(**kwargs)
-
-    def session_preparation(self) -&gt; None:
-        self._test_channel_read()
-        self.set_base_prompt()
-        self.disable_paging(command=&#34;terminal length 0&#34;)
-
-        # Clear the read buffer
-        time.sleep(0.3 * self.global_delay_factor)
-        self.clear_buffer()
-
-    def save_config(
-        self, cmd: str = &#34;write&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
-    ) -&gt; str:
-        &#34;&#34;&#34;Saves Config Using write command&#34;&#34;&#34;
-        return super().save_config(
-            cmd=cmd, confirm=confirm, confirm_response=confirm_response
-        )</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.cisco_base_connection.CiscoBaseConnection" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection">CiscoBaseConnection</a></li>
@@ -201,11 +342,120 @@ hljs.highlightAll();
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit"><code class="name flex">
+<span>def <span class="ident">commit</span></span>(<span>self,<br>confirm: bool = False,<br>confirm_delay: int | None = None,<br>comment: str = '',<br>read_timeout: float = 120.0) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def commit(
+    self,
+    confirm: bool = False,
+    confirm_delay: Optional[int] = None,
+    comment: str = &#34;&#34;,
+    read_timeout: float = 120.0,
+) -&gt; str:
+    &#34;&#34;&#34;
+    Commit the candidate configuration.
+
+    default (no options):
+        command_string = commit
+    confirm and confirm_delay:
+        command_string = commit confirmed timeout &lt;confirm_delay&gt;
+    comment (mapped to &#39;description&#39; on device):
+        command_string = commit description &lt;comment&gt;
+
+    failed commit message example:
+    % Failed to commit .. As error(s) encountered during commit operation...
+    Uncommitted configurations are retained in the current transaction session,
+    check &#39;show transaction current&#39;.
+    Correct the reason for the failure and re-issue the commit.
+    Use &#39;abort transaction&#39; to terminate current transaction session and discard
+    all uncommitted changes.
+    &#34;&#34;&#34;
+
+    if confirm_delay and not confirm:
+        raise ValueError(
+            &#34;Invalid arguments supplied to commit: confirm_delay specified without confirm&#34;
+        )
+
+    error_marker = &#34;Failed to commit&#34;
+
+    # Build proper command string based on arguments provided
+    command_string = &#34;commit&#34;
+    if confirm:
+        command_string += &#34; confirmed&#34;
+        if confirm_delay:
+            command_string += f&#34; timeout {str(confirm_delay)}&#34;
+    if comment:
+        command_string += f&#34; description {comment}&#34;
+
+    # Enter config mode (if necessary)
+    output = self.config_mode()
+
+    new_data = self._send_command_str(
+        command_string,
+        expect_string=r&#34;#&#34;,
+        strip_prompt=False,
+        strip_command=False,
+        read_timeout=read_timeout,
+    )
+    output += new_data
+    if error_marker in output:
+        raise ValueError(f&#34;Commit failed with the following errors:\n\n{output}&#34;)
+
+    return output</code></pre>
+</details>
+<div class="desc"><p>Commit the candidate configuration.</p>
+<p>default (no options):
+command_string = commit
+confirm and confirm_delay:
+command_string = commit confirmed timeout <confirm_delay>
+comment (mapped to 'description' on device):
+command_string = commit description <comment></p>
+<p>failed commit message example:
+% Failed to commit .. As error(s) encountered during commit operation&hellip;
+Uncommitted configurations are retained in the current transaction session,
+check 'show transaction current'.
+Correct the reason for the failure and re-issue the commit.
+Use 'abort transaction' to terminate current transaction session and discard
+all uncommitted changes.</p></div>
+</dd>
 <dt id="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.save_config"><code class="name flex">
 <span>def <span class="ident">save_config</span></span>(<span>self, cmd: str = 'write', confirm: bool = False, confirm_response: str = '') ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Saves Config Using write command</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_config(
+    self, cmd: str = &#34;write&#34;, confirm: bool = False, confirm_response: str = &#34;&#34;
+) -&gt; str:
+    &#34;&#34;&#34;Saves config using &#39;write&#39; command&#34;&#34;&#34;
+    return super().save_config(cmd=cmd, confirm=confirm, confirm_response=confirm_response)</code></pre>
+</details>
+<div class="desc"><p>Saves config using 'write' command</p></div>
+</dd>
+<dt id="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set"><code class="name flex">
+<span>def <span class="ident">send_config_set</span></span>(<span>self, *args: Any, **kwargs: Any) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_config_set(self, *args: Any, **kwargs: Any) -&gt; str:
+    &#34;&#34;&#34;Send config command(s). Requires separate calling of commit to apply.&#34;&#34;&#34;
+
+    # Default &#39;exit_config_mode&#39; to False unless it is explicitly overwritten
+    exit_config_mode = kwargs.get(&#34;exit_config_mode&#34;, False)
+    output = super().send_config_set(*args, **kwargs, exit_config_mode=exit_config_mode)
+    return output</code></pre>
+</details>
+<div class="desc"><p>Send config command(s). Requires separate calling of commit to apply.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -216,11 +466,11 @@ hljs.highlightAll();
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -240,7 +490,6 @@ hljs.highlightAll();
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
-<li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.cisco_base_connection.CiscoBaseConnection.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
@@ -261,6 +510,15 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class IpInfusionOcNOSSSH(IpInfusionOcNOSBase):
+    &#34;&#34;&#34;IP Infusion OcNOS SSH driver.&#34;&#34;&#34;
+
+    pass</code></pre>
+</details>
 <div class="desc"><p>IP Infusion OcNOS SSH driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
@@ -381,15 +639,6 @@ hljs.highlightAll();
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class IpInfusionOcNOSSSH(IpInfusionOcNOSBase):
-    &#34;&#34;&#34;IP Infusion OcNOS SSH driver.&#34;&#34;&#34;
-
-    pass</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
@@ -404,11 +653,12 @@ hljs.highlightAll();
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit">commit</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -429,7 +679,7 @@ hljs.highlightAll();
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
-<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
@@ -450,6 +700,49 @@ hljs.highlightAll();
 <span>(</span><span>*args: Any, **kwargs: Any)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class IpInfusionOcNOSTelnet(IpInfusionOcNOSBase):
+    &#34;&#34;&#34;IP Infusion OcNOS  Telnet driver.&#34;&#34;&#34;
+
+    def _process_option(self, tsocket: socket, command: bytes, option: bytes) -&gt; None:
+        &#34;&#34;&#34;
+        For all telnet options, re-implement the default telnetlib behaviour
+        and refuse to handle any options. If the server expresses interest in
+        &#39;terminal type&#39; option, then reply back with &#39;xterm&#39; terminal type.
+        &#34;&#34;&#34;
+        if command == DO and option == TTYPE:
+            tsocket.sendall(IAC + WILL + TTYPE)
+            tsocket.sendall(IAC + SB + TTYPE + b&#34;\0&#34; + b&#34;xterm&#34; + IAC + SE)
+        elif command in (DO, DONT):
+            tsocket.sendall(IAC + WONT + option)
+        elif command in (WILL, WONT):
+            tsocket.sendall(IAC + DONT + option)
+
+    def telnet_login(
+        self,
+        pri_prompt_terminator: str = &#34;#&#34;,
+        alt_prompt_terminator: str = &#34;&gt;&#34;,
+        username_pattern: str = r&#34;(?:user:|sername|login|user name)&#34;,
+        pwd_pattern: str = r&#34;assword:&#34;,
+        delay_factor: float = 1.0,
+        max_loops: int = 20,
+    ) -&gt; str:
+        # set callback function to handle telnet options.
+        assert self.remote_conn is not None
+        assert isinstance(self.remote_conn, Telnet)
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
+        return super().telnet_login(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            username_pattern=username_pattern,
+            pwd_pattern=pwd_pattern,
+            delay_factor=delay_factor,
+            max_loops=max_loops,
+        )</code></pre>
+</details>
 <div class="desc"><p>IP Infusion OcNOS
 Telnet driver.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
@@ -571,49 +864,6 @@ Telnet driver.</p>
     :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
             (default: False)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class IpInfusionOcNOSTelnet(IpInfusionOcNOSBase):
-    &#34;&#34;&#34;IP Infusion OcNOS  Telnet driver.&#34;&#34;&#34;
-
-    def _process_option(self, tsocket: socket, command: bytes, option: bytes) -&gt; None:
-        &#34;&#34;&#34;
-        For all telnet options, re-implement the default telnetlib behaviour
-        and refuse to handle any options. If the server expresses interest in
-        &#39;terminal type&#39; option, then reply back with &#39;xterm&#39; terminal type.
-        &#34;&#34;&#34;
-        if command == DO and option == TTYPE:
-            tsocket.sendall(IAC + WILL + TTYPE)
-            tsocket.sendall(IAC + SB + TTYPE + b&#34;\0&#34; + b&#34;xterm&#34; + IAC + SE)
-        elif command in (DO, DONT):
-            tsocket.sendall(IAC + WONT + option)
-        elif command in (WILL, WONT):
-            tsocket.sendall(IAC + DONT + option)
-
-    def telnet_login(
-        self,
-        pri_prompt_terminator: str = &#34;#&#34;,
-        alt_prompt_terminator: str = &#34;&gt;&#34;,
-        username_pattern: str = r&#34;(?:user:|sername|login|user name)&#34;,
-        pwd_pattern: str = r&#34;assword:&#34;,
-        delay_factor: float = 1.0,
-        max_loops: int = 20,
-    ) -&gt; str:
-        # set callback function to handle telnet options.
-        assert self.remote_conn is not None
-        assert isinstance(self.remote_conn, Telnet)
-        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
-        return super().telnet_login(
-            pri_prompt_terminator=pri_prompt_terminator,
-            alt_prompt_terminator=alt_prompt_terminator,
-            username_pattern=username_pattern,
-            pwd_pattern=pwd_pattern,
-            delay_factor=delay_factor,
-            max_loops=max_loops,
-        )</code></pre>
-</details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></li>
@@ -628,11 +878,12 @@ Telnet driver.</p>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.check_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.check_enable_mode">check_enable_mode</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.cleanup" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.cleanup">cleanup</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.clear_buffer" href="../base_connection.html#netmiko.base_connection.BaseConnection.clear_buffer">clear_buffer</a></code></li>
-<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit" href="../base_connection.html#netmiko.base_connection.BaseConnection.commit">commit</a></code></li>
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit">commit</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.config_mode" href="../base_connection.html#netmiko.base_connection.BaseConnection.config_mode">config_mode</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.disable_paging" href="../base_connection.html#netmiko.base_connection.BaseConnection.disable_paging">disable_paging</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.disconnect" href="../base_connection.html#netmiko.base_connection.BaseConnection.disconnect">disconnect</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.enable" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.enable">enable</a></code></li>
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.enable_secret_handler" href="../base_connection.html#netmiko.base_connection.BaseConnection.enable_secret_handler">enable_secret_handler</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.establish_connection" href="../base_connection.html#netmiko.base_connection.BaseConnection.establish_connection">establish_connection</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.exit_config_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_config_mode">exit_config_mode</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.exit_enable_mode" href="../cisco_base_connection.html#netmiko.cisco_base_connection.CiscoBaseConnection.exit_enable_mode">exit_enable_mode</a></code></li>
@@ -653,7 +904,7 @@ Telnet driver.</p>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_command_expect" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_expect">send_command_expect</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_command_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_command_timing">send_command_timing</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_from_file" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_from_file">send_config_from_file</a></code></li>
-<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_config_set">send_config_set</a></code></li>
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set">send_config_set</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_multiline" href="../base_connection.html#netmiko.base_connection.BaseConnection.send_multiline">send_multiline</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.session_preparation" href="../base_connection.html#netmiko.base_connection.BaseConnection.session_preparation">session_preparation</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.set_base_prompt" href="../base_connection.html#netmiko.base_connection.BaseConnection.set_base_prompt">set_base_prompt</a></code></li>
@@ -687,7 +938,9 @@ Telnet driver.</p>
 <li>
 <h4><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase">IpInfusionOcNOSBase</a></code></h4>
 <ul class="">
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.commit">commit</a></code></li>
 <li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.save_config" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.save_config">save_config</a></code></li>
+<li><code><a title="netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set" href="#netmiko.ipinfusion.ipinfusion_ocnos.IpInfusionOcNOSBase.send_config_set">send_config_set</a></code></li>
 </ul>
 </li>
 <li>
@@ -702,7 +955,7 @@ Telnet driver.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>
