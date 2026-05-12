@@ -51,8 +51,9 @@ types-PyYAML = "6.0.12.20250915"
 optional = true
 
 [tool.poetry.group.parsers.dependencies]
-pyats = ">=26.2"
-genie = ">=26.2"
+# pyats 26.4 did not distribute cp311 linux x86_64 wheels
+pyats = ">=26.2,!=26.4,!=26.4.*"
+genie = ">=26.2,!=26.4,!=26.4.*"
 ttp = ">=0.9.5"
 
 [tool.poetry.scripts]
