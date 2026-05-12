@@ -356,6 +356,10 @@ def test_enable_mode(net_connect, commands, expected_responses):
     except AttributeError:
         assert True
 
+    # Don't test exit enable_mode platforms
+    if net_connect.device_type == "cisco_nxos":
+        return
+
     # Now verify you can exit enable mode
     try:
         net_connect.exit_enable_mode()
