@@ -329,7 +329,7 @@ class BaseFileTransfer(object):
           add_newline: add newline to end of file contents or not
 
         """
-        file_hash = hashlib.md5()
+        file_hash = hashlib.md5(usedforsecurity=False)
         with open(file_name, "rb") as f:
             while True:
                 file_contents = f.read(512)

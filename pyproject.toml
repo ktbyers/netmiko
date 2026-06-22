@@ -43,7 +43,10 @@ dev = [
     "ruff==0.15.5",
     "mypy==1.19.1",
     "mypy-extensions==1.0.0",
-    "pytest==8.3.3",
+    "pytest>=9.0.3",
+    "pytest-cov>=4.0",
+    "bandit>=1.9.4",
+    "pip-audit>=2.10.0",
     "twine==6.2.0",
     "docutils==0.22.4",
     # genie (parsers group) requires exactly pysnmp 6.1.4 (latest 6.1.x, disallows >=6.2)
@@ -135,6 +138,13 @@ module = [
     "netmiko._telnetlib.telnetlib"
 ]
 ignore_errors = true
+
+[tool.bandit]
+# B101: assert_used - legitimate type-narrowing asserts throughout the codebase
+# B105/B107: hardcoded_password - these are regex prompt-matching patterns, not real credentials
+# B108: hardcoded_tmp_directory - /var/tmp is a standard network device filesystem path
+# B110: try_except_pass - intentional in network device disconnect/cleanup code
+skips = ["B101", "B105", "B107", "B108", "B110"]
 
 [tool.pytest.ini_options]
 addopts = "-rs"

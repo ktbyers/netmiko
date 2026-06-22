@@ -32,6 +32,21 @@ jobs:
           uv run --frozen mypy --version
           uv run --frozen mypy ./netmiko/
 
+      - name: Run bandit security scan
+        run: uv run --frozen bandit -r netmiko/ -c pyproject.toml
+
+      - name: Run pip-audit dependency scan
+        run: >
+          uv run --frozen pip-audit
+          --ignore-vuln CVE-2026-44405
+          --ignore-vuln CVE-2026-30922
+        # CVE-2026-44405: paramiko 4.0.0 allows SHA-1. This is intentional —
+        # paramiko 5.x removed SHA-1 support which breaks connectivity to legacy
+        # network devices. netmiko constrains paramiko<5.0 for the same reason.
+        # CVE-2026-30922: pyasn1 0.6.0 vulnerability. Cannot upgrade — genie
+        # (optional parsers group) pins pyasn1==0.6.0 exactly. Only affects
+        # the optional parsers install, not the default netmiko install.
+
   pytest:
     name: Std Test on Python ${{ matrix.python-version }} (${{ matrix.platform}})
     defaults:
@@ -55,7 +70,21 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
+      - name: Run Tests (with coverage)
+        if: matrix.python-version == '3.13' && matrix.platform == 'ubuntu-24.04'
+        run: >
+          uv run --frozen pytest -v -s
+          tests/test_import_netmiko.py
+          tests/unit/test_base_connection.py
+          tests/unit/test_ssh_autodetect.py
+          tests/unit/test_connection.py
+          tests/unit/test_entry_points.py
+          tests/unit/test_session_log.py
+          --cov=netmiko
+          --cov-report=term-missing
+
       - name: Run Tests
+        if: "!(matrix.python-version == '3.13' && matrix.platform == 'ubuntu-24.04')"
         run: |
           uv run --frozen pytest -v -s tests/test_import_netmiko.py
           uv run --frozen pytest -v -s tests/unit/test_base_connection.py
