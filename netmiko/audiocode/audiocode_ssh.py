@@ -119,7 +119,7 @@ class AudiocodeBase(BaseConnection):
         output = ""
         max_exit_depth = 10
         if self.check_config_mode():
-            # Keep "exitting" until out of config mode
+            # Keep "exiting" until out of config mode
             for _ in range(max_exit_depth):
                 self.write_channel(self.normalize_cmd(exit_config))
 

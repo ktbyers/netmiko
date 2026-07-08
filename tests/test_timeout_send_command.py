@@ -100,7 +100,7 @@ def test_read_timeout_override(net_connect_newconn, test_timeout, allowed_percen
     # Returned exception should be read_timeout
     assert isinstance(my_except, ReadTimeout)
 
-    # For comparsions compare to the override time with a fixed allowed percentage
+    # For comparisons compare to the override time with a fixed allowed percentage
     test_timeout = ssh_conn.read_timeout_override
     allowed_percentage = 0.5
 

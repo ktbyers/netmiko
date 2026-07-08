@@ -618,7 +618,7 @@ class SSHDetect(object):
         """
         Standard method to try to auto-detect the device type. This method will be called for each
         device_type present in SSH_MAPPER_BASE dict ('dispatch' key). It will attempt to send a
-        command and match some regular expression from the ouput for each entry in SSH_MAPPER_BASE
+        command and match some regular expression from the output for each entry in SSH_MAPPER_BASE
         ('cmd' and 'search_pattern' keys).
 
         Parameters

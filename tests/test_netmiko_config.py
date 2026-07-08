@@ -204,7 +204,7 @@ def test_config_error_pattern(net_connect, commands, expected_responses):
 
 def test_banner(net_connect, commands, expected_responses):
     """
-    Banner configuration has a special exclusing where cmd_verify is dynamically
+    Banner configuration has a special exclusion where cmd_verify is dynamically
     disabled so make sure it works.
     """
     # Make sure banner comes in as separate lines
@@ -236,7 +236,7 @@ def test_banner(net_connect, commands, expected_responses):
 
 def test_global_cmd_verify(net_connect, commands, expected_responses):
     """
-    Banner configuration has a special exclusing where cmd_verify is dynamically
+    Banner configuration has a special exclusion where cmd_verify is dynamically
     disabled so make sure it works.
     """
 

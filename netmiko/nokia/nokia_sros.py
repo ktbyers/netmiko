@@ -25,7 +25,7 @@ class NokiaSros(BaseConnection):
     Not applicable in Nokia SR OS (disabled):
         - exit_enable_mode()
 
-    Overriden methods to adapt Nokia SR OS behavior (changed):
+    Overridden methods to adapt Nokia SR OS behavior (changed):
         - session_preparation()
         - set_base_prompt()
         - config_mode()

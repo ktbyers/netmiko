@@ -565,7 +565,7 @@ def ConnLogOnly(
         device_type = net_connect.device_type
 
         net_connect._open()
-        msg = f"Netmiko connection succesful to {hostname}:{port}"
+        msg = f"Netmiko connection successful to {hostname}:{port}"
         logger.info(msg)
         return net_connect
     except NetmikoAuthenticationException as e:

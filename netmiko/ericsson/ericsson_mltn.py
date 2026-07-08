@@ -28,7 +28,7 @@ class EricssonMinilinkBase(NoEnable, BaseConnection):
         # Remove username from kwargs to avoid duplicates
         self._real_username = ""
         if "username" in kwargs:
-            # Saving the username for the acutal login prompt
+            # Saving the username for the actual login prompt
             self._real_username = kwargs["username"]
             # Setting CLI as the default ssh username
             kwargs["username"] = "cli"

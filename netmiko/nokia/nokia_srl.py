@@ -176,7 +176,7 @@ class NokiaSrlSSH(BaseConnection, NoEnable):
         the running configuration is synchronized with the startup configuration,
         and the plus sign is removed from the prompt.
 
-        The exclamation mark (!) in the prompt indicates that another user has commited
+        The exclamation mark (!) in the prompt indicates that another user has committed
         changes to the running datastore.
         """
         matches = re.search(
