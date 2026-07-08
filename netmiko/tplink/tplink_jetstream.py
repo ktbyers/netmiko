@@ -2,9 +2,6 @@ import re
 import time
 from typing import Any, Optional
 
-from cryptography.hazmat.primitives.asymmetric import dsa
-from cryptography.hazmat.primitives.asymmetric.dsa import DSAParameterNumbers
-
 from netmiko import log
 from netmiko.cisco_base_connection import CiscoSSHConnection
 from netmiko.exceptions import ReadTimeout
@@ -152,33 +149,20 @@ the 'secret' argument to ConnectHandler.
 
 
 class TPLinkJetStreamSSH(TPLinkJetStreamBase):
-    def __init__(self, **kwargs: Any) -> None:
-        setattr(dsa, "_check_dsa_parameters", self._override_check_dsa_parameters)
-        return super().__init__(**kwargs)
+    """
+    TP-Link JetStream SSH driver.
 
-    def _override_check_dsa_parameters(self, parameters: DSAParameterNumbers) -> None:
-        """
-        Override check_dsa_parameters from cryptography's dsa.py
+    Note: devices that only offer a DSA host key (with non-standard DSA
+    parameters) are no longer supported over SSH. Netmiko historically
+    monkey-patched cryptography's private _check_dsa_parameters() to allow
+    these host keys, but cryptography >= 42 moved that validation into its
+    Rust backend (making the patch ineffective) and Paramiko 4.0 removed
+    DSA/DSS key support entirely. For such devices, either update the
+    firmware so the device offers an RSA/ECDSA host key or use
+    'tplink_jetstream_telnet'.
+    """
 
-        Without this the error below occurs:
-
-        ValueError: p must be exactly 1024, 2048, or 3072 bits long
-
-        Allows for shorter or longer parameters.p to be returned
-        from the server's host key. This is a HORRIBLE hack and a
-        security risk, please remove if possible!
-
-        By now, with firmware:
-
-        2.0.5 Build 20200109 Rel.36203(s)
-
-        It's still not possible to remove this hack.
-        """
-        if parameters.q.bit_length() not in [160, 256]:
-            raise ValueError("q must be exactly 160 or 256 bits long")
-
-        if not (1 < parameters.g < parameters.p):
-            raise ValueError("g, p don't satisfy 1 < g < p.")
+    pass
 
 
 class TPLinkJetStreamTelnet(TPLinkJetStreamBase):
