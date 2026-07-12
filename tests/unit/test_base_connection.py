@@ -7,6 +7,7 @@ from threading import Lock
 import paramiko
 from netmiko import NetmikoTimeoutException, log, ConnectHandler
 from netmiko.base_connection import BaseConnection
+from netmiko.paloalto.paloalto_panos import PaloAltoPanosSSH, PaloAltoPanosTelnet
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
 
@@ -343,6 +344,35 @@ myhostname>
     connection = FakeBaseConnection(RESPONSE_RETURN="\n")
     result = connection.strip_command(command, output)
     assert result == expect
+
+
+@pytest.mark.parametrize(
+    ("connection_type", "device_type"),
+    [
+        (PaloAltoPanosSSH, "paloalto_panos"),
+        (PaloAltoPanosTelnet, "paloalto_panos_telnet"),
+    ],
+)
+def test_paloalto_strip_command_handles_normalized_enter(connection_type, device_type):
+    connection = connection_type(host="localhost", device_type=device_type, auto_connect=False)
+    command = connection.normalize_cmd("show system info")
+    output = connection.normalize_linefeeds(f"{command}hostname: pa\n")
+    result = connection.strip_command(command, output)
+    connection.disconnect()
+
+    assert result == "hostname: pa\n"
+
+
+def test_paloalto_strip_command_only_removes_leading_echo():
+    connection = PaloAltoPanosSSH(
+        host="localhost", device_type="paloalto_panos", auto_connect=False
+    )
+    command = connection.normalize_cmd("show system info")
+    output = "show system info\nshow system info\nhostname: pa\n"
+    result = connection.strip_command(command, output)
+    connection.disconnect()
+
+    assert result == "show system info\nhostname: pa\n"
 
 
 def test_normalize_linefeeds():
