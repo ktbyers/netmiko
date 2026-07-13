@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 import pytest
+import re
 import time
+import traceback
 from os.path import dirname, join
 from threading import Lock
 
 import paramiko
-from netmiko import NetmikoTimeoutException, log, ConnectHandler
+from netmiko import NetmikoTimeoutException, ReadTimeout, log, ConnectHandler
 from netmiko.base_connection import BaseConnection
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
@@ -367,6 +369,73 @@ def test_normalize_cmd():
     connection = FakeBaseConnection(RETURN="\n")
     result = connection.normalize_cmd("show version \n\n\n ")
     assert result == "show version\n"
+
+
+def test_command_echo_read_timeout(monkeypatch):
+    command = "credentialABC123"
+    original_error = ReadTimeout(f"Pattern not detected: {command}")
+    connection = FakeBaseConnection(global_cmd_verify=None)
+
+    def raise_timeout(*, pattern, read_timeout):
+        assert pattern == re.escape(command)
+        assert read_timeout == 10
+        raise original_error
+
+    monkeypatch.setattr(connection, "read_until_pattern", raise_timeout)
+
+    with pytest.raises(ReadTimeout, match="cmd_verify=False") as exc_info:
+        connection.command_echo_read(command, read_timeout=10)
+
+    assert exc_info.value.__cause__ is original_error
+    assert "global_cmd_verify" not in str(exc_info.value)
+
+
+def test_command_echo_read_timeout_redacts_command(monkeypatch):
+    command = "credentialABC123"
+    original_error = ReadTimeout(f"Pattern not detected: {command}")
+    connection = FakeBaseConnection(global_cmd_verify=None)
+
+    def raise_timeout(**kwargs):
+        raise original_error
+
+    monkeypatch.setattr(connection, "read_until_pattern", raise_timeout)
+
+    with pytest.raises(ReadTimeout) as exc_info:
+        connection.command_echo_read(command, read_timeout=10)
+
+    rendered_error = "".join(traceback.format_exception(exc_info.type, exc_info.value, exc_info.tb))
+    assert command not in rendered_error
+
+
+def test_command_echo_read_timeout_with_global_cmd_verify(monkeypatch):
+    command = "credentialABC123"
+    connection = FakeBaseConnection(global_cmd_verify=True)
+
+    def raise_timeout(**kwargs):
+        raise ReadTimeout("Pattern not detected")
+
+    monkeypatch.setattr(connection, "read_until_pattern", raise_timeout)
+
+    with pytest.raises(ReadTimeout) as exc_info:
+        connection.command_echo_read(command, read_timeout=10)
+
+    error_message = str(exc_info.value)
+    assert "global_cmd_verify=True overrides cmd_verify=False" in error_message
+    assert "set global_cmd_verify=False instead" in error_message
+
+
+def test_command_echo_read_success(monkeypatch):
+    command = "show version"
+    connection = FakeBaseConnection()
+
+    def read_until_pattern(*, pattern, read_timeout):
+        assert pattern == re.escape(command)
+        assert read_timeout == 10
+        return f"router#\n{command}"
+
+    monkeypatch.setattr(connection, "read_until_pattern", read_until_pattern)
+
+    assert connection.command_echo_read(command, read_timeout=10) == command
 
 
 def test_unlocking_no_lock():

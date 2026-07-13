@@ -1496,7 +1496,22 @@ A paramiko SSHException occurred during connection creation:
 
     def command_echo_read(self, cmd: str, read_timeout: float) -> str:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
+        try:
+            new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
+        except ReadTimeout as exc:
+            safe_cause = "The command echo was not detected within the read timeout."
+            exc.args = (safe_cause,)
+            guidance = "To disable command verification, set cmd_verify=False."
+            if self.global_cmd_verify is True:
+                guidance += (
+                    "\nglobal_cmd_verify=True overrides cmd_verify=False; "
+                    "set global_cmd_verify=False instead."
+                )
+            msg = f"""\n
+{safe_cause}
+
+{guidance}\n"""
+            raise ReadTimeout(msg) from exc
 
         # There can be echoed prompts that haven't been cleared before the cmd echo
         # this can later mess up the trailing prompt pattern detection. Clear this out.
