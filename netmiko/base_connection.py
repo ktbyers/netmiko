@@ -1203,6 +1203,13 @@ A paramiko SSHException occurred during connection creation:
 {str(e)}
 
 """
+                    if str(e) == "encountered RSA key, expected OPENSSH key":
+                        msg += (
+                            "Verify the credentials and private key format first. Only after "
+                            "confirming the failure is caused by RSA SHA-2 negotiation with a "
+                            "legacy server, try setting `disable_sha2_fix=True` in the Netmiko "
+                            "connection arguments.\n"
+                        )
                     raise NetmikoTimeoutException(msg)
 
             if self.verbose:

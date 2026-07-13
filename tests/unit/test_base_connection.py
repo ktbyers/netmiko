@@ -18,6 +18,56 @@ class FakeBaseConnection(BaseConnection):
         self._session_locker = Lock()
 
 
+class FakeSSHClient:
+    def __init__(self, exception):
+        self.exception = exception
+        self.closed = False
+
+    def connect(self, **kwargs):
+        raise self.exception
+
+    def close(self):
+        self.closed = True
+
+
+def test_rsa_openssh_key_exception_hint(monkeypatch):
+    ssh_exception = paramiko.SSHException("encountered RSA key, expected OPENSSH key")
+    ssh_client = FakeSSHClient(ssh_exception)
+    connection = BaseConnection(host="testhost", auto_connect=False)
+    monkeypatch.setattr(connection, "_build_ssh_client", lambda: ssh_client)
+
+    with connection:
+        with pytest.raises(NetmikoTimeoutException) as exc_info:
+            connection.establish_connection()
+
+        expected = (
+            "\nA paramiko SSHException occurred during connection creation:\n\n"
+            f"{ssh_exception}\n\n"
+            "Verify the credentials and private key format first. Only after confirming the "
+            "failure is caused by RSA SHA-2 negotiation with a legacy server, try setting "
+            "`disable_sha2_fix=True` in the Netmiko connection arguments.\n"
+        )
+        assert str(exc_info.value) == expected
+        assert exc_info.value.__context__ is ssh_exception
+        assert ssh_client.closed
+
+
+def test_unrelated_ssh_exception_message_unchanged(monkeypatch):
+    error_message = "unrelated SSH failure"
+    ssh_client = FakeSSHClient(paramiko.SSHException(error_message))
+    connection = BaseConnection(host="testhost", auto_connect=False)
+    monkeypatch.setattr(connection, "_build_ssh_client", lambda: ssh_client)
+
+    with connection:
+        with pytest.raises(NetmikoTimeoutException) as exc_info:
+            connection.establish_connection()
+
+        expected = (
+            f"\nA paramiko SSHException occurred during connection creation:\n\n{error_message}\n\n"
+        )
+        assert str(exc_info.value) == expected
+
+
 def test_timeout_exceeded():
     """Raise NetmikoTimeoutException if waiting too much"""
     connection = FakeBaseConnection(session_timeout=10)
