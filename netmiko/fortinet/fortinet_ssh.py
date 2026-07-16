@@ -129,14 +129,15 @@ Alternatively you can try configuring 'configure system console -> set output st
         return output
 
     def _determine_os_version(self) -> str:
-        check_command = "get system status | grep Version"
+        check_command = "get system status | grep Version:"
         output = self._send_command_str(check_command, expect_string=self.prompt_pattern)
-        if re.search(r"^Version: .* (v[78]\.).*$", output, flags=re.M):
-            return "v7_or_later"
-        elif re.search(r"^Version: .* (v[654]\.).*$", output, flags=re.M):
+        version_match = re.search(r"^Version: .* v(\d+)\.", output, flags=re.M)
+        if version_match:
+            major_version = int(version_match.group(1))
+            if major_version >= 7:
+                return "v7_or_later"
             return "v6_or_earlier"
-        else:
-            raise ValueError("Unexpected FortiOS Version encountered.")
+        raise ValueError("Unexpected FortiOS Version encountered.")
 
     def _get_output_mode_v6(self) -> str:
         """
