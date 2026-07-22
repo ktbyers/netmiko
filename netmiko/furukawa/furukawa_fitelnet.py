@@ -123,22 +123,16 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
                 raise ValueError("Failed to exit enable mode.")
         return output
 
-    def commit(
-        self,
-        read_timeout: float = 120.0,
-    ) -> str:
-        """
-        Commit the candidate configuration on the FITELnet device.
+    def _apply_config(self, cmd: str, read_timeout: float) -> str:
+        """Send a configuration-apply command and handle FITELnet's responses.
 
-        Applies the working.cfg (candidate) to current.cfg (running).
-
-        commit may prompt with '[y/n]' for confirmation.
+        Shared by commit() and refresh().
         """
         output = ""
         confirmation = r"onfirm|\[y/[nN]\]"
         pattern = rf"(?:#|{confirmation})"
         new_data = self._send_command_str(
-            "commit",
+            cmd,
             expect_string=pattern,
             strip_prompt=False,
             strip_command=False,
@@ -158,21 +152,47 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
 
         output += new_data
 
-        # FITELnet refuses commit while another session/process is active with
-        # "Another processing is executing. This command can not be executed."
-        # The message contains neither "error" nor "failed", so it must be
-        # detected separately before the generic error check below.
+        # FITELnet refuses to apply the config while another session/process is
+        # active with "Another processing is executing. This command can not be
+        # executed."  The message contains neither "error" nor "failed", so it
+        # must be detected separately before the generic error check below.
         if "Another processing is executing" in output:
             raise ValueError(
-                "Commit failed: another process is executing on the device. "
+                f"'{cmd}' failed: another process is executing on the device. "
                 "Retry once the other operation completes."
             )
 
         # FITELnet emits <ERROR> in all caps; match case-insensitively.
         if re.search(r"error|failed", output, re.IGNORECASE):
-            raise ValueError(f"Commit failed with the following errors:\n\n{output}")
+            raise ValueError(f"'{cmd}' failed with the following errors:\n\n{output}")
 
         return output
+
+    def commit(
+        self,
+        read_timeout: float = 120.0,
+    ) -> str:
+        """
+        Commit the candidate configuration on the FITELnet device.
+
+        Applies the working.cfg (candidate) to current.cfg (running).
+
+        Newer FITELnet models apply the candidate configuration with 'refresh'
+        instead of 'commit' -- use refresh() on those platforms.
+        """
+        return self._apply_config("commit", read_timeout=read_timeout)
+
+    def refresh(
+        self,
+        read_timeout: float = 120.0,
+    ) -> str:
+        """
+        Apply the candidate configuration using 'refresh'.
+
+        This is the equivalent of commit() on newer FITELnet models, where
+        'commit' is not available.
+        """
+        return self._apply_config("refresh", read_timeout=read_timeout)
 
     def save_config(
         self,
