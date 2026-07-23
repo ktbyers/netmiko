@@ -39,13 +39,9 @@ jobs:
         run: >
           uv run --frozen pip-audit
           --ignore-vuln CVE-2026-44405
-          --ignore-vuln CVE-2026-30922
         # CVE-2026-44405: paramiko 4.0.0 allows SHA-1. This is intentional —
         # paramiko 5.x removed SHA-1 support which breaks connectivity to legacy
         # network devices. netmiko constrains paramiko<5.0 for the same reason.
-        # CVE-2026-30922: pyasn1 0.6.0 vulnerability. Cannot upgrade — genie
-        # (optional parsers group) pins pyasn1==0.6.0 exactly. Only affects
-        # the optional parsers install, not the default netmiko install.
 
   pytest:
     name: Std Test on Python ${{ matrix.python-version }} (${{ matrix.platform}})
