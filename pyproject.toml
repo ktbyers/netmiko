@@ -66,6 +66,10 @@ parsers = [
 [tool.uv]
 managed = true
 package = true
+# genie-libs-sdk (optional parsers group) hard-pins pyasn1==0.6.0, which has
+# multiple DoS vulnerabilities (PYSEC-2026-3455/3456/3457, CVE-2026-30922)
+# fixed in 0.6.4. 0.6.x is patch-compatible, so we override genie's exact pin.
+override-dependencies = ["pyasn1>=0.6.4"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["netmiko"]
