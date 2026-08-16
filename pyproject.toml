@@ -25,8 +25,10 @@ dependencies = [
     "ntc-templates>=3.1.0",
     "pyserial>=3.3",
     "rich>=13.8",
-    "ruamel.yaml>=0.17",
 ]
+
+[project.optional-dependencies]
+bulk-encrypt = ["ruamel.yaml>=0.17"]
 
 [project.urls]
 repository = "https://github.com/ktbyers/netmiko"
@@ -55,6 +57,7 @@ dev = [
     "pdoc3==0.11.6",
     "types-paramiko==4.0.0.20250822",
     "types-PyYAML==6.0.12.20250915",
+    "ruamel.yaml>=0.17",
 ]
 parsers = [
     # pyats 26.4 did not distribute cp311 linux x86_64 wheels

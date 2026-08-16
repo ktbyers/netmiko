@@ -7,6 +7,7 @@ def test_entry_points():
         "netmiko-grep",
         "netmiko-cfg",
         "netmiko-show",
+        "netmiko-bulk-encrypt",
     ]
     for cmd in cmds:
         r = subprocess.run(["uv", "run", "--frozen", cmd, "--help"], capture_output=True)
