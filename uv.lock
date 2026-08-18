@@ -563,10 +563,10 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 dependencies = [
-    { name = "fastjsonschema" },
-    { name = "requests" },
-    { name = "requests-toolbelt" },
-    { name = "xmltodict", version = "0.12.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "fastjsonschema", marker = "python_full_version < '3.12'" },
+    { name = "requests", marker = "python_full_version < '3.12'" },
+    { name = "requests-toolbelt", marker = "python_full_version < '3.12'" },
+    { name = "xmltodict", version = "0.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/24/ac/b2027cdc244478f631f3bccefd820352dd9455cdf8c9e27e94b059c6cfee/ciscoisesdk-2.4.1.tar.gz", hash = "sha256:a80556e2eb22b277bb9b8884a2643f9f33ca6f327f87c080876985197af553bb", size = 2458558, upload-time = "2025-12-02T22:17:21.186Z" }
 wheels = [
@@ -581,10 +581,10 @@ resolution-markers = [
     "python_full_version >= '3.12'",
 ]
 dependencies = [
-    { name = "fastjsonschema" },
-    { name = "requests" },
-    { name = "requests-toolbelt" },
-    { name = "xmltodict", version = "1.0.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "fastjsonschema", marker = "python_full_version >= '3.12'" },
+    { name = "requests", marker = "python_full_version >= '3.12'" },
+    { name = "requests-toolbelt", marker = "python_full_version >= '3.12'" },
+    { name = "xmltodict", version = "1.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2e/0e/1be0f72fd1642e009a31e99c588e3a1edf222fe7aa5956d45f9f9e3d9e6b/ciscoisesdk-2.4.4.tar.gz", hash = "sha256:849887cc54b019253bf10a5841a9f1bbfde4b70c4fd92d8a66961ab6b2cabfd7", size = 2484308, upload-time = "2026-05-08T01:27:34.863Z" }
 wheels = [
@@ -826,7 +826,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -1223,7 +1223,7 @@ name = "importlib-metadata"
 version = "9.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/01/15bb152d77b21318514a96f43af312635eb2500c96b55398d020c93d86ea/importlib_metadata-9.0.0.tar.gz", hash = "sha256:a4f57ab599e6a2e3016d7595cfd72eb4661a5106e787a95bcc90c7105b831efc", size = 56405, upload-time = "2026-03-20T06:42:56.999Z" }
 wheels = [
@@ -2453,7 +2453,7 @@ name = "pyasynchat"
 version = "1.0.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyasyncore" },
+    { name = "pyasyncore", marker = "python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ec/d2/b41df9021c12ca314146abcde7bdd3d9d37d44cc01559d7f13df459ee586/pyasynchat-1.0.5.tar.gz", hash = "sha256:36665473ae730dac51e6d7dad70f8295962120c830ab692f0a31efba32687e24", size = 9959, upload-time = "2026-01-05T20:05:27.712Z" }
 wheels = [
