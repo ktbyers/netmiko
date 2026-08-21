@@ -46,6 +46,7 @@ from netmiko.netmiko_globals import BACKSPACE_CHAR
 from netmiko.exceptions import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
+    NetmikoHostBlockedException,
     ConfigInvalidException,
     ReadException,
     ReadTimeout,
@@ -939,6 +940,19 @@ You can look at the Netmiko session_log or debug log for more information.
             try:
                 output = self.read_channel()
                 return_msg += output
+
+                # Check for "host blocked" messages
+                HOST_BLOCKED_MESSAGES = [
+                    "You are not permitted to connect from this host",
+                    "Access denied",
+                    "Connection refused",
+                    "host is not allowed",
+                ]
+
+                if any(msg in output for msg in HOST_BLOCKED_MESSAGES):
+                    raise NetmikoHostBlockedException(
+                        f"Host is blocked by device ACL. Device said: {output.strip()}"
+                    )
 
                 # Search for username pattern / send username
                 if re.search(username_pattern, output, flags=re.I):
