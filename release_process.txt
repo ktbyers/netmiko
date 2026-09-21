@@ -13,13 +13,13 @@ $ pdoc3 --html --output-dir docs netmiko --force
 
 # Merge into master / checkout master (use PR in GitHub for this)
 
-# poetry build
+# uv build
 
 # Run ./_release.sh
 
 # Create a tag for the version
-git tag -a v4.6.0 -m "Version 4.6.0 Release"
-git push origin v4.6.0
+git tag -a v4.8.0 -m "Version 4.8.0 Release"
+git push origin v4.8.0
 
 # Make sure to run the performance tests for the new release and to update the graphs!
 
