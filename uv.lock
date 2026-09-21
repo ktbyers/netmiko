@@ -7,6 +7,10 @@ resolution-markers = [
     "python_full_version == '3.11.*'",
     "python_full_version < '3.11'",
 ]
+conflicts = [[
+    { package = "netmiko", extra = "par4" },
+    { package = "netmiko", group = "paramiko5" },
+]]
 
 [manifest]
 overrides = [
@@ -39,12 +43,12 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohappyeyeballs" },
     { name = "aiosignal" },
-    { name = "async-timeout", marker = "python_full_version < '3.11'" },
+    { name = "async-timeout", marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "attrs" },
     { name = "frozenlist" },
     { name = "multidict" },
     { name = "propcache" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "yarl" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/58/d9/22ce5786ac0c1653ae8b6c23bded02c1686d11f0dbb45b31ce128e0df985/aiohttp-3.14.3.tar.gz", hash = "sha256:9491196535a88924a60afd5b5f434b5b203b6cc616250878dbdb223a8f7844bc", size = 7971213, upload-time = "2026-07-23T01:57:27.037Z" }
@@ -175,7 +179,7 @@ version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "frozenlist" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/61/62/06741b579156360248d1ec624842ad0edf697050bbaf7c3e46394e106ad1/aiosignal-1.4.0.tar.gz", hash = "sha256:f47eecd9468083c2029cc99945502cb7708b082c232f9aca65da147157b251c7", size = 25007, upload-time = "2025-07-03T22:54:43.528Z" }
 wheels = [
@@ -251,7 +255,7 @@ name = "async-lru"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e8/1f/989ecfef8e64109a489fff357450cb73fa73a865a92bd8c272170a6922c2/async_lru-2.3.0.tar.gz", hash = "sha256:89bdb258a0140d7313cf8f4031d816a042202faa61d0ab310a0a538baa1c24b6", size = 16332, upload-time = "2026-03-19T01:04:32.413Z" }
 wheels = [
@@ -303,11 +307,11 @@ name = "bandit"
 version = "1.9.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "pyyaml" },
     { name = "rich" },
-    { name = "stevedore", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "stevedore", version = "5.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "stevedore", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "stevedore", version = "5.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/aa/c3/0cb80dfe0f3076e5da7e4c5ad8e57bac6ac357ff4a6406205501cade4965/bandit-1.9.4.tar.gz", hash = "sha256:b589e5de2afe70bd4d53fa0c1da6199f4085af666fde00e8a034f152a52cd628", size = 4242677, upload-time = "2026-02-25T06:44:15.503Z" }
 wheels = [
@@ -406,7 +410,7 @@ resolution-markers = [
     "python_full_version == '3.11.*'",
 ]
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version == '3.11.*'" },
+    { name = "typing-extensions", marker = "python_full_version == '3.11.*' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/f2/8d2dd8276ca05e1f5157b6a0d34efb2f585f47a0fbed61e8aad04b221f0b/bidict-0.24.1.tar.gz", hash = "sha256:4dca6c17f0b01700e9f24359daa5ebabf7be022d99f4cb2a257b6af2a5076c88", size = 30818, upload-time = "2026-08-25T23:45:52.214Z" }
 wheels = [
@@ -454,7 +458,7 @@ name = "cffi"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -740,10 +744,10 @@ resolution-markers = [
     "python_full_version < '3.11'",
 ]
 dependencies = [
-    { name = "fastjsonschema", marker = "python_full_version < '3.12'" },
-    { name = "requests", marker = "python_full_version < '3.12'" },
-    { name = "requests-toolbelt", marker = "python_full_version < '3.12'" },
-    { name = "xmltodict", version = "0.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "fastjsonschema", marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "requests", marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "requests-toolbelt", marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "xmltodict", version = "0.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/24/ac/b2027cdc244478f631f3bccefd820352dd9455cdf8c9e27e94b059c6cfee/ciscoisesdk-2.4.1.tar.gz", hash = "sha256:a80556e2eb22b277bb9b8884a2643f9f33ca6f327f87c080876985197af553bb", size = 2458558, upload-time = "2025-12-02T22:17:21.186Z" }
 wheels = [
@@ -759,10 +763,10 @@ resolution-markers = [
     "python_full_version >= '3.12' and python_full_version < '3.15'",
 ]
 dependencies = [
-    { name = "fastjsonschema", marker = "python_full_version >= '3.12'" },
-    { name = "requests", marker = "python_full_version >= '3.12'" },
-    { name = "requests-toolbelt", marker = "python_full_version >= '3.12'" },
-    { name = "xmltodict", version = "1.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "fastjsonschema", marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "requests", marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "requests-toolbelt", marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "xmltodict", version = "1.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/48/9b/5ae0cb6c4daa20781be894c0cbc5e7161c7b9902c45349544b8d21dee0b1/ciscoisesdk-2.4.6.tar.gz", hash = "sha256:f5b89b395350bb961d1fa96dc02ba9108e45ac02d5671a720abdfec5fe137857", size = 2485265, upload-time = "2026-08-28T18:35:28.653Z" }
 wheels = [
@@ -908,7 +912,7 @@ wheels = [
 
 [package.optional-dependencies]
 toml = [
-    { name = "tomli", marker = "python_full_version <= '3.11'" },
+    { name = "tomli", marker = "python_full_version <= '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 
 [[package]]
@@ -916,8 +920,8 @@ name = "cryptography"
 version = "50.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation != 'PyPy'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/bb/ad/5d6702db60b1e40b41ef513b6967ff5848f307d50f8449baf1634f5908f1/cryptography-50.0.1.tar.gz", hash = "sha256:5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20", size = 880381, upload-time = "2026-08-25T19:45:45.499Z" }
 wheels = [
@@ -977,7 +981,7 @@ dependencies = [
     { name = "packageurl-python" },
     { name = "py-serializable" },
     { name = "sortedcontainers" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/17/40/6509e6cfd7f2f3255501690f46375fdd224949e21fd1e96f4f4c8a9041b1/cyclonedx_python_lib-11.12.0.tar.gz", hash = "sha256:16767c4039de90c04e9f03348f8f0ed4b8ff842eaa7eefcad3a95685f970dacf", size = 1445378, upload-time = "2026-08-13T07:52:18.675Z" }
 wheels = [
@@ -1034,7 +1038,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -1287,8 +1291,8 @@ name = "genie-libs-parser"
 version = "26.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "xmltodict", version = "0.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "xmltodict", version = "1.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "xmltodict", version = "0.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "xmltodict", version = "1.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/be/1c/8b9491ffc5c269aeb0a03ad644ebc2cfd3bef2e3a1d9992ae998c80c69f5/genie_libs_parser-26.3-py3-none-any.whl", hash = "sha256:7139f4dd440db89dce4626be261f4ad2e343cececd738e1f85f82c10b8e3127b", size = 13063551, upload-time = "2026-04-02T14:19:34.954Z" },
@@ -1441,7 +1445,7 @@ name = "importlib-metadata"
 version = "9.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "python_full_version < '3.12'" },
+    { name = "zipp", marker = "python_full_version < '3.15' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6f/7e/1e7e8dc30634b93ebb3d58a3dea569ad146e656218d3960ab04f62047b29/importlib_metadata-9.0.1.tar.gz", hash = "sha256:ab830580bc0ef3db61ce8fae716389e5462b67e033018bab6d8f80ef17172f99", size = 59124, upload-time = "2026-08-28T15:30:34.646Z" }
 wheels = [
@@ -1483,7 +1487,7 @@ name = "jaraco-context"
 version = "6.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "backports-tarfile", marker = "python_full_version < '3.12'" },
+    { name = "backports-tarfile", marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/af/50/4763cd07e722bb6285316d390a164bc7e479db9d90daa769f22578f698b4/jaraco_context-6.1.2.tar.gz", hash = "sha256:f1a6c9d391e661cc5b8d39861ff077a7dc24dc23833ccee564b234b81c82dfe3", size = 16801, upload-time = "2026-03-20T22:13:33.922Z" }
 wheels = [
@@ -1549,13 +1553,13 @@ name = "keyring"
 version = "25.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "importlib-metadata", marker = "python_full_version < '3.12'" },
+    { name = "importlib-metadata", marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "jaraco-classes" },
     { name = "jaraco-context" },
     { name = "jaraco-functools" },
-    { name = "jeepney", marker = "sys_platform == 'linux'" },
-    { name = "pywin32-ctypes", marker = "sys_platform == 'win32'" },
-    { name = "secretstorage", marker = "sys_platform == 'linux'" },
+    { name = "jeepney", marker = "sys_platform == 'linux' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "pywin32-ctypes", marker = "sys_platform == 'win32' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "secretstorage", marker = "sys_platform == 'linux' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/4b/674af6ef2f97d56f0ab5153bf0bfa28ccb6c3ed4d1babf4305449668807b/keyring-25.7.0.tar.gz", hash = "sha256:fe01bd85eb3f8fb3dd0405defdeac9a5b4f6f0439edbb3149577f244a2e8245b", size = 63516, upload-time = "2025-11-16T16:26:09.482Z" }
 wheels = [
@@ -2094,7 +2098,7 @@ name = "multidict"
 version = "6.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e7/59/84b6cad9ddfdd9471db727b0e987c60ecbdb6b206ba265e8c50e74a1ab80/multidict-6.9.0.tar.gz", hash = "sha256:d7d32c0543494efbc9394e2b571725071d08e295993486bc9a43f6f89375ee01", size = 173221, upload-time = "2026-09-18T12:50:55.299Z" }
 wheels = [
@@ -2276,10 +2280,10 @@ version = "2.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ast-serialize" },
-    { name = "librt", marker = "platform_python_implementation != 'PyPy'" },
+    { name = "librt", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "mypy-extensions" },
     { name = "pathspec" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/82/6a/878cc1097d4035f82bd516658d0c528d2a9955bc7b363afcbd0b07fea11b/mypy-2.3.1.tar.gz", hash = "sha256:47c1b1207258513a9d93495f69c8be9de73916186f0e52703e8c461b7a623419", size = 3992554, upload-time = "2026-08-15T03:03:38.549Z" }
@@ -2352,7 +2356,8 @@ version = "0.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lxml" },
-    { name = "paramiko" },
+    { name = "paramiko", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-netmiko-par4'" },
+    { name = "paramiko", version = "5.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ef/92/e36995ee7ce151814335583571bed95f1a5a491b7ea4d5487cb67377800a/ncclient-0.7.1.tar.gz", hash = "sha256:60dabb6ac1a2d84fbc3349cb104ef7d0c5d12cf8eee43fefc715410d70410ddc", size = 123086, upload-time = "2026-03-15T16:05:49.317Z" }
 wheels = [
@@ -2374,7 +2379,8 @@ version = "4.8.0"
 source = { editable = "." }
 dependencies = [
     { name = "ntc-templates" },
-    { name = "paramiko" },
+    { name = "paramiko", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-netmiko-par4'" },
+    { name = "paramiko", version = "5.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
     { name = "pyserial" },
     { name = "pyyaml" },
     { name = "rich" },
@@ -2387,7 +2393,7 @@ bulk-encrypt = [
     { name = "ruamel-yaml" },
 ]
 par4 = [
-    { name = "paramiko" },
+    { name = "paramiko", version = "4.0.0", source = { registry = "https://pypi.org/simple" } },
 ]
 
 [package.dev-dependencies]
@@ -2406,6 +2412,9 @@ dev = [
     { name = "twine" },
     { name = "types-paramiko" },
     { name = "types-pyyaml" },
+]
+paramiko5 = [
+    { name = "paramiko", version = "5.0.0", source = { registry = "https://pypi.org/simple" } },
 ]
 parsers = [
     { name = "genie" },
@@ -2444,6 +2453,7 @@ dev = [
     { name = "types-paramiko", specifier = "==5.0.0.20260724" },
     { name = "types-pyyaml", specifier = "==6.0.12.20260906" },
 ]
+paramiko5 = [{ name = "paramiko", specifier = ">=5.0" }]
 parsers = [
     { name = "genie", specifier = ">=26.2,!=26.4,!=26.4.*" },
     { name = "pyats", specifier = ">=26.2,!=26.4,!=26.4.*" },
@@ -2518,15 +2528,42 @@ wheels = [
 name = "paramiko"
 version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.15'",
+    "python_full_version >= '3.12' and python_full_version < '3.15'",
+    "python_full_version == '3.11.*'",
+    "python_full_version < '3.11'",
+]
 dependencies = [
-    { name = "bcrypt" },
-    { name = "cryptography" },
-    { name = "invoke" },
-    { name = "pynacl" },
+    { name = "bcrypt", marker = "extra == 'extra-7-netmiko-par4'" },
+    { name = "cryptography", marker = "extra == 'extra-7-netmiko-par4'" },
+    { name = "invoke", marker = "extra == 'extra-7-netmiko-par4'" },
+    { name = "pynacl", marker = "extra == 'extra-7-netmiko-par4'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1f/e7/81fdcbc7f190cdb058cffc9431587eb289833bdd633e2002455ca9bb13d4/paramiko-4.0.0.tar.gz", hash = "sha256:6a25f07b380cc9c9a88d2b920ad37167ac4667f8d9886ccebd8f90f654b5d69f", size = 1630743, upload-time = "2025-08-04T01:02:03.711Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a9/90/a744336f5af32c433bd09af7854599682a383b37cfd78f7de263de6ad6cb/paramiko-4.0.0-py3-none-any.whl", hash = "sha256:0e20e00ac666503bf0b4eda3b6d833465a2b7aff2e2b3d79a8bba5ef144ee3b9", size = 223932, upload-time = "2025-08-04T01:02:02.029Z" },
+]
+
+[[package]]
+name = "paramiko"
+version = "5.0.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.15'",
+    "python_full_version >= '3.12' and python_full_version < '3.15'",
+    "python_full_version == '3.11.*'",
+    "python_full_version < '3.11'",
+]
+dependencies = [
+    { name = "bcrypt", marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
+    { name = "cryptography", marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
+    { name = "invoke", marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
+    { name = "pynacl", marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/62/93/dcc25d52f49022ae6175d15e6bd751f1acc99b98bc61fc55e5155a7be2e7/paramiko-5.0.0.tar.gz", hash = "sha256:36763b5b95c2a0dcfdf1abc48e48156ee425b21efe2f0e787c2dd5a95c0e5e79", size = 1548586, upload-time = "2026-05-09T18:28:52.256Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/82/5b/eadf6d45de38d30ab603f49393b6cd2cbe7e233af8cf90197e32782b68a9/paramiko-5.0.0-py3-none-any.whl", hash = "sha256:b7044611c30140d9a75261653210e2002977b71a0497ff3ba0d98d7edbf62f7c", size = 208919, upload-time = "2026-05-09T18:28:50.295Z" },
 ]
 
 [[package]]
@@ -2859,7 +2896,7 @@ name = "pyasynchat"
 version = "1.0.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyasyncore", marker = "python_full_version >= '3.12'" },
+    { name = "pyasyncore", marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ec/d2/b41df9021c12ca314146abcde7bdd3d9d37d44cc01559d7f13df459ee586/pyasynchat-1.0.5.tar.gz", hash = "sha256:36665473ae730dac51e6d7dad70f8295962120c830ab692f0a31efba32687e24", size = 9959, upload-time = "2026-01-05T20:05:27.712Z" }
 wheels = [
@@ -3311,8 +3348,8 @@ name = "pyftpdlib"
 version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyasynchat", marker = "python_full_version >= '3.12'" },
-    { name = "pyasyncore", marker = "python_full_version >= '3.12'" },
+    { name = "pyasynchat", marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "pyasyncore", marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f9/42/8751c5f58ae59b09e070da4fa322ae9693a340d2cc456b5a380b2c1ee47a/pyftpdlib-2.2.0.tar.gz", hash = "sha256:4ba0642078792df63dd3b2e9c8f838f2a3ecf428c7518d5921c0530d53512acf", size = 189150, upload-time = "2026-02-07T23:09:26.519Z" }
 
@@ -3330,7 +3367,7 @@ name = "pynacl"
 version = "1.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation != 'PyPy'" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d9/9a/4019b524b03a13438637b11538c82781a5eda427394380381af8f04f467a/pynacl-1.6.2.tar.gz", hash = "sha256:018494d6d696ae03c7e656e5e74cdfd8ea1326962cc401bcf018f1ed8436811c", size = 3511692, upload-time = "2026-01-01T17:48:10.851Z" }
 wheels = [
@@ -3424,13 +3461,13 @@ name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
     { name = "pygments" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313", size = 1636369, upload-time = "2026-06-19T10:58:32.857Z" }
 wheels = [
@@ -3468,8 +3505,8 @@ name = "python-socketio"
 version = "5.11.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "bidict", version = "0.23.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "bidict", version = "0.24.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "bidict", version = "0.23.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "bidict", version = "0.24.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "python-engineio" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/55/f24a0e5e29c9e344eb04a5d2483d756196b04ab1de3988a1242b9a13d1b6/python-socketio-5.11.2.tar.gz", hash = "sha256:ae6a1de5c5209ca859dc574dccc8931c4be17ee003e74ce3b8d1306162bb4a37", size = 116905, upload-time = "2024-03-24T09:55:59.217Z" }
@@ -3604,8 +3641,8 @@ name = "rest-connector"
 version = "26.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ciscoisesdk", version = "2.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "ciscoisesdk", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "ciscoisesdk", version = "2.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
+    { name = "ciscoisesdk", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "dict2xml" },
     { name = "f5-icontrol-rest" },
     { name = "requests" },
@@ -3729,7 +3766,8 @@ name = "scp"
 version = "0.16.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "paramiko" },
+    { name = "paramiko", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-netmiko-par4'" },
+    { name = "paramiko", version = "5.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f8/35/fcef45d52d76a6dc70778c11eea719ff0ab550594bc51e55e66d28b5f424/scp-0.16.1.tar.gz", hash = "sha256:3f2b260bf9bd4c2b6857f697a1d7e8edc26fa569282b77027e849dfe1e48580a", size = 13131, upload-time = "2026-07-29T16:00:08.265Z" }
 wheels = [
@@ -3906,7 +3944,7 @@ name = "tqdm"
 version = "4.70.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0d/ea/b2a5bd54b28a324dae8211928b2d730b6547500342c7e6c6dea08bd0a485/tqdm-4.70.1.tar.gz", hash = "sha256:cefd0eca11b2a37a3aee776544d4f4ae913f02688135b5556b8788dfa474afc4", size = 171846, upload-time = "2026-09-11T07:25:16.601Z" }
 wheels = [
@@ -3928,7 +3966,7 @@ version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "id" },
-    { name = "keyring", marker = "platform_machine != 'ppc64le' and platform_machine != 's390x'" },
+    { name = "keyring", marker = "(platform_machine != 'ppc64le' and platform_machine != 's390x') or (platform_machine == 'ppc64le' and extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5') or (platform_machine == 's390x' and extra == 'extra-7-netmiko-par4' and extra == 'group-7-netmiko-paramiko5')" },
     { name = "packaging" },
     { name = "readme-renderer" },
     { name = "requests" },
@@ -4103,7 +4141,8 @@ dependencies = [
     { name = "grpcio" },
     { name = "lxml" },
     { name = "ncclient" },
-    { name = "paramiko" },
+    { name = "paramiko", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-7-netmiko-par4'" },
+    { name = "paramiko", version = "5.0.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-7-netmiko-paramiko5' or extra != 'extra-7-netmiko-par4'" },
     { name = "protobuf" },
 ]
 wheels = [
