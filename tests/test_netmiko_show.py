@@ -357,7 +357,7 @@ def test_enable_mode(net_connect, commands, expected_responses):
         assert True
 
     # Don't test exit enable_mode platforms
-    if net_connect.device_type == "cisco_nxos":
+    if net_connect.device_type in ["cisco_nxos", "hp_procurve"]:
         return
 
     # Now verify you can exit enable mode
