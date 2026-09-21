@@ -46,8 +46,8 @@ dev = [
     "ruff==0.16.8",
     "mypy==2.3.1",
     "mypy-extensions==1.1.0",
-    "pytest>=9.0.3",
-    "pytest-cov>=4.0",
+    "pytest==9.1.1",
+    "pytest-cov>=7.1.0",
     "bandit>=1.9.4",
     "pip-audit>=2.10.0",
     "twine==7.0.0",
@@ -56,8 +56,8 @@ dev = [
     # pysnmp 7.x is excluded as it is a completely different async library incompatible with Netmiko
     "pysnmp>=6.1.4,<7",
     "pdoc3==0.11.6",
-    "types-paramiko==4.0.0.20250822",
-    "types-PyYAML==6.0.12.20250915",
+    "types-paramiko==5.0.0.20260724",
+    "types-PyYAML==6.0.12.20260906",
     "ruamel.yaml>=0.17",
 ]
 parsers = [
@@ -73,7 +73,8 @@ package = true
 # genie-libs-sdk (optional parsers group) hard-pins pyasn1==0.6.0, which has
 # multiple DoS vulnerabilities (PYSEC-2026-3455/3456/3457, CVE-2026-30922)
 # fixed in 0.6.4. 0.6.x is patch-compatible, so we override genie's exact pin.
-override-dependencies = ["pyasn1>=0.6.4"]
+# pysnmp 6.1.4 incorrectly declares pytest-cov<5 as a runtime dependency.
+override-dependencies = ["pyasn1>=0.6.4", "pytest-cov>=7.1.0"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["netmiko"]
