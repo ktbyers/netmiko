@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "netmiko"
-version = "4.7.0"
+version = "4.8.0"
 description = "Multi-vendor library to simplify legacy CLI connections to network devices"
 authors = [{ name = "Kirk Byers", email = "ktbyers@twb-tech.com" }]
 license = { text = "MIT" }
@@ -18,7 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "paramiko>=3.5.0,<5.0",
+    "paramiko>=3.5.1",
     "scp>=0.13.6",
     "pyyaml>=6.0.2",
     "textfsm>=1.1.3",
@@ -29,6 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 bulk-encrypt = ["ruamel.yaml>=0.17"]
+par4 = ["paramiko>=4.0,<5.0"]
 
 [project.urls]
 repository = "https://github.com/ktbyers/netmiko"
@@ -41,22 +42,23 @@ repository = "https://github.com/ktbyers/netmiko"
 "netmiko-bulk-encrypt" = "netmiko.cli_tools.netmiko_bulk_encrypt:main_ep"
 
 [dependency-groups]
+paramiko5 = ["paramiko>=5.0"]
 dev = [
-    "ruff==0.15.5",
-    "mypy==1.19.1",
-    "mypy-extensions==1.0.0",
-    "pytest>=9.0.3",
-    "pytest-cov>=4.0",
+    "ruff==0.16.8",
+    "mypy==2.3.1",
+    "mypy-extensions==1.1.0",
+    "pytest==9.1.1",
+    "pytest-cov>=7.1.0",
     "bandit>=1.9.4",
     "pip-audit>=2.10.0",
-    "twine==6.2.0",
-    "docutils==0.22.4",
+    "twine==7.0.0",
+    "docutils==0.23",
     # genie (parsers group) requires exactly pysnmp 6.1.4 (latest 6.1.x, disallows >=6.2)
     # pysnmp 7.x is excluded as it is a completely different async library incompatible with Netmiko
     "pysnmp>=6.1.4,<7",
     "pdoc3==0.11.6",
-    "types-paramiko==4.0.0.20250822",
-    "types-PyYAML==6.0.12.20250915",
+    "types-paramiko==5.0.0.20260724",
+    "types-PyYAML==6.0.12.20260906",
     "ruamel.yaml>=0.17",
 ]
 parsers = [
@@ -69,10 +71,19 @@ parsers = [
 [tool.uv]
 managed = true
 package = true
+# Use Paramiko 5 by default; select par4 with --no-group paramiko5 --extra par4.
+default-groups = ["dev", "paramiko5"]
+conflicts = [
+    [
+        { group = "paramiko5" },
+        { extra = "par4" },
+    ],
+]
 # genie-libs-sdk (optional parsers group) hard-pins pyasn1==0.6.0, which has
 # multiple DoS vulnerabilities (PYSEC-2026-3455/3456/3457, CVE-2026-30922)
 # fixed in 0.6.4. 0.6.x is patch-compatible, so we override genie's exact pin.
-override-dependencies = ["pyasn1>=0.6.4"]
+# pysnmp 6.1.4 incorrectly declares pytest-cov<5 as a runtime dependency.
+override-dependencies = ["pyasn1>=0.6.4", "pytest-cov>=7.1.0"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["netmiko"]
@@ -94,9 +105,11 @@ exclude = [
 ]
 
 [tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
 # Enable these rule sets for a modern, clean codebase
 # E/W = pycodestyle, F = Pyflakes, I = isort, UP = pyupgrade, B = bugbear
 # select = ["E", "F", "W", "I", "UP", "B"]
+# Also add SIM
 
 # If you want to be extra strict about line length in the linter:
 # extend-select = ["E501"] 
