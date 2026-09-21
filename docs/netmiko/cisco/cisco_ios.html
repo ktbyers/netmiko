@@ -1138,13 +1138,13 @@ el.replaceWith(d);
         file_contents = self._read_file(file_name)
         file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
         file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents_bytes).hexdigest()
+        return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()
 
     def config_md5(self, source_config: str) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
         file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
         file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents_bytes).hexdigest()
+        return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()
 
     def put_file(self) -&gt; None:
         curlybrace = r&#34;{&#34;
@@ -1228,7 +1228,7 @@ el.replaceWith(d);
     &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
     file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
     file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
+    return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()</code></pre>
 </details>
 <div class="desc"><p>Compute MD5 hash of text.</p></div>
 </dd>
@@ -1247,7 +1247,7 @@ el.replaceWith(d);
     file_contents = self._read_file(file_name)
     file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
     file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
+    return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()</code></pre>
 </details>
 <div class="desc"><p>Compute MD5 hash of file.</p></div>
 </dd>

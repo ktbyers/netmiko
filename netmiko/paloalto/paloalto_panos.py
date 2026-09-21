@@ -181,11 +181,6 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
             raise ValueError(f"Commit failed with the following errors:\n\n{output}")
         return output
 
-    def strip_command(self, command_string: str, output: str) -> str:
-        """Strip command_string from output string."""
-        output_list = output.split(command_string)
-        return self.RESPONSE_RETURN.join(output_list)
-
     def strip_prompt(self, a_string: str) -> str:
         """Strip the trailing router prompt from the output."""
         response_list = a_string.split(self.RESPONSE_RETURN)

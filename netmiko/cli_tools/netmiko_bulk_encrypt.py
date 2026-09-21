@@ -4,16 +4,30 @@
 import argparse
 import sys
 from pathlib import Path
-from ruamel.yaml import YAML
 
 from netmiko.encryption_handling import encrypt_value, get_encryption_key
 
-yaml = YAML()
-yaml.preserve_quotes = True
-yaml.indent(mapping=2, sequence=4, offset=2)
+
+def _get_yaml():
+    try:
+        from ruamel.yaml import YAML
+    except ModuleNotFoundError as exc:
+        if exc.name and exc.name.startswith("ruamel"):
+            raise ImportError(
+                "netmiko-bulk-encrypt requires the 'bulk-encrypt' extra; "
+                "install it with: pip install 'netmiko[bulk-encrypt]'"
+            ) from exc
+        raise
+
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    return yaml
 
 
 def encrypt_netmiko_yml(input_file: str, output_file: str | None, encryption_type: str) -> None:
+    yaml = _get_yaml()
+
     # Read the input YAML file
     input_path = Path(input_file).expanduser()
     with input_path.open("r") as f:
@@ -65,7 +79,10 @@ def main():
 
     args = parser.parse_args()
 
-    encrypt_netmiko_yml(args.input_file, args.output_file, args.encryption_type)
+    try:
+        encrypt_netmiko_yml(args.input_file, args.output_file, args.encryption_type)
+    except ImportError as exc:
+        parser.error(str(exc))
 
     if args.output_file:
         print(
