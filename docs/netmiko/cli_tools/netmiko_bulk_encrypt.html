@@ -53,6 +53,8 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def encrypt_netmiko_yml(input_file: str, output_file: str | None, encryption_type: str) -&gt; None:
+    yaml = _get_yaml()
+
     # Read the input YAML file
     input_path = Path(input_file).expanduser()
     with input_path.open(&#34;r&#34;) as f:
@@ -109,7 +111,10 @@ el.replaceWith(d);
 
     args = parser.parse_args()
 
-    encrypt_netmiko_yml(args.input_file, args.output_file, args.encryption_type)
+    try:
+        encrypt_netmiko_yml(args.input_file, args.output_file, args.encryption_type)
+    except ImportError as exc:
+        parser.error(str(exc))
 
     if args.output_file:
         print(

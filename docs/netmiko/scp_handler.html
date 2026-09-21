@@ -318,7 +318,7 @@ el.replaceWith(d);
           add_newline: add newline to end of file contents or not
 
         &#34;&#34;&#34;
-        file_hash = hashlib.md5()
+        file_hash = hashlib.md5(usedforsecurity=False)
         with open(file_name, &#34;rb&#34;) as f:
             while True:
                 file_contents = f.read(512)
@@ -604,7 +604,7 @@ verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2</p></div>
       add_newline: add newline to end of file contents or not
 
     &#34;&#34;&#34;
-    file_hash = hashlib.md5()
+    file_hash = hashlib.md5(usedforsecurity=False)
     with open(file_name, &#34;rb&#34;) as f:
         while True:
             file_contents = f.read(512)
@@ -618,8 +618,9 @@ verify /md5 (flash:file_name) = 410db2a7015eaa42b1fe71f1bf3d59a2</p></div>
 <div class="desc"><p>Compute MD5 hash of file.</p>
 <p>add_newline is needed to support Cisco IOS MD5 calculation which expects the newline in
 the string</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_name</code></strong></dt>
 <dd>name of file to get md5 digest of</dd>
 <dt><strong><code>add_newline</code></strong></dt>
