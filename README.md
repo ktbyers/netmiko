@@ -99,14 +99,13 @@ Supported device_types can be found in [ssh_dispatcher.py](https://github.com/kt
 from netmiko import ConnectHandler
 
 cisco_881 = {
-    'device_type': 'cisco_ios',
-    'host':   '10.10.10.10',
-    'username': 'test',
-    'password': 'password',
-    'port' : 8022,          # optional, defaults to 22
-    'secret': 'secret',     # optional, defaults to ''
+    "device_type": "cisco_ios",
+    "host": "10.10.10.10",
+    "username": "test",
+    "password": "password",
+    "port": 8022,  # optional, defaults to 22
+    "secret": "secret",  # optional, defaults to ''
 }
-
 ```
 
 #### Establish an SSH connection to the device by passing in the device dictionary.
@@ -118,7 +117,7 @@ net_connect = ConnectHandler(**cisco_881)
 #### Execute show commands.
 
 ```py
-output = net_connect.send_command('show ip int brief')
+output = net_connect.send_command("show ip int brief")
 print(output)
 ```
 ```
@@ -134,9 +133,7 @@ Vlan1                      unassigned      YES unset  down                  down
 #### Execute configuration change commands (will automatically enter into config mode)
 
 ```py
-config_commands = [ 'logging buffered 20000',
-                    'logging buffered 20010',
-                    'no logging console' ]
+config_commands = ["logging buffered 20000", "logging buffered 20010", "no logging console"]
 output = net_connect.send_config_set(config_commands)
 print(output)
 ```
