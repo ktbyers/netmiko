@@ -527,7 +527,6 @@ disable_paging in the parent class are inherited.</p></div>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
-<li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.prompt_pattern" href="../linux/linux_ssh.html#netmiko.linux.linux_ssh.LinuxSSH.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.linux.linux_ssh.LinuxSSH.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -3258,7 +3257,6 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.prompt_pattern" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -3451,7 +3449,6 @@ def process_md5(md5_output: str, pattern: str = r&#34;= (.*)&#34;) -&gt; str:
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_cmd" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_cmd">normalize_cmd</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.normalize_linefeeds" href="../base_connection.html#netmiko.base_connection.BaseConnection.normalize_linefeeds">normalize_linefeeds</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.paramiko_cleanup" href="../base_connection.html#netmiko.base_connection.BaseConnection.paramiko_cleanup">paramiko_cleanup</a></code></li>
-<li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.prompt_pattern" href="cisco_s200.html#netmiko.cisco.cisco_s200.CiscoS200Base.prompt_pattern">prompt_pattern</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_channel_timing" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_channel_timing">read_channel_timing</a></code></li>
 <li><code><a title="netmiko.cisco.cisco_s200.CiscoS200Base.read_until_pattern" href="../base_connection.html#netmiko.base_connection.BaseConnection.read_until_pattern">read_until_pattern</a></code></li>
@@ -4982,7 +4979,7 @@ output:
 <dl>
 <dt id="netmiko.cisco.CiscoWlcSSH.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
 <dd>
-<div class="desc"><p>The type of the None singleton.</p></div>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -5975,13 +5972,13 @@ c84843f0030efd44b01343fdb8c2e801</p></div>
         file_contents = self._read_file(file_name)
         file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
         file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents_bytes).hexdigest()
+        return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()
 
     def config_md5(self, source_config: str) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
         file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
         file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents_bytes).hexdigest()
+        return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()
 
     def put_file(self) -&gt; None:
         curlybrace = r&#34;{&#34;
@@ -6065,7 +6062,7 @@ c84843f0030efd44b01343fdb8c2e801</p></div>
     &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
     file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
     file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
+    return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()</code></pre>
 </details>
 <div class="desc"><p>Compute MD5 hash of text.</p></div>
 </dd>
@@ -6084,7 +6081,7 @@ c84843f0030efd44b01343fdb8c2e801</p></div>
     file_contents = self._read_file(file_name)
     file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
     file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
+    return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()</code></pre>
 </details>
 <div class="desc"><p>Compute MD5 hash of file.</p></div>
 </dd>

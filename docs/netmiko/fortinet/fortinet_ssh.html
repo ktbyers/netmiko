@@ -179,9 +179,9 @@ Alternatively you can try configuring &#39;configure system console -&gt; set ou
     def _determine_os_version(self) -&gt; str:
         check_command = &#34;get system status | grep Version&#34;
         output = self._send_command_str(check_command, expect_string=self.prompt_pattern)
-        if re.search(r&#34;^Version: .* (v[78]\.).*$&#34;, output, flags=re.M):
+        if re.search(r&#34;^Version\s*:\s+.*v[78]\..*$&#34;, output, flags=re.M):
             return &#34;v7_or_later&#34;
-        elif re.search(r&#34;^Version: .* (v[654]\.).*$&#34;, output, flags=re.M):
+        elif re.search(r&#34;^Version\s*:\s+.*v[654]\..*$&#34;, output, flags=re.M):
             return &#34;v6_or_earlier&#34;
         else:
             raise ValueError(&#34;Unexpected FortiOS Version encountered.&#34;)
@@ -279,11 +279,11 @@ overwrite check_config_mode in the platform specific driver and return False.</p
 <dl>
 <dt id="netmiko.fortinet.fortinet_ssh.FortinetSSH.preferred_kex"><code class="name">var <span class="ident">preferred_kex</span></code></dt>
 <dd>
-<div class="desc"><p>The type of the None singleton.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="netmiko.fortinet.fortinet_ssh.FortinetSSH.prompt_pattern"><code class="name">var <span class="ident">prompt_pattern</span></code></dt>
 <dd>
-<div class="desc"><p>The type of the None singleton.</p></div>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
