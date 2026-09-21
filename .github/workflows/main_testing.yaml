@@ -67,6 +67,7 @@ jobs:
           uv run --frozen pytest -v -s
           tests/test_import_netmiko.py
           tests/unit/test_base_connection.py
+          tests/unit/test_fortinet.py
           tests/unit/test_ssh_autodetect.py
           tests/unit/test_connection.py
           tests/unit/test_entry_points.py
@@ -79,6 +80,7 @@ jobs:
         run: |
           uv run --frozen pytest -v -s tests/test_import_netmiko.py
           uv run --frozen pytest -v -s tests/unit/test_base_connection.py
+          uv run --frozen pytest -v -s tests/unit/test_fortinet.py
           uv run --frozen pytest -v -s tests/unit/test_ssh_autodetect.py
           uv run --frozen pytest -v -s tests/unit/test_connection.py
           uv run --frozen pytest -v -s tests/unit/test_entry_points.py
