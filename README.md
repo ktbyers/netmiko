@@ -54,6 +54,18 @@ To install netmiko, simply use pip:
 $ pip install netmiko
 ```
 
+To install with Paramiko 4 compatibility:
+
+```
+$ pip install "netmiko[par4]"
+```
+
+To install the bulk-encryption CLI and its optional dependency:
+
+```
+$ pip install "netmiko[bulk-encrypt]"
+```
+
 <br />
 
 ## API-Documentation
