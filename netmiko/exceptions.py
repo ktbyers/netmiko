@@ -60,3 +60,9 @@ class NetmikoParsingException(ReadException):
     """Exception raised when there is a parsing error."""
 
     pass
+
+
+class NetmikoHostBlockedException(NetmikoAuthenticationException):
+    """Exception raised when the connecting host is blocked by device ACLs."""
+
+    pass
