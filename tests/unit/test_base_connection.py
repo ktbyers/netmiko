@@ -622,3 +622,29 @@ def test_nokiasrl_prompt_stripping(test_string, expected):
     )
     result = conn.strip_prompt(a_string=test_string)
     assert result == expected
+
+
+def test_config_mode_failure_includes_device_output():
+    """config_mode() failure should surface what the device actually said."""
+    device_reply = (
+        "configure terminal\n%% Running configuration store is locked by other client\nrouter#"
+    )
+
+    class FakeConfigConnection(FakeBaseConnection):
+        def check_config_mode(self, *args, **kwargs):
+            return False
+
+        def write_channel(self, out_data):
+            pass
+
+        def read_until_pattern(self, *args, **kwargs):
+            return ""
+
+        def read_until_prompt(self, *args, **kwargs):
+            return device_reply
+
+    connection = FakeConfigConnection(global_cmd_verify=False, RETURN="\n")
+    with pytest.raises(ValueError) as exc:
+        connection.config_mode(config_command="configure terminal")
+    assert "Failed to enter configuration mode." in str(exc.value)
+    assert "locked by other client" in str(exc.value)

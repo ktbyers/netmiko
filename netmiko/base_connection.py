@@ -2164,7 +2164,9 @@ You can also look at the Netmiko session_log or debug log for more information.
             else:
                 output += self.read_until_prompt(read_entire_line=True)
             if not self.check_config_mode():
-                raise ValueError("Failed to enter configuration mode.")
+                raise ValueError(
+                    f"Failed to enter configuration mode. Device response:\n\n{output}"
+                )
         return output
 
     def exit_config_mode(self, exit_config: str = "", pattern: str = "") -> str:
