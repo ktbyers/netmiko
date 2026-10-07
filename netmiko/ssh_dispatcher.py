@@ -126,6 +126,7 @@ from netmiko.juniper import JuniperSSH, JuniperTelnet, JuniperScreenOsSSH
 from netmiko.juniper import JuniperFileTransfer
 from netmiko.keymile import KeymileSSH, KeymileNOSSSH
 from netmiko.lancom import LancomLCOSSX4SSH, LancomLCOSSX5SSH
+from netmiko.lantronix import LantronixOobSSH, LantronixOobTelnet, LantronixOobSerial
 from netmiko.linux import LinuxSSH, LinuxFileTransfer
 from netmiko.maipu import MaipuSSH
 from netmiko.maipu import MaipuTelnet
@@ -324,6 +325,7 @@ CLASS_MAPPER_BASE = {
     "keymile_nos": KeymileNOSSSH,
     "lancom_lcossx4": LancomLCOSSX4SSH,
     "lancom_lcossx5": LancomLCOSSX5SSH,
+    "lantronix_oob": LantronixOobSSH,
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
     "mikrotik_switchos": MikrotikSwitchOsSSH,
@@ -455,6 +457,7 @@ CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["infinera_packet_telnet"] = InfineraPacketTelnet
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
+CLASS_MAPPER["lantronix_oob_telnet"] = LantronixOobTelnet
 CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
 CLASS_MAPPER["nec_ix_telnet"] = NecIxTelnet
 CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
@@ -478,6 +481,7 @@ CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
+CLASS_MAPPER["lantronix_oob_serial"] = LantronixOobSerial
 CLASS_MAPPER["furukawa_fitelnet_serial"] = FurukawaFitelnetSerial
 
 # Add general terminal_server driver and autodetect

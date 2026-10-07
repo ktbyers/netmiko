@@ -53,6 +53,7 @@
 - Infinera Packet
 - IP Infusion OcNOS
 - Juniper ScreenOS
+- Lantronix SLC9000, SLC8000, EMG7500/EMG8500 and SLB
 - Maipu
 - MikroTik RouterOS
 - MikroTik SwitchOS
@@ -270,6 +271,7 @@
 - keymile_nos
 - lancom_lcossx4
 - lancom_lcossx5
+- lantronix_oob
 - linux
 - maipu
 - mellanox
@@ -356,6 +358,7 @@
 - infinera_packet_telnet
 - ipinfusion_ocnos_telnet
 - juniper_junos_telnet
+- lantronix_oob_telnet
 - maipu_telnet
 - nec_ix_telnet
 - nokia_sros_telnet
