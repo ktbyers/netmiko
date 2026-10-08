@@ -53,6 +53,7 @@
 - Infinera Packet
 - IP Infusion OcNOS
 - Juniper ScreenOS
+- Lantronix IT Management Gateway OS (SLC9000, SLC8000, EMG7500/EMG8500, SLB)
 - Maipu
 - MikroTik RouterOS
 - MikroTik SwitchOS
@@ -270,6 +271,7 @@
 - keymile_nos
 - lancom_lcossx4
 - lancom_lcossx5
+- lantronix_itmg_os
 - linux
 - maipu
 - mellanox
@@ -356,6 +358,7 @@
 - infinera_packet_telnet
 - ipinfusion_ocnos_telnet
 - juniper_junos_telnet
+- lantronix_itmg_os_telnet
 - maipu_telnet
 - nec_ix_telnet
 - nokia_sros_telnet
@@ -375,6 +378,12 @@
 - tplink_jetstream_telnet
 - yamaha_telnet
 - zte_zxros_telnet
+
+###### Supported Serial device_type values
+
+- cisco_ios_serial
+- furukawa_fitelnet_serial
+- lantronix_itmg_os_serial
 
 ###### Supported Secure Copy device_type values
 

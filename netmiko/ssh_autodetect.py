@@ -246,6 +246,15 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
+    "lantronix_itmg_os": {
+        "cmd": "admin version",
+        "search_patterns": [
+            r"Model:\s+(?:SLC|SLB|EMG)\d+",
+            r"OS Version:\s+IT Management Gateway OS",
+        ],
+        "priority": 99,
+        "dispatch": "_autodetect_std",
+    },
     "linux": {
         "cmd": "uname -a",
         "search_patterns": [r"Linux"],
