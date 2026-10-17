@@ -204,6 +204,7 @@ class BaseConnection:
         auto_connect: bool = True,
         delay_factor_compat: bool = False,
         disable_lf_normalization: bool = False,
+        session_log_class: Type[SessionLog] = SessionLog,
     ) -> None:
         """
         Initialize attributes for establishing connection to target device.
@@ -322,6 +323,9 @@ class BaseConnection:
 
         :param disable_lf_normalization: Disable Netmiko's linefeed normalization behavior
                 (default: False)
+
+        :param session_log_class: SessionLog class or subclass used when creating a session log
+                from a file path or buffered IO object.
         """
 
         self.remote_conn: Union[None, telnetlib.Telnet, paramiko.Channel, serial.Serial] = None
@@ -395,31 +399,13 @@ class BaseConnection:
 
         # Netmiko will close the session_log if we open the file
         if session_log is not None:
-            if isinstance(session_log, str):
-                # If session_log is a string, open a file corresponding to string name.
-                self.session_log = SessionLog(
-                    file_name=session_log,
-                    file_mode=session_log_file_mode,
-                    no_log=no_log,
-                    record_writes=session_log_record_writes,
-                )
-                self.session_log.open()
-            elif isinstance(session_log, io.BufferedIOBase):
-                # In-memory buffer or an already open file handle
-                self.session_log = SessionLog(
-                    buffered_io=session_log,
-                    no_log=no_log,
-                    record_writes=session_log_record_writes,
-                )
-            elif isinstance(session_log, SessionLog):
-                # SessionLog object
-                self.session_log = session_log
-                self.session_log.open()
-            else:
-                raise ValueError(
-                    "session_log must be a path to a file, a file handle, "
-                    "SessionLog object, or a BufferedIOBase subclass."
-                )
+            self._setup_session_log(
+                session_log,
+                session_log_file_mode,
+                session_log_record_writes,
+                no_log,
+                session_log_class,
+            )
 
         # Default values
         self.serial_settings = {
@@ -502,6 +488,42 @@ class BaseConnection:
                 except Exception:
                     pass
                 raise
+
+    def _setup_session_log(
+        self,
+        session_log: Union[str, io.BufferedIOBase, SessionLog],
+        session_log_file_mode: str,
+        session_log_record_writes: bool,
+        no_log: Dict[Any, str],
+        session_log_class: Type[SessionLog] = SessionLog,
+    ) -> None:
+        """Create or attach the session log object used by this connection."""
+
+        if isinstance(session_log, str):
+            # If session_log is a string, open a file corresponding to string name.
+            self.session_log = session_log_class(
+                file_name=session_log,
+                file_mode=session_log_file_mode,
+                no_log=no_log,
+                record_writes=session_log_record_writes,
+            )
+            self.session_log.open()
+        elif isinstance(session_log, io.BufferedIOBase):
+            # In-memory buffer or an already open file handle
+            self.session_log = session_log_class(
+                buffered_io=session_log,
+                no_log=no_log,
+                record_writes=session_log_record_writes,
+            )
+        elif isinstance(session_log, SessionLog):
+            # SessionLog object
+            self.session_log = session_log
+            self.session_log.open()
+        else:
+            raise ValueError(
+                "session_log must be a path to a file, a file handle, "
+                "SessionLog object, or a BufferedIOBase subclass."
+            )
 
     def _open(self) -> None:
         """Decouple connection creation from __init__ for mocking."""
