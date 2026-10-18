@@ -110,15 +110,21 @@ cisco_881 = {
 
 #### Establish an SSH connection to the device by passing in the device dictionary.
 
+Use `ConnectHandler` as a context manager (a `with` block) so the SSH session is always disconnected when the block ends, even if a command raises an exception.
+
 ```py
-net_connect = ConnectHandler(**cisco_881)
+with ConnectHandler(**cisco_881) as net_connect:
+    print(net_connect.find_prompt())
 ```
+
+If you create the connection without a `with` block, call `net_connect.disconnect()` when you are finished.
 
 #### Execute show commands.
 
 ```py
-output = net_connect.send_command("show ip int brief")
-print(output)
+with ConnectHandler(**cisco_881) as net_connect:
+    output = net_connect.send_command("show ip int brief")
+    print(output)
 ```
 ```
 Interface                  IP-Address      OK? Method Status                Protocol
@@ -134,8 +140,9 @@ Vlan1                      unassigned      YES unset  down                  down
 
 ```py
 config_commands = ["logging buffered 20000", "logging buffered 20010", "no logging console"]
-output = net_connect.send_config_set(config_commands)
-print(output)
+with ConnectHandler(**cisco_881) as net_connect:
+    output = net_connect.send_config_set(config_commands)
+    print(output)
 ```
 ```
 pynet-rtr1#config term
