@@ -67,7 +67,7 @@ cisco1 = {
     "device_type": "invalid",
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
-    "password": "invalid"
+    "password": "invalid",
 }
 
 net_connect = ConnectHandler(**cisco1)
@@ -232,7 +232,7 @@ for device in (cisco1, cisco2, nxos1, srx1):
 from netmiko import ConnectHandler
 from getpass import getpass
 
-cisco1 = { 
+cisco1 = {
     "device_type": "cisco_ios",
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
@@ -299,7 +299,7 @@ output = net_connect.send_command_timing(
 # Router prompted in this example:
 # -------
 # cisco1#copy flash:c880data-universalk9-mz.155-3.M8.bin flash:test1.bin
-# Destination filename [test1.bin]? 
+# Destination filename [test1.bin]?
 # Copy in progress...CCCCCCC
 # -------
 if "Destination filename" in output:
@@ -323,7 +323,7 @@ print(f"Execution time: {start_time - end_time}")
 from netmiko import ConnectHandler
 from getpass import getpass
 
-cisco1 = { 
+cisco1 = {
     "device_type": "cisco_ios",
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
@@ -429,9 +429,7 @@ with open("show_run_interfaces.ttp", "w") as writer:
 command = "show run | s interfaces"
 with ConnectHandler(**cisco1) as net_connect:
     # Use TTP to retrieve structured data
-    output = net_connect.send_command(
-        command, use_ttp=True, ttp_template="show_run_interfaces.ttp"
-    )
+    output = net_connect.send_command(command, use_ttp=True, ttp_template="show_run_interfaces.ttp")
 
 print()
 pprint(output)
@@ -462,7 +460,7 @@ device = {
     "device_type": "cisco_ios",
     "host": "cisco1.lasthop.io",
     "username": "pyclass",
-    "password": getpass()
+    "password": getpass(),
 }
 
 with ConnectHandler(**device) as net_connect:
@@ -532,28 +530,22 @@ net_connect = ConnectHandler(**cisco1)
 
 # CLI Interaction is as follows:
 # cisco1#delete flash:/testb.txt
-# Delete filename [testb.txt]? 
+# Delete filename [testb.txt]?
 # Delete flash:/testb.txt? [confirm]y
 
 # Use 'send_command_timing' which is entirely delay based.
 # strip_prompt=False and strip_command=False make the output
 # easier to read in this context.
 output = net_connect.send_command_timing(
-    command_string=command,
-    strip_prompt=False,
-    strip_command=False
+    command_string=command, strip_prompt=False, strip_command=False
 )
 if "Delete filename" in output:
     output += net_connect.send_command_timing(
-        command_string="\n",
-        strip_prompt=False,
-        strip_command=False
+        command_string="\n", strip_prompt=False, strip_command=False
     )
 if "confirm" in output:
     output += net_connect.send_command_timing(
-        command_string="y",
-        strip_prompt=False,
-        strip_command=False
+        command_string="y", strip_prompt=False, strip_command=False
     )
 net_connect.disconnect()
 
@@ -595,10 +587,10 @@ net_connect = ConnectHandler(**cisco1)
 
 # CLI Interaction is as follows:
 # cisco1#delete flash:/testb.txt
-# Delete filename [testb.txt]? 
+# Delete filename [testb.txt]?
 # Delete flash:/testb.txt? [confirm]y
 
-# Use 'send_command' and the 'expect_string' argument (note, expect_string uses 
+# Use 'send_command' and the 'expect_string' argument (note, expect_string uses
 # RegEx patterns). Netmiko will move-on to the next command when the
 # 'expect_string' is detected.
 
@@ -608,19 +600,13 @@ output = net_connect.send_command(
     command_string=command,
     expect_string=r"Delete filename",
     strip_prompt=False,
-    strip_command=False
+    strip_command=False,
 )
 output += net_connect.send_command(
-    command_string="\n",
-    expect_string=r"confirm",
-    strip_prompt=False,
-    strip_command=False
+    command_string="\n", expect_string=r"confirm", strip_prompt=False, strip_command=False
 )
 output += net_connect.send_command(
-    command_string="y",
-    expect_string=r"#",
-    strip_prompt=False,
-    strip_command=False
+    command_string="y", expect_string=r"#", strip_prompt=False, strip_command=False
 )
 net_connect.disconnect()
 
@@ -707,7 +693,7 @@ device1 = {
 
 # File in same directory as script that contains
 #
-# $ cat config_changes.txt 
+# $ cat config_changes.txt
 # --------------
 # logging buffered 100000
 # no logging console
@@ -836,7 +822,7 @@ cisco1 = {
     "username": "pyclass",
     "password": getpass(),
     # File name to save the 'session_log' to
-    "session_log": "output.txt"
+    "session_log": "output.txt",
 }
 
 # Show command that we execute
@@ -972,16 +958,10 @@ from netmiko.snmp_autodetect import SNMPDetect
 from netmiko import ConnectHandler
 
 host = "cisco1.lasthop.io"
-device = {
-    "host": host,
-    "username": "pyclass", 
-    "password": getpass()
-}
+device = {"host": host, "username": "pyclass", "password": getpass()}
 
 snmp_community = getpass("Enter SNMP community: ")
-my_snmp = SNMPDetect(
-    host, snmp_version="v2c", community=snmp_community
-)
+my_snmp = SNMPDetect(host, snmp_version="v2c", community=snmp_community)
 device_type = my_snmp.autodetect()
 print(device_type)
 
@@ -1046,11 +1026,12 @@ It also illustrates using 'redispatch()' to change the Netmiko class.
 
 The setup is:
 
-Linux Server 
+Linux Server
   --> Small Switch (SSH)
         --> Terminal Server (telnet)
               --> Juniper SRX (serial)
 """
+
 import os
 from getpass import getpass
 from netmiko import ConnectHandler, redispatch

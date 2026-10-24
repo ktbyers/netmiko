@@ -32,7 +32,7 @@ else
 fi
 
 echo
-poetry build > /dev/null
+uv build > /dev/null
 if [ $? -eq 0 ]; then
     echo "creating distribution ... [OK]"
     ls -ltr $DIR_PACKAGE

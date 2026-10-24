@@ -54,6 +54,18 @@ To install netmiko, simply use pip:
 $ pip install netmiko
 ```
 
+To install with Paramiko 4 compatibility:
+
+```
+$ pip install "netmiko[par4]"
+```
+
+To install the bulk-encryption CLI and its optional dependency:
+
+```
+$ pip install "netmiko[bulk-encrypt]"
+```
+
 <br />
 
 ## API-Documentation
@@ -87,27 +99,32 @@ Supported device_types can be found in [ssh_dispatcher.py](https://github.com/kt
 from netmiko import ConnectHandler
 
 cisco_881 = {
-    'device_type': 'cisco_ios',
-    'host':   '10.10.10.10',
-    'username': 'test',
-    'password': 'password',
-    'port' : 8022,          # optional, defaults to 22
-    'secret': 'secret',     # optional, defaults to ''
+    "device_type": "cisco_ios",
+    "host": "10.10.10.10",
+    "username": "test",
+    "password": "password",
+    "port": 8022,  # optional, defaults to 22
+    "secret": "secret",  # optional, defaults to ''
 }
-
 ```
 
 #### Establish an SSH connection to the device by passing in the device dictionary.
 
+Use `ConnectHandler` as a context manager (a `with` block) so the SSH session is always disconnected when the block ends, even if a command raises an exception.
+
 ```py
-net_connect = ConnectHandler(**cisco_881)
+with ConnectHandler(**cisco_881) as net_connect:
+    print(net_connect.find_prompt())
 ```
+
+If you create the connection without a `with` block, call `net_connect.disconnect()` when you are finished.
 
 #### Execute show commands.
 
 ```py
-output = net_connect.send_command('show ip int brief')
-print(output)
+with ConnectHandler(**cisco_881) as net_connect:
+    output = net_connect.send_command("show ip int brief")
+    print(output)
 ```
 ```
 Interface                  IP-Address      OK? Method Status                Protocol
@@ -122,11 +139,10 @@ Vlan1                      unassigned      YES unset  down                  down
 #### Execute configuration change commands (will automatically enter into config mode)
 
 ```py
-config_commands = [ 'logging buffered 20000',
-                    'logging buffered 20010',
-                    'no logging console' ]
-output = net_connect.send_config_set(config_commands)
-print(output)
+config_commands = ["logging buffered 20000", "logging buffered 20010", "no logging console"]
+with ConnectHandler(**cisco_881) as net_connect:
+    output = net_connect.send_config_set(config_commands)
+    print(output)
 ```
 ```
 pynet-rtr1#config term

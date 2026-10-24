@@ -1236,7 +1236,21 @@ with terminal server.</p></div>
 
         # Establish the remote connection
         if auto_connect:
-            self._open()
+            try:
+                self._open()
+            except Exception:
+                # If the connection fails before disconnect() is ever reached
+                # (establish_connection errors: authentication, TCP timeout,
+                # SSH key-exchange/negotiation), the SecretsFilter registered
+                # above would be stranded on the module logger and leaked.
+                # Remove it (and close any session log) before propagating.
+                try:
+                    log.removeFilter(self._secrets_filter)
+                    if self.session_log:
+                        self.session_log.close()
+                except Exception:
+                    pass
+                raise
 
     def _open(self) -&gt; None:
         &#34;&#34;&#34;Decouple connection creation from __init__ for mocking.&#34;&#34;&#34;
@@ -2231,7 +2245,15 @@ A paramiko SSHException occurred during connection creation:
 
     def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
         # Make sure you read until you detect the command echo (avoid getting out of sync)
-        new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
+        try:
+            new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
+        except ReadTimeout:
+            msg = &#34;&#34;&#34;\n
+The command echo was not detected within the read timeout.
+
+Command echo verification can potentially be disabled by setting either cmd_verify=False or by setting global_cmd_verify=False (as an argument to ConnectHandler).\n
+&#34;&#34;&#34;
+            raise ReadTimeout(msg)
 
         # There can be echoed prompts that haven&#39;t been cleared before the cmd echo
         # this can later mess up the trailing prompt pattern detection. Clear this out.
@@ -3618,20 +3640,28 @@ def strip_backspaces(output: str) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
-    # Make sure you read until you detect the command echo (avoid getting out of sync)
-    new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
+<pre><code class="python">    def command_echo_read(self, cmd: str, read_timeout: float) -&gt; str:
+        # Make sure you read until you detect the command echo (avoid getting out of sync)
+        try:
+            new_data = self.read_until_pattern(pattern=re.escape(cmd), read_timeout=read_timeout)
+        except ReadTimeout:
+            msg = &#34;&#34;&#34;\n
+The command echo was not detected within the read timeout.
 
-    # There can be echoed prompts that haven&#39;t been cleared before the cmd echo
-    # this can later mess up the trailing prompt pattern detection. Clear this out.
-    lines = new_data.split(cmd)
-    if len(lines) == 2:
-        # lines[-1] should realistically just be the null string
-        new_data = f&#34;{cmd}{lines[-1]}&#34;
-    else:
-        # cmd exists in the output multiple times? Just retain the original output
-        pass
-    return new_data</code></pre>
+Command echo verification can potentially be disabled by setting either cmd_verify=False or by setting global_cmd_verify=False (as an argument to ConnectHandler).\n
+&#34;&#34;&#34;
+            raise ReadTimeout(msg)
+
+        # There can be echoed prompts that haven&#39;t been cleared before the cmd echo
+        # this can later mess up the trailing prompt pattern detection. Clear this out.
+        lines = new_data.split(cmd)
+        if len(lines) == 2:
+            # lines[-1] should realistically just be the null string
+            new_data = f&#34;{cmd}{lines[-1]}&#34;
+        else:
+            # cmd exists in the output multiple times? Just retain the original output
+            pass
+        return new_data</code></pre>
 </details>
 <div class="desc"></div>
 </dd>
@@ -6130,13 +6160,13 @@ def write_channel(self, out_data: str) -&gt; None:
         file_contents = self._read_file(file_name)
         file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
         file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents_bytes).hexdigest()
+        return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()
 
     def config_md5(self, source_config: str) -&gt; str:
         &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
         file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
         file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-        return hashlib.md5(file_contents_bytes).hexdigest()
+        return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()
 
     def put_file(self) -&gt; None:
         curlybrace = r&#34;{&#34;
@@ -6220,7 +6250,7 @@ def write_channel(self, out_data: str) -&gt; None:
     &#34;&#34;&#34;Compute MD5 hash of text.&#34;&#34;&#34;
     file_contents = source_config + &#34;\n&#34;  # Cisco IOS automatically adds this
     file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
+    return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()</code></pre>
 </details>
 <div class="desc"><p>Compute MD5 hash of text.</p></div>
 </dd>
@@ -6239,7 +6269,7 @@ def write_channel(self, out_data: str) -&gt; None:
     file_contents = self._read_file(file_name)
     file_contents = file_contents + &#34;\n&#34;  # Cisco IOS automatically adds this
     file_contents_bytes = file_contents.encode(&#34;UTF-8&#34;)
-    return hashlib.md5(file_contents_bytes).hexdigest()</code></pre>
+    return hashlib.md5(file_contents_bytes, usedforsecurity=False).hexdigest()</code></pre>
 </details>
 <div class="desc"><p>Compute MD5 hash of file.</p></div>
 </dd>

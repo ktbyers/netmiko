@@ -63,35 +63,30 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TPLinkJetStreamSSH(TPLinkJetStreamBase):
-    def __init__(self, **kwargs: Any) -&gt; None:
-        setattr(dsa, &#34;_check_dsa_parameters&#34;, self._override_check_dsa_parameters)
-        return super().__init__(**kwargs)
+    &#34;&#34;&#34;
+    TP-Link JetStream SSH driver.
 
-    def _override_check_dsa_parameters(self, parameters: DSAParameterNumbers) -&gt; None:
-        &#34;&#34;&#34;
-        Override check_dsa_parameters from cryptography&#39;s dsa.py
+    Note: devices that only offer a DSA host key (with non-standard DSA
+    parameters) are no longer supported over SSH. Netmiko historically
+    monkey-patched cryptography&#39;s private _check_dsa_parameters() to allow
+    these host keys, but cryptography &gt;= 42 moved that validation into its
+    Rust backend (making the patch ineffective) and Paramiko 4.0 removed
+    DSA/DSS key support entirely. For such devices, either update the
+    firmware so the device offers an RSA/ECDSA host key or use
+    &#39;tplink_jetstream_telnet&#39;.
+    &#34;&#34;&#34;
 
-        Without this the error below occurs:
-
-        ValueError: p must be exactly 1024, 2048, or 3072 bits long
-
-        Allows for shorter or longer parameters.p to be returned
-        from the server&#39;s host key. This is a HORRIBLE hack and a
-        security risk, please remove if possible!
-
-        By now, with firmware:
-
-        2.0.5 Build 20200109 Rel.36203(s)
-
-        It&#39;s still not possible to remove this hack.
-        &#34;&#34;&#34;
-        if parameters.q.bit_length() not in [160, 256]:
-            raise ValueError(&#34;q must be exactly 160 or 256 bits long&#34;)
-
-        if not (1 &lt; parameters.g &lt; parameters.p):
-            raise ValueError(&#34;g, p don&#39;t satisfy 1 &lt; g &lt; p.&#34;)</code></pre>
+    pass</code></pre>
 </details>
-<div class="desc"><p>Base Class for cisco-like behavior.</p>
+<div class="desc"><p>TP-Link JetStream SSH driver.</p>
+<p>Note: devices that only offer a DSA host key (with non-standard DSA
+parameters) are no longer supported over SSH. Netmiko historically
+monkey-patched cryptography's private _check_dsa_parameters() to allow
+these host keys, but cryptography &gt;= 42 moved that validation into its
+Rust backend (making the patch ineffective) and Paramiko 4.0 removed
+DSA/DSS key support entirely. For such devices, either update the
+firmware so the device offers an RSA/ECDSA host key or use
+'tplink_jetstream_telnet'.</p>
 <pre><code>    Initialize attributes for establishing connection to target device.
 
     :param ip: IP address of target device. Not required if &lt;code&gt;host&lt;/code&gt; is

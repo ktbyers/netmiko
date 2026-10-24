@@ -248,6 +248,13 @@ class JuniperBase(NoEnable, BaseConnection):
         self._session_log_fin = True
         self.write_channel(command + self.RETURN)
 
+        # Give Juniper half a second to gracefully exit, see issue #3883
+        read_timeout = 0.5
+        try:
+            self.read_until_pattern(pattern=command, read_timeout=read_timeout)
+        except Exception:
+            pass
+
 
 class JuniperSSH(JuniperBase):
     pass

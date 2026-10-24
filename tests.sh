@@ -14,6 +14,7 @@ uv run --frozen mypy ./netmiko/
 echo -e "\nRunning pytest..."
 uv run --frozen pytest -v -s tests/test_import_netmiko.py
 uv run --frozen pytest -v -s tests/unit/test_base_connection.py
+uv run --frozen pytest -v -s tests/unit/test_fortinet.py
 uv run --frozen pytest -v -s tests/unit/test_utilities.py
 uv run --frozen pytest -v -s tests/unit/test_ssh_autodetect.py
 uv run --frozen pytest -v -s tests/unit/test_connection.py

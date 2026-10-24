@@ -327,10 +327,41 @@ channel class.</p></div>
         raise NotImplementedError
 
     def read_channel(self) -&gt; str:
-        &#34;&#34;&#34;Read all of the available data from the channel.&#34;&#34;&#34;
+        &#34;&#34;&#34;Read all of the available data from the channel.
+
+        This recreates telnetlib&#39;s read_very_eager() behavior (&#34;drain everything
+        currently available, without blocking&#34;) but as an O(n) operation.
+
+        read_very_eager() accumulates cooked data into a single immutable bytes
+        buffer (cookedq) that it re-copies on every loop iteration, which is
+        O(n^2) for large reads (see netmiko GH #3872). Instead we loop the
+        public read_eager() primitive, which drains cookedq on every call, and
+        accumulate its results in a Python list, joining once at the end. Each
+        concat therefore stays O(chunk) and the whole read is O(n).
+
+        read_eager() returns as soon as it has any cooked data, so looping it
+        until it yields nothing reproduces read_very_eager()&#39;s greedy draining.
+        The EOFError contract (raised on a closed connection with no buffered
+        data, and relied on by telnet_login) is preserved: it is re-raised only
+        when no data was collected.
+        &#34;&#34;&#34;
         if self.remote_conn is None:
             raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
-        return self.remote_conn.read_very_eager().decode(self.encoding, &#34;ignore&#34;)  # type: ignore</code></pre>
+
+        parts: list[bytes] = []
+        while True:
+            try:
+                chunk = self.remote_conn.read_eager()  # type: ignore
+            except EOFError:
+                # Preserve read_very_eager()&#39;s contract: only surface EOF when
+                # there is no data to return.
+                if not parts:
+                    raise
+                break
+            if not chunk:
+                break
+            parts.append(chunk)
+        return b&#34;&#34;.join(parts).decode(self.encoding, &#34;ignore&#34;)</code></pre>
 </details>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
@@ -341,12 +372,74 @@ channel class.</p></div>
 <li><a title="netmiko.channel.Channel" href="#netmiko.channel.Channel">Channel</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="netmiko.channel.TelnetChannel.read_channel"><code class="name flex">
+<span>def <span class="ident">read_channel</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_channel(self) -&gt; str:
+    &#34;&#34;&#34;Read all of the available data from the channel.
+
+    This recreates telnetlib&#39;s read_very_eager() behavior (&#34;drain everything
+    currently available, without blocking&#34;) but as an O(n) operation.
+
+    read_very_eager() accumulates cooked data into a single immutable bytes
+    buffer (cookedq) that it re-copies on every loop iteration, which is
+    O(n^2) for large reads (see netmiko GH #3872). Instead we loop the
+    public read_eager() primitive, which drains cookedq on every call, and
+    accumulate its results in a Python list, joining once at the end. Each
+    concat therefore stays O(chunk) and the whole read is O(n).
+
+    read_eager() returns as soon as it has any cooked data, so looping it
+    until it yields nothing reproduces read_very_eager()&#39;s greedy draining.
+    The EOFError contract (raised on a closed connection with no buffered
+    data, and relied on by telnet_login) is preserved: it is re-raised only
+    when no data was collected.
+    &#34;&#34;&#34;
+    if self.remote_conn is None:
+        raise ReadException(&#34;Attempt to read, but there is no active channel.&#34;)
+
+    parts: list[bytes] = []
+    while True:
+        try:
+            chunk = self.remote_conn.read_eager()  # type: ignore
+        except EOFError:
+            # Preserve read_very_eager()&#39;s contract: only surface EOF when
+            # there is no data to return.
+            if not parts:
+                raise
+            break
+        if not chunk:
+            break
+        parts.append(chunk)
+    return b&#34;&#34;.join(parts).decode(self.encoding, &#34;ignore&#34;)</code></pre>
+</details>
+<div class="desc"><p>Read all of the available data from the channel.</p>
+<p>This recreates telnetlib's read_very_eager() behavior ("drain everything
+currently available, without blocking") but as an O(n) operation.</p>
+<p>read_very_eager() accumulates cooked data into a single immutable bytes
+buffer (cookedq) that it re-copies on every loop iteration, which is
+O(n^2) for large reads (see netmiko GH #3872). Instead we loop the
+public read_eager() primitive, which drains cookedq on every call, and
+accumulate its results in a Python list, joining once at the end. Each
+concat therefore stays O(chunk) and the whole read is O(n).</p>
+<p>read_eager() returns as soon as it has any cooked data, so looping it
+until it yields nothing reproduces read_very_eager()'s greedy draining.
+The EOFError contract (raised on a closed connection with no buffered
+data, and relied on by telnet_login) is preserved: it is re-raised only
+when no data was collected.</p></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="netmiko.channel.Channel" href="#netmiko.channel.Channel">Channel</a></b></code>:
 <ul class="hlist">
 <li><code><a title="netmiko.channel.Channel.read_buffer" href="#netmiko.channel.Channel.read_buffer">read_buffer</a></code></li>
-<li><code><a title="netmiko.channel.Channel.read_channel" href="#netmiko.channel.Channel.read_channel">read_channel</a></code></li>
 <li><code><a title="netmiko.channel.Channel.write_channel" href="#netmiko.channel.Channel.write_channel">write_channel</a></code></li>
 </ul>
 </li>
@@ -383,6 +476,9 @@ channel class.</p></div>
 </li>
 <li>
 <h4><code><a title="netmiko.channel.TelnetChannel" href="#netmiko.channel.TelnetChannel">TelnetChannel</a></code></h4>
+<ul class="">
+<li><code><a title="netmiko.channel.TelnetChannel.read_channel" href="#netmiko.channel.TelnetChannel.read_channel">read_channel</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

@@ -100,13 +100,16 @@ echo "Starting tests...good luck:" \
 && $PYTEST test_timeout_read_timing.py --test_device cisco3 \
 && $PYTEST test_timeout_send_command_timing.py --test_device cisco3 \
 \
-&& echo "Autodetect tests" \
+&& echo "SSH Autodetect tests" \
 && $PYTEST test_netmiko_autodetect.py --test_device cisco1 \
 && $PYTEST test_netmiko_autodetect.py --test_device arista_sw \
 && $PYTEST test_netmiko_autodetect.py --test_device juniper_srx \
 && $PYTEST test_netmiko_autodetect.py --test_device cisco_asa \
 && $PYTEST test_netmiko_autodetect.py --test_device cisco_xrv \
 && $PYTEST test_netmiko_autodetect.py --test_device cisco_xr_azure \
+\
+&& echo "SNMP Autodetect tests" \
+&& $PYTEST test_netmiko_snmp_autodetect.py --test_device cisco1 --snmp_community $SNMP --snmp_user pysnmp \
 \
 && echo "HP ProCurve" \
 && $PYTEST test_netmiko_show.py --test_device hp_procurve \

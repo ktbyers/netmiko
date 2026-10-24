@@ -116,10 +116,41 @@ class TelnetChannel(Channel):
         raise NotImplementedError
 
     def read_channel(self) -> str:
-        """Read all of the available data from the channel."""
+        """Read all of the available data from the channel.
+
+        This recreates telnetlib's read_very_eager() behavior ("drain everything
+        currently available, without blocking") but as an O(n) operation.
+
+        read_very_eager() accumulates cooked data into a single immutable bytes
+        buffer (cookedq) that it re-copies on every loop iteration, which is
+        O(n^2) for large reads (see netmiko GH #3872). Instead we loop the
+        public read_eager() primitive, which drains cookedq on every call, and
+        accumulate its results in a Python list, joining once at the end. Each
+        concat therefore stays O(chunk) and the whole read is O(n).
+
+        read_eager() returns as soon as it has any cooked data, so looping it
+        until it yields nothing reproduces read_very_eager()'s greedy draining.
+        The EOFError contract (raised on a closed connection with no buffered
+        data, and relied on by telnet_login) is preserved: it is re-raised only
+        when no data was collected.
+        """
         if self.remote_conn is None:
             raise ReadException("Attempt to read, but there is no active channel.")
-        return self.remote_conn.read_very_eager().decode(self.encoding, "ignore")  # type: ignore
+
+        parts: list[bytes] = []
+        while True:
+            try:
+                chunk = self.remote_conn.read_eager()  # type: ignore
+            except EOFError:
+                # Preserve read_very_eager()'s contract: only surface EOF when
+                # there is no data to return.
+                if not parts:
+                    raise
+                break
+            if not chunk:
+                break
+            parts.append(chunk)
+        return b"".join(parts).decode(self.encoding, "ignore")
 
 
 class SerialChannel(Channel):

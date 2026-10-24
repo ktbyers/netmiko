@@ -22,6 +22,20 @@ def pytest_addoption(parser):
         type=str,
         help="Specify the platform type to test on",
     )
+    parser.addoption(
+        "--snmp_community",
+        action="store",
+        dest="snmp_community",
+        type=str,
+        help="Specify the SNMPv2c community to test",
+    )
+    parser.addoption(
+        "--snmp_user",
+        action="store",
+        dest="snmp_user",
+        type=str,
+        help="Specify the SNMPv3 user to test",
+    )
 
 
 @pytest.fixture(scope="module")

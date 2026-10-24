@@ -95,7 +95,11 @@ el.replaceWith(d);
         self.timeout = timeout
 
         if SOCKS_SUPPORTED:
-            self.sock = socks.create_connection((host, port), timeout, **self.proxy_dict)
+            if self.proxy_dict is not None:
+                self.sock = socks.create_connection((host, port), timeout, **self.proxy_dict)
+            else:
+                msg = &#34;proxy_dict is a required argument for telnet socks proxy support.&#34;
+                raise ValueError(msg)
         else:
             msg = &#34;&#34;&#34;
 In order to use the telnet socks proxy, you must &#39;pip install pysocks&#39;. Note, pysocks is
@@ -192,7 +196,11 @@ and timeout are optional.</p></div>
         self.timeout = timeout
 
         if SOCKS_SUPPORTED:
-            self.sock = socks.create_connection((host, port), timeout, **self.proxy_dict)
+            if self.proxy_dict is not None:
+                self.sock = socks.create_connection((host, port), timeout, **self.proxy_dict)
+            else:
+                msg = &#34;proxy_dict is a required argument for telnet socks proxy support.&#34;
+                raise ValueError(msg)
         else:
             msg = &#34;&#34;&#34;
 In order to use the telnet socks proxy, you must &#39;pip install pysocks&#39;. Note, pysocks is

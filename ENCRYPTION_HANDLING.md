@@ -118,7 +118,7 @@ password = "my_secure_password"
 encrypted_password = encrypt_value(password, key, "fernet")
 
 # The encrypted password can now be stored in your YAML file
-# It will automatically be decrypted when Netmiko Tools reads the 
+# It will automatically be decrypted when Netmiko Tools reads the
 # file (assuming you have properly set the '__meta__' fields
 ```
 
