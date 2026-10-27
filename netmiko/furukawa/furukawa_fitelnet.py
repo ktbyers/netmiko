@@ -126,7 +126,7 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
     def _apply_config(self, cmd: str, read_timeout: float) -> str:
         """Send a configuration-apply command and handle FITELnet's responses.
 
-        Shared by commit() and refresh().
+        Shared by commit() and _refresh().
         """
         output = ""
         confirmation = r"onfirm|\[y/[nN]\]"
@@ -177,20 +177,20 @@ class FurukawaFitelnetBase(CiscoBaseConnection):
 
         Applies the working.cfg (candidate) to current.cfg (running).
 
-        Newer FITELnet models apply the candidate configuration with 'refresh'
-        instead of 'commit' -- use refresh() on those platforms.
+        Some FITELnet models apply the candidate configuration with 'refresh'
+        instead of 'commit' -- use _refresh() on those platforms.
         """
         return self._apply_config("commit", read_timeout=read_timeout)
 
-    def refresh(
+    def _refresh(
         self,
         read_timeout: float = 120.0,
     ) -> str:
         """
         Apply the candidate configuration using 'refresh'.
 
-        This is the equivalent of commit() on newer FITELnet models, where
-        'commit' is not available.
+        This is the equivalent of commit() on FITELnet models where 'commit'
+        is not available.
         """
         return self._apply_config("refresh", read_timeout=read_timeout)
 
