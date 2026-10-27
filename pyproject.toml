@@ -9,13 +9,13 @@ description = "Multi-vendor library to simplify legacy CLI connections to networ
 authors = [{ name = "Kirk Byers", email = "ktbyers@twb-tech.com" }]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 classifiers = [
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
 ]
 dependencies = [
     "paramiko>=3.5.1",
@@ -92,7 +92,7 @@ packages = ["netmiko"]
 line-length = 100
 
 # Specify your floor Python version (i.e. minimum version Netmiko supports) 
-target-version = "py310"
+target-version = "py311"
 
 # Files or directories to exclude from linting and formatting
 exclude = [
