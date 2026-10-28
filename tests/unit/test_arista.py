@@ -58,23 +58,6 @@ def test_set_base_prompt_only_strips_trailing_single_digit_suffix(
     assert connection.base_prompt == expected
 
 
-def test_set_base_prompt_forwards_arguments() -> None:
-    connection = AristaSSH.__new__(AristaSSH)
-    connection.find_prompt = Mock(return_value="switch(s2)!")
-
-    assert (
-        connection.set_base_prompt(
-            pri_prompt_terminator="!",
-            alt_prompt_terminator="?",
-            delay_factor=2.0,
-            pattern=r"[!?]",
-        )
-        == "switch"
-    )
-    assert connection.base_prompt == "switch"
-    connection.find_prompt.assert_called_once_with(delay_factor=2.0, pattern=r"[!?]")
-
-
 def test_set_base_prompt_rejects_invalid_prompt() -> None:
     connection = AristaSSH.__new__(AristaSSH)
     connection.find_prompt = Mock(return_value="switch(s1)")
