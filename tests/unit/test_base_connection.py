@@ -622,3 +622,44 @@ def test_nokiasrl_prompt_stripping(test_string, expected):
     )
     result = conn.strip_prompt(a_string=test_string)
     assert result == expected
+
+
+class FakeConfigConnection(FakeBaseConnection):
+    """Device that never enters config mode and replies with self.device_reply."""
+
+    def check_config_mode(self, *args, **kwargs):
+        return False
+
+    def write_channel(self, out_data):
+        pass
+
+    def read_until_pattern(self, *args, **kwargs):
+        return ""
+
+    def read_until_prompt(self, *args, **kwargs):
+        return self.device_reply
+
+
+def test_config_mode_failure_includes_device_output():
+    """config_mode() failure should surface what the device actually said."""
+    device_reply = (
+        "configure terminal\n%% Running configuration store is locked by other client\nrouter#"
+    )
+    connection = FakeConfigConnection(
+        global_cmd_verify=False, RETURN="\n", device_reply=device_reply
+    )
+    with pytest.raises(ValueError) as exc:
+        connection.config_mode(config_command="configure terminal")
+    assert "Failed to enter configuration mode." in str(exc.value)
+    assert "locked by other client" in str(exc.value)
+
+
+@pytest.mark.parametrize("device_reply", ["", "   ", "\n\n"])
+def test_config_mode_failure_without_device_output(device_reply):
+    """With no device output, the message stays exactly as it was before."""
+    connection = FakeConfigConnection(
+        global_cmd_verify=False, RETURN="\n", device_reply=device_reply
+    )
+    with pytest.raises(ValueError) as exc:
+        connection.config_mode(config_command="configure terminal")
+    assert str(exc.value) == "Failed to enter configuration mode."
