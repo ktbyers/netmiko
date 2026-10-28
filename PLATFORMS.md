@@ -271,7 +271,7 @@
 - keymile_nos
 - lancom_lcossx4
 - lancom_lcossx5
-- lantronix_itmg_os
+- lantronix_itmgos
 - linux
 - maipu
 - mellanox
@@ -358,7 +358,7 @@
 - infinera_packet_telnet
 - ipinfusion_ocnos_telnet
 - juniper_junos_telnet
-- lantronix_itmg_os_telnet
+- lantronix_itmgos_telnet
 - maipu_telnet
 - nec_ix_telnet
 - nokia_sros_telnet
@@ -383,7 +383,7 @@
 
 - cisco_ios_serial
 - furukawa_fitelnet_serial
-- lantronix_itmg_os_serial
+- lantronix_itmgos_serial
 
 ###### Supported Secure Copy device_type values
 

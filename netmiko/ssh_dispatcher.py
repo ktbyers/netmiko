@@ -325,7 +325,7 @@ CLASS_MAPPER_BASE = {
     "keymile_nos": KeymileNOSSSH,
     "lancom_lcossx4": LancomLCOSSX4SSH,
     "lancom_lcossx5": LancomLCOSSX5SSH,
-    "lantronix_itmg_os": LantronixItmgOsSSH,
+    "lantronix_itmgos": LantronixItmgOsSSH,
     "linux": LinuxSSH,
     "mikrotik_routeros": MikrotikRouterOsSSH,
     "mikrotik_switchos": MikrotikSwitchOsSSH,
@@ -457,7 +457,7 @@ CLASS_MAPPER["huawei_olt_telnet"] = HuaweiSmartAXSSH
 CLASS_MAPPER["infinera_packet_telnet"] = InfineraPacketTelnet
 CLASS_MAPPER["ipinfusion_ocnos_telnet"] = IpInfusionOcNOSTelnet
 CLASS_MAPPER["juniper_junos_telnet"] = JuniperTelnet
-CLASS_MAPPER["lantronix_itmg_os_telnet"] = LantronixItmgOsTelnet
+CLASS_MAPPER["lantronix_itmgos_telnet"] = LantronixItmgOsTelnet
 CLASS_MAPPER["maipu_telnet"] = MaipuTelnet
 CLASS_MAPPER["nec_ix_telnet"] = NecIxTelnet
 CLASS_MAPPER["nokia_sros_telnet"] = NokiaSrosTelnet
@@ -481,7 +481,7 @@ CLASS_MAPPER["zte_zxros_telnet"] = ZteZxrosTelnet
 
 # Add serial drivers
 CLASS_MAPPER["cisco_ios_serial"] = CiscoIosSerial
-CLASS_MAPPER["lantronix_itmg_os_serial"] = LantronixItmgOsSerial
+CLASS_MAPPER["lantronix_itmgos_serial"] = LantronixItmgOsSerial
 CLASS_MAPPER["furukawa_fitelnet_serial"] = FurukawaFitelnetSerial
 
 # Add general terminal_server driver and autodetect

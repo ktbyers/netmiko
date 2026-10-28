@@ -1,4 +1,4 @@
-from netmiko.lantronix.lantronix_itmg_os import (
+from netmiko.lantronix.lantronix_itmgos import (
     LantronixItmgOsSSH,
     LantronixItmgOsTelnet,
     LantronixItmgOsSerial,

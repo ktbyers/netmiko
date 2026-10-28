@@ -246,7 +246,7 @@ SSH_MAPPER_DICT = {
         "priority": 99,
         "dispatch": "_autodetect_std",
     },
-    "lantronix_itmg_os": {
+    "lantronix_itmgos": {
         "cmd": "admin version",
         "search_patterns": [
             r"Model:\s+(?:SLC|SLB|EMG)\d+",

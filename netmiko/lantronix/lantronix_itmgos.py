@@ -18,18 +18,15 @@ class LantronixItmgOsBase(NoEnable, NoConfig, BaseConnection):
     """
 
     # [hostname]>
-    prompt_pattern = r"\[[A-Za-z0-9_-]{1,64}\]>"
-    _LOGIN_USER = r"(?i)(?:user\s*name|user|login)\s*:"
+    prompt_pattern = r"\[[\w-]{1,64}\]>"
+    login_prompt_pattern = prompt_pattern + r"\s*$"
+    _LOGIN_USER = r"(?i)(?:username|user name|user|login)\s*:"
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt(pattern=self.prompt_pattern)
         self.disable_paging(command="set cli terminallines disable")
-
-    def _login_prompt(self) -> str:
-        """CLI prompt at end of line (telnet_login searches with re.M)."""
-        return self.prompt_pattern + r"\s*$"
 
     def telnet_login(
         self,
@@ -40,13 +37,16 @@ class LantronixItmgOsBase(NoEnable, NoConfig, BaseConnection):
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
-        pri = pri_prompt_terminator or self._login_prompt()
-        alt = alt_prompt_terminator or self._login_prompt()
-        user = username_pattern or self._LOGIN_USER
+        if not pri_prompt_terminator:
+            pri_prompt_terminator = self.login_prompt_pattern
+        if not alt_prompt_terminator:
+            alt_prompt_terminator = self.login_prompt_pattern
+        if not username_pattern:
+            username_pattern = self._LOGIN_USER
         return super().telnet_login(
-            pri_prompt_terminator=pri,
-            alt_prompt_terminator=alt,
-            username_pattern=user,
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            username_pattern=username_pattern,
             pwd_pattern=pwd_pattern,
             delay_factor=delay_factor,
             max_loops=max_loops,
@@ -61,17 +61,22 @@ class LantronixItmgOsBase(NoEnable, NoConfig, BaseConnection):
         delay_factor: float = 1.0,
         max_loops: int = 20,
     ) -> str:
-        pri = pri_prompt_terminator or self._login_prompt()
-        alt = alt_prompt_terminator or self._login_prompt()
-        user = username_pattern or self._LOGIN_USER
+        if not pri_prompt_terminator:
+            pri_prompt_terminator = self.login_prompt_pattern
+        if not alt_prompt_terminator:
+            alt_prompt_terminator = self.login_prompt_pattern
+        if not username_pattern:
+            username_pattern = self._LOGIN_USER
         self.write_channel(self.RETURN)
         output = self.read_channel()
-        if re.search(pri, output, flags=re.M) or re.search(alt, output, flags=re.M):
+        if re.search(pri_prompt_terminator, output, flags=re.M) or re.search(
+            alt_prompt_terminator, output, flags=re.M
+        ):
             return output
         return super().serial_login(
-            pri_prompt_terminator=pri,
-            alt_prompt_terminator=alt,
-            username_pattern=user,
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            username_pattern=username_pattern,
             pwd_pattern=pwd_pattern,
             delay_factor=delay_factor,
             max_loops=max_loops,
