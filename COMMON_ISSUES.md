@@ -108,7 +108,7 @@ To install the Netmiko `develop` branch follow this process.
 ```
 # Use the appropriate python3 for your machine
 # This creates a virtual environment named .venv
-python3.10 -m venv .venv
+python3.11 -m venv .venv
 ```
 
 6. source .venv/bin/activate   # Activate virtual env 

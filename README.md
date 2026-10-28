@@ -48,6 +48,8 @@ Netmiko aims to accomplish both of these operations and to do it across a very b
 
 ## Installation
 
+Netmiko supports Python 3.11 through 3.15. Python 3.10 and earlier are no longer supported.
+
 To install netmiko, simply use pip:
 
 ```
