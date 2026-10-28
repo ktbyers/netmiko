@@ -97,6 +97,10 @@ class HPProcurveBase(CiscoSSHConnection):
 
         # Send the enable command
         self.write_channel(cmd + self.RETURN)
+        # Read the command echo before matching prompts so a pending prompt from
+        # check_enable_mode() cannot end the authentication exchange early.
+        if self.global_cmd_verify is not False:
+            output += self.read_until_pattern(pattern=re.escape(cmd.strip()), read_timeout=15)
         new_output = self.read_until_pattern(full_pattern, read_timeout=15, re_flags=re_flags)
 
         # Send the username
