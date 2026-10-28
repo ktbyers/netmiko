@@ -40,6 +40,24 @@ class AristaBase(CiscoSSHConnection):
             pattern = self.prompt_pattern
         return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
 
+    def set_base_prompt(
+        self,
+        pri_prompt_terminator: str = "#",
+        alt_prompt_terminator: str = ">",
+        delay_factor: float = 1.0,
+        pattern: Optional[str] = None,
+    ) -> str:
+        """Set the base prompt without a trailing supervisor suffix."""
+        base_prompt = super().set_base_prompt(
+            pri_prompt_terminator=pri_prompt_terminator,
+            alt_prompt_terminator=alt_prompt_terminator,
+            delay_factor=delay_factor,
+            pattern=pattern,
+        )
+        # Strip a trailing supervisor suffix, e.g. (s1) or (s2).
+        self.base_prompt = re.sub(pattern=r"\(s\d\)$", repl="", string=base_prompt)
+        return self.base_prompt
+
     def enable(
         self,
         cmd: str = "enable",
@@ -65,15 +83,12 @@ class AristaBase(CiscoSSHConnection):
         """
         Checks if the device is in configuration mode or not.
 
-        Arista, unfortunately, does this:
-        loc1-core01(s1)#
-
-        Can also be (s2)
+        Arista supervisor suffixes such as (s1) and (s2) must be removed
+        before checking for the configuration-mode marker.
         """
         self.write_channel(self.RETURN)
         output = self.read_until_pattern(pattern=pattern)
-        output = output.replace("(s1)", "")
-        output = output.replace("(s2)", "")
+        output = re.sub(pattern=r"\(s\d\)", repl="", string=output)
         return check_string in output
 
     def config_mode(
