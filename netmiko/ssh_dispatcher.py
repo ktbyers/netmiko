@@ -101,6 +101,8 @@ from netmiko.fiberstore import (
     FiberstoreFsosSSH,
     FiberstoreFsosV2SSH,
     FiberstoreFsosV2Telnet,
+    FiberstoreFsosV11SSH,
+    FiberstoreFsosV11Telnet,
     FiberstoreNetworkOSSSH,
 )
 from netmiko.flexvnf import FlexvnfSSH
@@ -295,6 +297,7 @@ CLASS_MAPPER_BASE = {
     "f5_linux": F5LinuxSSH,
     "fiberstore_fsos": FiberstoreFsosSSH,
     "fiberstore_fsosv2": FiberstoreFsosV2SSH,
+    "fiberstore_fsosv11": FiberstoreFsosV11SSH,
     "fiberstore_networkos": FiberstoreNetworkOSSSH,
     "flexvnf": FlexvnfSSH,
     "fortinet": FortinetSSH,
@@ -444,6 +447,7 @@ CLASS_MAPPER["extreme_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_exos_telnet"] = ExtremeExosTelnet
 CLASS_MAPPER["extreme_netiron_telnet"] = ExtremeNetironTelnet
 CLASS_MAPPER["fiberstore_fsosv2_telnet"] = FiberstoreFsosV2Telnet
+CLASS_MAPPER["fiberstore_fsosv11_telnet"] = FiberstoreFsosV11Telnet
 CLASS_MAPPER["furukawa_fitelnet_telnet"] = FurukawaFitelnetTelnet
 CLASS_MAPPER["generic_telnet"] = GenericTelnet
 CLASS_MAPPER["generic_termserver_telnet"] = TerminalServerTelnet
