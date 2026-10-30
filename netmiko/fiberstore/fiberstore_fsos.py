@@ -143,3 +143,38 @@ class FiberstoreFsosV2Telnet(FiberstoreFsosV2Base):
         default_enter = kwargs.get("default_enter")
         kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
         super().__init__(*args, **kwargs)
+
+
+class FiberstoreFsosV11Base(FiberstoreFsosV2Base):
+    """FSOS v11 devices with Cisco-style configuration modes, such as S3410-10TF-P."""
+
+    def config_mode(
+        self, config_command: str = "configure terminal", pattern: str = "", re_flags: int = 0
+    ) -> str:
+        return super().config_mode(
+            config_command=config_command, pattern=pattern, re_flags=re_flags
+        )
+
+    def check_config_mode(
+        self,
+        check_string: str = ")#",
+        pattern: str = "",
+        force_regex: bool = False,
+    ) -> bool:
+        return super().check_config_mode(
+            check_string=check_string, pattern=pattern, force_regex=force_regex
+        )
+
+    def exit_config_mode(self, exit_config: str = "end", pattern: str = r"#.*") -> str:
+        return super().exit_config_mode(exit_config=exit_config, pattern=pattern)
+
+
+class FiberstoreFsosV11SSH(FiberstoreFsosV11Base):
+    pass
+
+
+class FiberstoreFsosV11Telnet(FiberstoreFsosV11Base):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        default_enter = kwargs.get("default_enter")
+        kwargs["default_enter"] = "\r\n" if default_enter is None else default_enter
+        super().__init__(*args, **kwargs)

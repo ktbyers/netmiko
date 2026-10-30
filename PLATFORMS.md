@@ -42,7 +42,7 @@
 - Extreme TierraOS
 - Extreme VDX (Brocade)
 - Extreme VSP (Avaya)
-- Fiberstore FSOS
+- Fiberstore FSOS (including FSOS v11)
 - Furukawa FITELnet
 - Hillstone StoneOS
 - HPE Comware7
@@ -241,6 +241,7 @@
 - f5_tmsh
 - fiberstore_fsos
 - fiberstore_fsosv2
+- fiberstore_fsosv11
 - fiberstore_networkos
 - flexvnf
 - fortinet
@@ -345,6 +346,7 @@
 - extreme_netiron_telnet
 - extreme_telnet
 - fiberstore_fsosv2_telnet
+- fiberstore_fsosv11_telnet
 - furukawa_fitelnet_telnet
 - generic_telnet
 - generic_termserver_telnet
