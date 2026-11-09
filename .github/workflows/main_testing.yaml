@@ -86,7 +86,7 @@ jobs:
           uv run --frozen pytest -v -s tests/unit/test_entry_points.py
           uv run --frozen pytest -v -s tests/unit/test_session_log.py
 
-  pytest-macos15:
+  pytest-macos15-intel:
     name: Std Test on Python ${{ matrix.python-version }} (${{ matrix.platform}})
     defaults:
       run:
@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12', '3.13', '3.14', '3.15']
-        platform: [macos-15]
+        platform: [macos-15-intel]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -118,7 +118,7 @@ jobs:
           uv run --frozen pytest -v -s tests/unit/test_entry_points.py
           uv run --frozen pytest -v -s tests/unit/test_session_log.py
 
-  pytest-macos14:
+  pytest-macos26:
     name: Std Test on Python ${{ matrix.python-version }} (${{ matrix.platform}})
     defaults:
       run:
@@ -126,7 +126,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12', '3.13', '3.14', '3.15']
-        platform: [macos-14]
+        platform: [macos-26]
 
     runs-on: ${{ matrix.platform }}
     steps:
