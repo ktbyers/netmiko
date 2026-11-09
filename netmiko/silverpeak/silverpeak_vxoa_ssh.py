@@ -1,8 +1,10 @@
-from typing import Any
+from typing import Any, Optional
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class SilverPeakVXOASSH(CiscoSSHConnection):
+    prompt_pattern = r"[>#]"
+
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r"
@@ -10,8 +12,13 @@ class SilverPeakVXOASSH(CiscoSSHConnection):
             kwargs["global_cmd_verify"] = False
         return super().__init__(**kwargs)
 
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = "") -> str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
+
     def session_preparation(self) -> None:
-        self._test_channel_read(pattern=r"[>#]")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="no cli session paging enable")
@@ -19,7 +26,7 @@ class SilverPeakVXOASSH(CiscoSSHConnection):
     def check_config_mode(
         self,
         check_string: str = "(config) #",
-        pattern: str = r"[>#]",
+        pattern: str = prompt_pattern,
         force_regex: bool = False,
     ) -> bool:
         """
