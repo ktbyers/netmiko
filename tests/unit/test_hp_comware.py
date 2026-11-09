@@ -1,0 +1,58 @@
+from typing import Iterator, Optional
+from unittest.mock import Mock
+
+import pytest
+
+from netmiko.hp.hp_comware import HPComwareBase, HPComwareSSH, HPComwareTelnet
+
+
+@pytest.fixture(params=[HPComwareSSH, HPComwareTelnet])
+def connection(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[HPComwareBase]:
+    connection = request.param(host="localhost", auto_connect=False)
+    monkeypatch.setattr(connection, "cleanup", Mock())
+    monkeypatch.setattr(connection, "clear_buffer", Mock(return_value=""))
+    monkeypatch.setattr(connection, "write_channel", Mock())
+    monkeypatch.setattr("netmiko.base_connection.time.sleep", lambda seconds: None)
+    try:
+        yield connection
+    finally:
+        connection.disconnect()
+
+
+@pytest.mark.parametrize("prompt", ["<switch1>", "[switch1]", "[switch1-GigabitEthernet1/0/1]"])
+def test_find_prompt_waits_for_delayed_prompt(
+    connection: HPComwareBase, monkeypatch: pytest.MonkeyPatch, prompt: str
+) -> None:
+    read_channel = Mock(side_effect=["", "", "", f"\n{prompt}"])
+    monkeypatch.setattr(connection, "read_channel", read_channel)
+
+    assert connection.find_prompt() == prompt
+    connection.write_channel.assert_called_once_with(connection.RETURN)
+    assert read_channel.call_count == 4
+
+
+@pytest.mark.parametrize("prompt", ["<switch1>", "[switch1]", "[switch1-GigabitEthernet1/0/1]"])
+@pytest.mark.parametrize("pattern", [None, ""])
+def test_find_prompt_waits_for_fragmented_prompt(
+    connection: HPComwareBase,
+    monkeypatch: pytest.MonkeyPatch,
+    prompt: str,
+    pattern: Optional[str],
+) -> None:
+    read_channel = Mock(side_effect=["\n", prompt[:-1], "", prompt[-1]])
+    monkeypatch.setattr(connection, "read_channel", read_channel)
+
+    assert connection.find_prompt(pattern=pattern) == prompt
+    connection.write_channel.assert_called_once_with(connection.RETURN)
+    assert read_channel.call_count == 4
+
+
+def test_find_prompt_preserves_explicit_pattern(
+    connection: HPComwareBase, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(connection, "read_channel", Mock(return_value="\ncustom$"))
+
+    assert connection.find_prompt(pattern=r"\$") == "custom$"
+    connection.write_channel.assert_called_once_with(connection.RETURN)
