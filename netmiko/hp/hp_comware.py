@@ -46,7 +46,7 @@ class HPComwareBase(CiscoSSHConnection):
     def check_config_mode(
         self,
         check_string: str = "]",
-        pattern: str = prompt_pattern,
+        pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
         """Checks if the device is in configuration mode or not.
@@ -55,6 +55,8 @@ class HPComwareBase(CiscoSSHConnection):
         :param pattern: Pattern to terminate reading of channel
         :param force_regex: Use regular expression pattern to find check_string in output
         """
+        if not pattern:
+            pattern = self.prompt_pattern
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )

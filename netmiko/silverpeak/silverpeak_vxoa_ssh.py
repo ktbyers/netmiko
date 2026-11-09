@@ -26,7 +26,7 @@ class SilverPeakVXOASSH(CiscoSSHConnection):
     def check_config_mode(
         self,
         check_string: str = "(config) #",
-        pattern: str = prompt_pattern,
+        pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
         """
@@ -34,6 +34,8 @@ class SilverPeakVXOASSH(CiscoSSHConnection):
 
         Silverpeak uses "(<controller name>) (config) #" as config prompt
         """
+        if not pattern:
+            pattern = self.prompt_pattern
         return super().check_config_mode(check_string=check_string, pattern=pattern)
 
     def exit_config_mode(self, exit_config: str = "exit", pattern: str = r"#.*") -> str:
