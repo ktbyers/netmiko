@@ -5,6 +5,8 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
 class HPComwareBase(CiscoSSHConnection):
+    prompt_pattern = r"[>\]]"
+
     def __init__(self, **kwargs: Any) -> None:
         # Comware doesn't have a way to set terminal width which breaks cmd_verify
         global_cmd_verify = kwargs.get("global_cmd_verify")
@@ -12,14 +14,19 @@ class HPComwareBase(CiscoSSHConnection):
             kwargs["global_cmd_verify"] = False
         super().__init__(**kwargs)
 
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = "") -> str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
+
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
         # Comware can have a banner that prompts you to continue
         # 'Press Y or ENTER to continue, N to exit.'
-        data = self._test_channel_read(pattern=r"to continue|[>\]]")
+        data = self._test_channel_read(pattern=rf"to continue|{self.prompt_pattern}")
         if "continue" in data:
             self.write_channel("\n")
-            self._test_channel_read(pattern=r"[>\]]")
+            self._test_channel_read(pattern=self.prompt_pattern)
 
         self.set_base_prompt()
         command = "screen-length disable"
@@ -39,7 +46,7 @@ class HPComwareBase(CiscoSSHConnection):
     def check_config_mode(
         self,
         check_string: str = "]",
-        pattern: str = r"[>\]]",
+        pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
         """Checks if the device is in configuration mode or not.
@@ -48,6 +55,8 @@ class HPComwareBase(CiscoSSHConnection):
         :param pattern: Pattern to terminate reading of channel
         :param force_regex: Use regular expression pattern to find check_string in output
         """
+        if not pattern:
+            pattern = self.prompt_pattern
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )

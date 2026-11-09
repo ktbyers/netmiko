@@ -31,12 +31,14 @@ class DellForce10SSH(CiscoSSHConnection):
     def check_config_mode(
         self,
         check_string: str = ")#",
-        pattern: str = prompt_pattern,
+        pattern: str = "",
         force_regex: bool = False,
     ) -> bool:
         """
         Checks if the device is in configuration mode or not.
         """
+        if not pattern:
+            pattern = self.prompt_pattern
         return super().check_config_mode(
             check_string=check_string, pattern=pattern, force_regex=force_regex
         )
