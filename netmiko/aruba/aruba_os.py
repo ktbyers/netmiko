@@ -15,6 +15,8 @@ from netmiko.scp_handler import BaseFileTransfer
 class ArubaOsSSH(CiscoSSHConnection):
     """Aruba OS support"""
 
+    prompt_pattern = r"[>#]"
+
     def __init__(self, **kwargs: Any) -> None:
         if kwargs.get("default_enter") is None:
             kwargs["default_enter"] = "\r"
@@ -23,11 +25,16 @@ class ArubaOsSSH(CiscoSSHConnection):
             kwargs["global_cmd_verify"] = False
         return super().__init__(**kwargs)
 
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = "") -> str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
+
     def session_preparation(self) -> None:
         """Aruba OS requires enable mode to disable paging."""
         # Aruba switches output ansi codes
         self.ansi_escape_codes = True
-        self._test_channel_read(pattern=r"[>#]")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.enable()
         self.disable_paging(command="no paging")
@@ -35,7 +42,7 @@ class ArubaOsSSH(CiscoSSHConnection):
     def check_config_mode(
         self,
         check_string: str = "(config) #",
-        pattern: str = r"[>#]",
+        pattern: str = prompt_pattern,
         force_regex: bool = False,
     ) -> bool:
         """
