@@ -175,7 +175,7 @@ class HuaweiTelnet(HuaweiBase):
         self,
         pri_prompt_terminator: str = r"",
         alt_prompt_terminator: str = r"",
-        username_pattern: str = r"(?:user\s*:|username\s*:|login\s*:|user\s+name\s*:|(?:username|login|user\s+name)\s*$)",
+        username_pattern: str = r"(?:user:|username|login|user name)",
         pwd_pattern: str = r"assword",
         delay_factor: float = 1.0,
         max_loops: int = 20,
@@ -184,10 +184,12 @@ class HuaweiTelnet(HuaweiBase):
         output = ""
         return_msg = ""
         try:
-            # Wait for whichever credential prompt appears first. Match username
-            # prompts as complete prompts, not incidental text such as "Login
-            # authentication" in a device banner.
-            credential_pattern = rf"(?:{username_pattern})|(?:{pwd_pattern})"
+            # Wait for whichever credential prompt appears first. Skip the
+            # "Login authentication" banner, which otherwise matches "login"
+            # in username_pattern despite not being a username prompt.
+            credential_pattern = (
+                rf"(?:(?!Login authentication)(?:{username_pattern}))|(?:{pwd_pattern})"
+            )
             output = self.read_until_pattern(pattern=credential_pattern, re_flags=re.I | re.M)
             return_msg += output
             if re.search(pwd_pattern, output, flags=re.I):
