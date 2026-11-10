@@ -175,7 +175,7 @@ class HuaweiTelnet(HuaweiBase):
         self,
         pri_prompt_terminator: str = r"",
         alt_prompt_terminator: str = r"",
-        username_pattern: str = r"(?:user:|username|login|user name)",
+        username_pattern: str = r"(?:user\s*:|username\s*:|login\s*:|user\s+name\s*:|(?:username|login|user\s+name)\s*$)",
         pwd_pattern: str = r"assword",
         delay_factor: float = 1.0,
         max_loops: int = 20,
@@ -184,14 +184,19 @@ class HuaweiTelnet(HuaweiBase):
         output = ""
         return_msg = ""
         try:
-            # Search for username pattern / send username
-            output = self.read_until_pattern(pattern=username_pattern, re_flags=re.I)
+            # Wait for whichever credential prompt appears first. Match username
+            # prompts as complete prompts, not incidental text such as "Login
+            # authentication" in a device banner.
+            credential_pattern = rf"(?:{username_pattern})|(?:{pwd_pattern})"
+            output = self.read_until_pattern(pattern=credential_pattern, re_flags=re.I | re.M)
             return_msg += output
-            self.write_channel(self.username + self.TELNET_RETURN)
-
-            # Search for password pattern / send password
-            output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
-            return_msg += output
+            if re.search(pwd_pattern, output, flags=re.I):
+                # Password-only Telnet login; do not send a blank username.
+                pass
+            else:
+                self.write_channel(self.username + self.TELNET_RETURN)
+                output = self.read_until_pattern(pattern=pwd_pattern, re_flags=re.I)
+                return_msg += output
             assert self.password is not None
             # Huawei might require only "\r" for password to be accepted
             self.write_channel(self.password + "\r")
