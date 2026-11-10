@@ -8,6 +8,8 @@ from netmiko.exceptions import ReadTimeout
 
 
 class TPLinkJetStreamBase(CiscoSSHConnection):
+    prompt_pattern = r"[>#]"
+
     def __init__(self, **kwargs: Any) -> None:
         # TP-Link doesn't have a way to set terminal width which breaks cmd_verify
         if kwargs.get("global_cmd_verify") is None:
@@ -17,10 +19,15 @@ class TPLinkJetStreamBase(CiscoSSHConnection):
             kwargs["default_enter"] = "\r\n"
         return super().__init__(**kwargs)
 
+    def find_prompt(self, delay_factor: float = 1.0, pattern: Optional[str] = "") -> str:
+        if not pattern:
+            pattern = self.prompt_pattern
+        return super().find_prompt(delay_factor=delay_factor, pattern=pattern)
+
     def session_preparation(self) -> None:
         delay_factor = self.select_delay_factor(delay_factor=0)
         time.sleep(0.3 * delay_factor)
-        self._test_channel_read(pattern=r"[>#]")
+        self._test_channel_read(pattern=self.prompt_pattern)
         self.set_base_prompt()
         self.enable()
         self.set_base_prompt()

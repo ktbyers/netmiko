@@ -54,7 +54,8 @@ class HPProcurveBase(CiscoSSHConnection):
             self.set_base_prompt()
 
         # ProCurve requires elevated privileges to disable output paging :-(
-        self.enable()
+        default_username = getattr(self, "_default_username", "")
+        self.enable(default_username=default_username)
         self.set_terminal_width(command="terminal width 511", pattern="terminal")
         command = "no page"
         self.disable_paging(command=command)
