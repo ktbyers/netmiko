@@ -1,5 +1,11 @@
 MicroTik RouterOS and SwitchOS support
 
+The `mikrotik_routeros` driver handles RouterOS 7.25's startup terminal
+capability checks and combined colour attributes. Long command output and
+escaped serialized strings retain their original contents. An unrecognized
+or incomplete terminal probe sequence raises `ValueError` during login;
+include a session log when reporting that error.
+
 This module is provided under The MIT License (MIT)
 
 Copyright (c) 2019 Darcy Buskermolen  darcy@dbitech.ca

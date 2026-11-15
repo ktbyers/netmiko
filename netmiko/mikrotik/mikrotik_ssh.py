@@ -28,14 +28,38 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
         Mikrotik might also prompt for acknowledging no software key message if unlicensed.
         Mikrotik might present a "default config" screen.
         Mikrotik might ask for a new password.
+        RouterOS 7.25 might perform terminal capability detection despite the login options.
         """
+        # Match the observed RouterOS probes exactly. The replies describe the SSH
+        # PTY's 511 columns and 1000 rows, with automatic wrapping and scrolling.
+        # Advertising wrapping avoids console-inserted newlines in command output.
+        terminal_probes = (
+            ("\n\x1b[9999B\n\x1b[9999B\x1bZ", "\x1b[?1;2c"),
+            ("  \x1b[6n", "\x1b[1000;3R"),
+            (
+                "\x1b[4l\x1b[20l\x1b[?7h\x1b[?5l\x1b[?25h\x1b[H\x1b[9999B\x1b[6n",
+                "\x1b[1000;1R",
+            ),
+            ("\x1b[H\x1b[9999B\x1bD\x1b[9999A\x1b[6n", "\x1b[1;1R"),
+            ("\x1b[H\x1b[9999C\x1b[6n", "\x1b[1;511R"),
+            ("\x1b[H\u011bH\x1b[6n", "\x1b[1;3R"),
+            ("\n   \x1b[H\x1b[9999C\x1b[6n", "\x1b[1;511R"),
+            (" \x1b[6n", "\x1b[1;511R"),
+            (" \x1b[6n", "\x1b[2;2R"),
+            ("\x0b\x1b[6n", "\x1b[2;2R"),
+            ("\x1b[?47l\x1b[1;2r\x1b[H\x1b[6n", "\x1b[1;1R"),
+            ("\n\n\x1b[6n", "\x1b[2;1R"),
+            ("\x1b[9999B\x1b[6n", "\x1b[2;1R"),
+        )
+        terminal_probe_index = 0
+        terminal_query_pattern = r"\x1b(?:Z|\[6n)"
         no_license_message = 'Please press "Enter" to continue!'
         license_prompt = "Do you want to see the software license"
         new_password_promt = "new password>"
         default_config_prompt = 'remove this default configuration type "r"'
-        combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt}|{new_password_promt}|{default_config_prompt})"
+        combined_pattern = rf"(?:{self.prompt_pattern}|{no_license_message}|{license_prompt}|{new_password_promt}|{default_config_prompt}|{terminal_query_pattern})"
 
-        for _ in range(15):
+        for _ in range(15 + len(terminal_probes)):
             data = self.read_until_pattern(pattern=combined_pattern, re_flags=re.I)
             if no_license_message in data:
                 # Handle "no license" message
@@ -49,9 +73,24 @@ class MikrotikBase(NoEnable, NoConfig, CiscoSSHConnection):
             elif new_password_promt in data:
                 # Handle new password request
                 self.write_channel("\x03")
+            elif re.search(terminal_query_pattern, data):
+                if (
+                    terminal_probe_index >= len(terminal_probes)
+                    or data != terminal_probes[terminal_probe_index][0]
+                ):
+                    raise ValueError("Unexpected RouterOS terminal autodetection probe")
+                self.write_channel(terminal_probes[terminal_probe_index][1])
+                terminal_probe_index += 1
             elif re.search(self.prompt_pattern, data, re.I):
+                if terminal_probe_index not in (0, len(terminal_probes)):
+                    raise ValueError("Incomplete RouterOS terminal autodetection sequence")
                 return
         raise ValueError("Unexpected output in special_login_handler")
+
+    def strip_ansi_escape_codes(self, string_buffer: str) -> str:
+        """Include RouterOS colour attributes such as ESC[32;1m."""
+        string_buffer = re.sub(r"\x1b\[[0-9;]*m", "", string_buffer)
+        return super().strip_ansi_escape_codes(string_buffer)
 
     def session_preparation(self, *args: Any, **kwargs: Any) -> None:
         """Prepare the session after the connection has been established."""
