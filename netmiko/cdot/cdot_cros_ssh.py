@@ -78,7 +78,7 @@ class CdotCrosSSH(NoEnable, CiscoBaseConnection):
         """
 
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         command_string = "commit"
         commit_marker = ["Commit complete", "No modifications to commit"]

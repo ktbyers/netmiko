@@ -73,7 +73,7 @@ class VyOSSSH(NoEnable, CiscoSSHConnection):
         """
 
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         error_marker = ["Failed to generate committed config", "Commit failed"]
         command_string = "commit"
