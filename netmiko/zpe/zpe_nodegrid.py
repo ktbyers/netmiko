@@ -37,9 +37,13 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
     """
 
     # Matches: [admin@nodegrid /]# and [+admin@nodegrid ETH0]#
-    prompt_pattern = r"\[\+?.*\]#"
+    # Do not rescan overlapping suffixes from every '[' in non-prompt output.
+    # A nested '[' starts a new candidate; the prompt's match end is unchanged.
+    prompt_pattern = r"\[[^\[\n]*\]#"
     # Matches: root@nodegrid:/var/home# or admin@nodegrid:~$
-    shell_prompt_pattern = r".+@.+:.+[\$#]"
+    # Try once per line, with disjoint username/hostname delimiters, rather than
+    # backtracking through three overlapping wildcards. Keep newlines excluded.
+    shell_prompt_pattern = r"(?m:^[^@\n]+@[^:\n]+:.+[\$#])"
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
