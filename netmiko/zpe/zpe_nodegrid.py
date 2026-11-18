@@ -40,8 +40,6 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
     # Avoid excessive backtracking on output containing repeated '[' characters.
     prompt_pattern = r"\[[^\[\n]*\]#"
     # Matches: root@nodegrid:/var/home# or admin@nodegrid:~$
-    # Try once per line, with disjoint username/hostname delimiters, rather than
-    # backtracking through three overlapping wildcards. Keep newlines excluded.
     shell_prompt_pattern = (
         r"(?m:"  # Match at line boundaries.
         r"^[^@\n]+@"  # username@
