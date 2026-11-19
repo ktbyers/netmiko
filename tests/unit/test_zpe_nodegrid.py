@@ -79,8 +79,9 @@ def test_non_shell_prompt_output(output: str) -> None:
 
 
 def test_nested_brackets_prompt_termination() -> None:
-    """Recognize a nested-bracket prompt through its final terminator.
+    """Exploratory compatibility check for a nested-bracket prompt.
 
+    This likely should not occur in the Nodegrid CLI; real-device behavior is unverified.
     Allow either opening bracket to start the match, but exclude the preceding line.
     Verify stripping removes the entire prompt line without losing command output.
     """
