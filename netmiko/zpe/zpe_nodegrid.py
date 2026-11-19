@@ -37,9 +37,16 @@ class ZpeNodegridSSH(NoEnable, NoConfig, LinuxSSH):
     """
 
     # Matches: [admin@nodegrid /]# and [+admin@nodegrid ETH0]#
-    prompt_pattern = r"\[\+?.*\]#"
+    # Avoid excessive backtracking on output containing repeated '[' characters.
+    prompt_pattern = r"\[[^\[\n]*\]#"
     # Matches: root@nodegrid:/var/home# or admin@nodegrid:~$
-    shell_prompt_pattern = r".+@.+:.+[\$#]"
+    shell_prompt_pattern = (
+        r"(?m:"  # Match at line boundaries.
+        r"^[^@\n]+@"  # username@
+        r"[^:\n]+:"  # hostname:
+        r".+[$#]"  # path followed by $ or #
+        r")"
+    )
 
     def session_preparation(self) -> None:
         """Prepare the session after the connection has been established."""
