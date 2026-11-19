@@ -16,6 +16,11 @@ from netmiko.zpe.zpe_nodegrid import ZpeNodegridSSH
     ],
 )
 def test_cli_prompt(prompt: str) -> None:
+    """Recognize normal and staged-change CLI prompts after bracketed output.
+
+    Check the matched text and boundaries exclude preceding output and trailing space.
+    Verify stripping removes only the prompt line, preserving command output.
+    """
     output = f"interface: [ETH0]\n{prompt} "
     match = re.search(pattern=ZpeNodegridSSH.prompt_pattern, string=output)
     assert match is not None
@@ -32,6 +37,11 @@ def test_cli_prompt(prompt: str) -> None:
     "prompt", ["admin@nodegrid:~$", "root@nodegrid:~#", "root@nodegrid:/var/home#"]
 )
 def test_shell_prompt(prompt: str) -> None:
+    """Recognize shell prompts with user/root terminators and home/absolute paths.
+
+    Check matching works after a newline and ends at the terminator, before whitespace.
+    This ensures shell-mode command completion can detect the documented prompts.
+    """
     output = f"Entering shell\n{prompt} "
     match = re.search(pattern=ZpeNodegridSSH.shell_prompt_pattern, string=output)
     assert match is not None
@@ -44,6 +54,11 @@ def test_shell_prompt(prompt: str) -> None:
     ["ordinary output", "[admin@nodegrid /]", "[admin@nodegrid\n/]#", ""],
 )
 def test_non_prompt_output(output: str) -> None:
+    """Reject ordinary, empty, incomplete, and newline-split CLI prompt text.
+
+    Verify stripping leaves each non-prompt input unchanged.
+    This prevents false prompt detection from discarding command output.
+    """
     assert re.search(pattern=ZpeNodegridSSH.prompt_pattern, string=output) is None
     connection = ZpeNodegridSSH.__new__(ZpeNodegridSSH)
     connection.RESPONSE_RETURN = "\n"
@@ -55,11 +70,20 @@ def test_non_prompt_output(output: str) -> None:
     ["user@host:path", "user@host:\npath#", "user@\nhost:path$", "plain output$"],
 )
 def test_non_shell_prompt_output(output: str) -> None:
+    """Reject incomplete shell prompts and prompt components split across lines.
+
+    Also reject a dollar-terminated line without the username/hostname structure.
+    These checks guard against prematurely treating ordinary output as a shell prompt.
+    """
     assert re.search(pattern=ZpeNodegridSSH.shell_prompt_pattern, string=output) is None
 
 
 def test_nested_brackets_prompt_termination() -> None:
-    """Preserve termination/stripping without requiring the same match start."""
+    """Recognize a nested-bracket prompt through its final terminator.
+
+    Allow either opening bracket to start the match, but exclude the preceding line.
+    Verify stripping removes the entire prompt line without losing command output.
+    """
     output = "command output\n[ some text [ some more text ] ]# "
     match = re.search(pattern=ZpeNodegridSSH.prompt_pattern, string=output)
     assert match is not None
@@ -81,11 +105,11 @@ def test_nested_brackets_prompt_termination() -> None:
     ],
 )
 def test_nonmatching_output_search_is_bounded(pattern: str, repeated_text: str, count: int) -> None:
-    """Catch severe backtracking without letting a regex block the pytest process.
+    """Require long delimiter-heavy output to be rejected within five seconds.
 
-    This is a generous runtime regression bound, not proof of linear complexity.
-    The child imports only the standard library; the parent supplies the actual
-    driver pattern. subprocess.run kills and waits for the child on timeout.
+    Run each driver regex in a subprocess that is killed and reaped on timeout,
+    so excessive backtracking cannot hang pytest.
+    This catches severe runtime regressions but does not prove linear complexity.
     """
     search_code = (
         "import re, sys\n"
