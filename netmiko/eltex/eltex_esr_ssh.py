@@ -52,7 +52,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         """
 
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         error_marker = "Can't commit configuration"
         command_string = "commit"
@@ -76,7 +76,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         """
 
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         error_marker = "Nothing to confirm in configuration"
         command_string = "confirm"
@@ -101,7 +101,7 @@ class EltexEsrSSH(CiscoSSHConnection):
         """
 
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         error_marker = "Can't find backup of previous configuration!"
         command_string = "restore"

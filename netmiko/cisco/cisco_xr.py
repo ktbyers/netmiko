@@ -116,7 +116,7 @@ class CiscoXrBase(NoEnable, CiscoBaseConnection):
         an exception to be generated.
         """
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
         if confirm and not confirm_delay:
             raise ValueError("Invalid arguments supplied to XR commit")
         if confirm_delay and not confirm:
