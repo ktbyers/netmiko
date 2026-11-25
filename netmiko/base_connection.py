@@ -42,7 +42,7 @@ import serial
 import warnings
 
 from netmiko import log
-from netmiko.netmiko_globals import BACKSPACE_CHAR
+from netmiko.netmiko_globals import BACKSPACE_CHAR, MAX_PROMPT_LEN
 from netmiko.exceptions import (
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
@@ -1461,6 +1461,9 @@ A paramiko SSHException occurred during connection creation:
         # If multiple lines in the output take the last line
         prompt = prompt.split(self.RESPONSE_RETURN)[-1]
         prompt = prompt.strip()
+        # Keep the tail: the end of the prompt delimits command output. Bounding the
+        # length bounds the cost of regex searches built from the prompt.
+        prompt = prompt[-MAX_PROMPT_LEN:]
         self.clear_buffer()
         if not prompt:
             raise ValueError(f"Unable to find prompt: {prompt}")

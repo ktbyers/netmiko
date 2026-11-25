@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 import pytest
+import re
+import subprocess
+import sys
 import time
 from os.path import dirname, join
 from threading import Lock
+from unittest.mock import Mock
 
 import paramiko
 from netmiko import NetmikoTimeoutException, log, ConnectHandler
 from netmiko.base_connection import BaseConnection
+from netmiko.netmiko_globals import MAX_PROMPT_LEN
 
 RESOURCE_FOLDER = join(dirname(dirname(__file__)), "etc")
 
@@ -663,3 +668,77 @@ def test_config_mode_failure_without_device_output(device_reply):
     with pytest.raises(ValueError) as exc:
         connection.config_mode(config_command="configure terminal")
     assert str(exc.value) == "Failed to enter configuration mode."
+
+
+def prompt_connection(device_output):
+    """Connection whose find_prompt() reads device_output; no network access."""
+    connection = FakeBaseConnection(
+        RESPONSE_RETURN="\n", RETURN="\n", global_delay_factor=1, fast_cli=False
+    )
+    connection.clear_buffer = Mock(return_value="")
+    connection.write_channel = Mock()
+    connection.read_until_pattern = Mock(side_effect=[device_output, ""])
+    return connection
+
+
+@pytest.mark.parametrize(
+    "prompt_line, expected",
+    [
+        pytest.param("router1#", "router1#", id="normal"),
+        pytest.param(
+            "r" * (MAX_PROMPT_LEN - 1) + "#", "r" * (MAX_PROMPT_LEN - 1) + "#", id="at-limit"
+        ),
+        pytest.param(
+            "x" + "r" * (MAX_PROMPT_LEN - 1) + "#",
+            "r" * (MAX_PROMPT_LEN - 1) + "#",
+            id="over-limit",
+        ),
+        pytest.param("a" * 100_000 + "b#", "a" * (MAX_PROMPT_LEN - 2) + "b#", id="huge"),
+    ],
+)
+def test_find_prompt_length_is_bounded(prompt_line, expected):
+    """find_prompt() must keep at most MAX_PROMPT_LEN characters of the prompt line.
+
+    The device chooses its prompt, and the prompt is used in regex searches whose
+    cost grows with its length. The tail is kept because it delimits command output.
+    """
+    connection = prompt_connection(device_output=f"show clock\n{prompt_line}")
+    assert connection.find_prompt(pattern="#") == expected
+
+
+def test_long_prompt_search_is_bounded():
+    """A huge device prompt must not make the enable-style prompt search run for minutes.
+
+    The prompt is escaped into an alternation searched with re.IGNORECASE, whose cost
+    is len(prompt) * len(output). The search runs in a subprocess killed after five
+    seconds, so a regression fails this test instead of hanging pytest.
+    """
+    connection = prompt_connection(device_output="a" * 80_000 + "b#")
+    connection.set_base_prompt()
+    connection.read_until_prompt_or_pattern(
+        pattern="#", re_flags=re.IGNORECASE, read_entire_line=True
+    )
+    kwargs = connection.read_until_pattern.call_args.kwargs
+    search_code = (
+        "import re, sys\n"
+        "match = re.search(sys.argv[1], sys.stdin.read(), flags=int(sys.argv[2]))\n"
+        "sys.exit(0 if match is None else 1)\n"
+    )
+    try:
+        result = subprocess.run(
+            args=[
+                sys.executable,
+                "-c",
+                search_code,
+                kwargs["pattern"],
+                str(int(kwargs["re_flags"])),
+            ],
+            input="enable\n" + "a" * 320_000,
+            text=True,
+            capture_output=True,
+            timeout=5,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail("Prompt search exceeded the 5-second subprocess limit", pytrace=False)
+    assert result.returncode == 0, result.stderr or "Hostile output matched the prompt"
