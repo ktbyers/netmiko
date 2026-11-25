@@ -142,7 +142,7 @@ class FlexvnfSSH(NoEnable, BaseConnection):
         output = self.config_mode()
         # and_quit will get out of config mode on commit
         if and_quit:
-            prompt = self.base_prompt
+            prompt = re.escape(self.base_prompt)
             output += self._send_command_str(
                 command_string,
                 expect_string=prompt,
