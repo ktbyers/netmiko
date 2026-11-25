@@ -272,7 +272,7 @@ class InLineTransfer(CiscoIosFileTransfer):
 
         time.sleep(1)
         # Read all data remaining from the TCLSH session
-        pattern = rf"tclquit.*{self.ssh_ctl_chan.base_prompt}.*$"
+        pattern = rf"tclquit.*{re.escape(self.ssh_ctl_chan.base_prompt)}.*$"
         re_flags = re.DOTALL | re.M
         output += self.ssh_ctl_chan.read_until_pattern(
             pattern=pattern, re_flags=re_flags, read_timeout=read_timeout
