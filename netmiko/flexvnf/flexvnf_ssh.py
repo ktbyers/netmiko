@@ -107,7 +107,7 @@ class FlexvnfSSH(NoEnable, BaseConnection):
         """
 
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         if check and (confirm or confirm_delay or comment):
             raise ValueError("Invalid arguments supplied with commit check")

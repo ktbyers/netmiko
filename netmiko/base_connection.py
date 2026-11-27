@@ -699,7 +699,7 @@ key_file: {self.key_file}
 Netmiko 4.x has deprecated the use of max_loops with read_until_pattern.
 You should convert all uses of max_loops over to read_timeout=x
 where x is the total number of seconds to wait before timing out.\n"""
-            warnings.warn(msg, DeprecationWarning)
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
 
         if self.read_timeout_override:
             read_timeout = self.read_timeout_override
@@ -797,7 +797,7 @@ You can also look at the Netmiko session_log or debug log for more information.\
         """
 
         if delay_factor is not None or max_loops is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         if self.read_timeout_override:
             read_timeout = self.read_timeout_override
@@ -1323,7 +1323,7 @@ A paramiko SSHException occurred during connection creation:
         :param pattern: Pattern to terminate reading of channel
         """
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         command = self.normalize_cmd(command)
         log.debug("In disable_paging")
@@ -1357,7 +1357,7 @@ A paramiko SSHException occurred during connection creation:
         :param delay_factor: Deprecated in Netmiko 4.x. Will be eliminated in Netmiko 5.
         """
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         if not command:
             return ""
@@ -1576,7 +1576,7 @@ Command echo verification can potentially be disabled by setting either cmd_veri
         :param raise_parsing_error: Raise exception when parsing output to structured data fails.
         """
         if delay_factor is not None or max_loops is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         output = ""
         new_data = ""
@@ -1764,7 +1764,7 @@ Please convert your code to that new format i.e.:
 And then disable delay_factor_compat.
 
 delay_factor_compat will be removed in Netmiko 5.x.\n"""
-            warnings.warn(msg, DeprecationWarning)
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
 
             # Override the read_timeout with Netmiko 3.x way :-(
             read_timeout = compat_timeout
@@ -1778,7 +1778,7 @@ Netmiko 4.x has deprecated the use of delay_factor/max_loops with
 send_command. You should convert all uses of delay_factor and max_loops
 over to read_timeout=x where x is the total number of seconds to wait
 before timing out.\n"""
-                warnings.warn(msg, DeprecationWarning)
+                warnings.warn(msg, DeprecationWarning, stacklevel=2)
 
         if expect_string is not None:
             search_pattern = expect_string
@@ -2273,7 +2273,7 @@ You can also look at the Netmiko session_log or debug log for more information.
             cmd_verify = self.global_cmd_verify
 
         if delay_factor is not None or max_loops is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
             # Calculate an equivalent read_timeout (if using old settings)
             # Eliminate in Netmiko 5.x

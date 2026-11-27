@@ -138,7 +138,7 @@ class PaloAltoPanosBase(NoEnable, BaseConnection):
         """
 
         if delay_factor is not None:
-            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning)
+            warnings.warn(DELAY_FACTOR_DEPR_SIMPLE_MSG, DeprecationWarning, stacklevel=2)
 
         if (device_and_network or policy_and_objects or vsys or no_vsys) and not partial:
             raise ValueError(
