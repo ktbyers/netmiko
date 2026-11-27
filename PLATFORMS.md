@@ -321,6 +321,7 @@
 ###### Supported Telnet device_type values
 
 - adtran_os_telnet
+- alaxala_ax36s_telnet
 - apresia_aeos_telnet
 - arista_eos_telnet
 - aruba_procurve_telnet

@@ -1,6 +1,8 @@
 import time
-from typing import Optional
+from socket import socket
+from typing import Any, Optional
 
+from netmiko._telnetlib.telnetlib import DO, DONT, ECHO, IAC, SGA, WILL, WONT, Telnet
 from netmiko.cisco_base_connection import CiscoSSHConnection
 
 
@@ -77,3 +79,24 @@ class AlaxalaAx36sSSH(AlaxalaAx36sBase):
     """AlaxalA AX36S SSH driver."""
 
     pass
+
+
+class AlaxalaAx36sTelnet(AlaxalaAx36sBase):
+    """AlaxalA AX36S Telnet driver."""
+
+    def _process_option(self, tsocket: socket, command: bytes, option: bytes) -> None:
+        """
+        The AX3600S telnet server echoes input only if the client accepts its
+        WILL ECHO. telnetlib refuses every option by default, which leaves
+        commands unechoed. Accept ECHO and SGA, refuse everything else.
+        """
+        if command == WILL:
+            tsocket.sendall(IAC + (DO if option in (ECHO, SGA) else DONT) + option)
+        elif command == DO:
+            tsocket.sendall(IAC + WONT + option)
+
+    def telnet_login(self, *args: Any, **kwargs: Any) -> str:
+        # set callback function to handle telnet options.
+        assert isinstance(self.remote_conn, Telnet)
+        self.remote_conn.set_option_negotiation_callback(self._process_option)  # type: ignore
+        return super().telnet_login(*args, **kwargs)
