@@ -1302,7 +1302,17 @@ A paramiko SSHException occurred during connection creation:
                 return self.global_delay_factor
 
     def special_login_handler(self, delay_factor: float = 1.0) -> None:
-        """Handler for devices like WLC, Extreme ERS that throw up characters prior to login."""
+        """Handle device-specific login dialogue on the interactive SSH channel.
+
+        Called after the SSH channel is created, before session preparation. Drivers can
+        override this hook to complete a non-standard login (for example, sending CLI
+        credentials on Cisco S200 or Calix B6 devices), or to handle extra banner/prompt
+        interaction. An established SSH channel does not imply that device login is complete.
+
+        The base implementation does nothing.
+
+        :param delay_factor: See __init__: global_delay_factor
+        """
         pass
 
     def disable_paging(
